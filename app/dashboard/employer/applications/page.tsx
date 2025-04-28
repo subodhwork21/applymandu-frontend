@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Star,
@@ -39,7 +39,8 @@ interface JobApplications {
   }[];
 }
 
-const ApplicationsPage = () => {
+// Create a separate component that uses useSearchParams
+function ApplicationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobIdParam = searchParams.get("jobId");
@@ -350,7 +351,7 @@ const ApplicationsPage = () => {
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  Today's Applications
+                  Todays Applications
                 </Button>
                 <Button
                   variant="ghost"
@@ -389,5 +390,15 @@ const ApplicationsPage = () => {
       )}
     </section>
   );
+}
+
+// Main component with Suspense boundary
+const ApplicationsPage = () => {
+  return (
+    <Suspense fallback={<div>Loading applications...</div>}>
+      <ApplicationsContent />
+    </Suspense>
+  );
 };
+
 export default ApplicationsPage;
