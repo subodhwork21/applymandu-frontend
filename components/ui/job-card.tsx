@@ -40,6 +40,16 @@ const JobCard = ({
         type: jobType,
         salary,
         postedTime,
+        shortDescription: "",
+        fullDescription: "",
+        skills: [],
+        featured: false,
+        closingDate: "",
+        views: 0,
+        applications: 0,
+        requirements: [],
+        responsibilities: [],
+        benefits: [],
       });
     } else {
       openLoginModal();
