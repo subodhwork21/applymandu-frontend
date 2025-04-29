@@ -8,9 +8,16 @@ import { getFeaturedJobs } from "@/lib/constants";
 import { Button } from "./ui/button";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
+import useSWR from "swr";
+import { JobResponse } from "@/types/job-type";
+import { defaultFetcher } from "@/lib/fetcher";
+import Image from "next/image";
 
 const HighlightedJobs = () => {
-  const featuredJobs = getFeaturedJobs();
+  // const featuredJobs = getFeaturedJobs();
+
+  const {data: highlightedJobs, error, isLoading} = useSWR<JobResponse>("api/job/latest?label=highlighted", defaultFetcher);
+
   const { openApplicationPanel } = useApplication();
   const { isAuthenticated, openLoginModal } = useAuth();
 
@@ -37,12 +44,14 @@ const HighlightedJobs = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {featuredJobs.map((job) => (
+          {highlightedJobs?.data?.map((job) => (
             <Link key={job.id} href={`/jobs/${job.id}`}>
               <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow border border-neutral-200">
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 bg-neutral-200 rounded-lg flex items-center justify-center">
-                    <div className="text-white text-2xl">{job.company[0]}</div>
+                    <div className="text-white text-2xl">
+                      <Image src={job?.image} alt={job?.title} width={64} height={64} />
+                    </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
@@ -50,20 +59,20 @@ const HighlightedJobs = () => {
                         <h3 className="text-xl font-medium mb-1">
                           {job.title}
                         </h3>
-                        <p className="text-neutral-600 mb-3">{job.company}</p>
+                        <p className="text-neutral-600 mb-3">{job.employer_name}</p>
                       </div>
                       <span className="bg-black text-white text-xs px-3 py-1 rounded-full">
                         Featured
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2 my-3">
-                      {job.tags &&
-                        job.tags.map((tag) => (
+                      {job.skills &&
+                        job.skills.map((skill, id) => (
                           <span
-                            key={tag}
+                            key={id}
                             className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-md text-sm"
                           >
-                            {tag}
+                            {skill?.name}
                           </span>
                         ))}
                     </div>
@@ -75,11 +84,11 @@ const HighlightedJobs = () => {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {job.type}
+                          {job.employment_type}
                         </span>
                         <span className="flex items-center gap-1">
                           <DollarSign className="h-4 w-4" />
-                          {job.salary}
+                          {job?.salary_range?.formatted}
                         </span>
                       </div>
                       <Button

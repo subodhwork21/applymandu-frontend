@@ -1,6 +1,7 @@
 "use client"
+import { Job } from '@/types/job-type';
 import React, { createContext, useContext, useState } from 'react';
-import { Job } from './constants';
+// import { Job } from './constants';
 
 interface ApplicationContextType {
   isApplyOpen: boolean;

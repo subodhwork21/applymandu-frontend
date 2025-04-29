@@ -1,9 +1,13 @@
+'use client'
 import React from "react";
 import Link from "next/link";
 import { UserPlusIcon, BriefcaseIcon } from "./ui/icons";
+import { useAuth } from "@/lib/auth-context";
 
 const CTASection = () => {
+  const { isAuthenticated } = useAuth();
   return (
+    !isAuthenticated && (
     <section className="py-16 bg-neutral-100">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -33,7 +37,7 @@ const CTASection = () => {
         </div>
       </div>
     </section>
-  );
+  ));
 };
 
 export default CTASection;

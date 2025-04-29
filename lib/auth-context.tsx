@@ -1,6 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { baseFetcher } from "./fetcher";
+import {
+  getCookie,
+  getCookies,
+  setCookie,
+  deleteCookie,
+  hasCookie,
+  useGetCookies,
+  useSetCookie,
+  useHasCookie,
+  useDeleteCookie,
+  useGetCookie,
+} from 'cookies-next/client';
 
 interface User {
   id: string;
@@ -15,8 +28,9 @@ interface AuthContextType {
   logout: () => void;
   openLoginModal: () => void;
   closeLoginModal: () => void;
+  isEmployer: boolean;
   isLoginModalOpen: boolean;
-  openRegisterModal: () => void;
+  openRegisterModal: (isEmployer?: boolean) => void;
   closeRegisterModal: () => void;
   isRegisterModalOpen: boolean;
   openForgotPasswordModal: () => void;
@@ -31,6 +45,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   openLoginModal: () => {},
   closeLoginModal: () => {},
+  isEmployer: false,
   isLoginModalOpen: false,
   openRegisterModal: () => {},
   closeRegisterModal: () => {},
@@ -42,27 +57,82 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isEmployer, setIsEmployer] = useState<boolean>(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
 
   const login = async (email: string, password: string) => {
-    // This is a mock login - replace with actual API call
-    if (email === "test@example.com" && password === "password") {
-      setUser({
-        id: "1",
+
+    const {response, result} = await baseFetcher('api/login', {
+      method: "POST",
+      body: JSON.stringify({
         email: email,
-        name: "Test User",
-      });
+        password: password
+      })
+    });
+
+    console.log(response);
+
+    if(response?.ok){
+
+      setCookie('JOBSEEKER_TOKEN', result?.token);
+      setUser({
+        id: result?.user?.id,
+        email: result?.user?.email,
+        name: result?.user?.name,
+      })
+      setIsEmployer(result?.is_employer);
       closeLoginModal();
-    } else {
-      throw new Error("Invalid credentials");
     }
+    else{
+        throw new Error("Invalid credentials");
+    }
+
+
+
+    // This is a mock login - replace with actual API call
+    // if (email === "test@example.com" && password === "password") {
+    //   setUser({
+    //     id: "1",
+    //     email: email,
+    //     name: "Test User",
+    //   });
+    //   closeLoginModal();
+    // } else {
+    //   throw new Error("Invalid credentials");
+    // }
   };
+
+  const fetchUserByToken = async(token: string) =>{
+    const {response, result} = await baseFetcher("api/login-with-token", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      }
+    })
+
+    if(response?.ok){
+      setUser({
+        id: result?.data?.id,
+        email: result?.data?.email,
+        name: result?.data?.name,
+      })
+      setIsEmployer(result?.is_employer);
+    }
+    else{
+      throw new Error("Invalid token");
+      deleteCookie('JOBSEEKER_TOKEN');
+      setUser(null);
+    }
+  }
 
   const logout = () => {
     setUser(null);
+    deleteCookie('JOBSEEKER_TOKEN');
+  closeLoginModal();
   };
 
   const openLoginModal = () => {
@@ -73,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
-  const openRegisterModal = () => {
+  const openRegisterModal = (employer=false) => {
     setIsLoginModalOpen(false);
     setIsForgotPasswordModalOpen(false);
     setIsRegisterModalOpen(true);
@@ -89,6 +159,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeForgotPasswordModal = () => setIsForgotPasswordModalOpen(false);
 
+  const token = getCookie('JOBSEEKER_TOKEN');
+
+  useEffect(()=>{
+    if(token){
+      fetchUserByToken(token);
+    }
+  }, [token])
+
   return (
     <AuthContext.Provider
       value={{
@@ -98,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         openLoginModal,
         closeLoginModal,
+        isEmployer,
         isLoginModalOpen,
         openRegisterModal,
         closeRegisterModal,

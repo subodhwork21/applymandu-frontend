@@ -8,11 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Briefcase, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { baseFetcher } from "@/lib/fetcher";
 
 const RegisterModal = () => {
-  const { isRegisterModalOpen, closeRegisterModal, openLoginModal } = useAuth();
+  const {
+    isRegisterModalOpen,
+    closeRegisterModal,
+    openLoginModal,
+    isEmployer,
+    isAuthenticated,
+  } = useAuth();
   const [accountType, setAccountType] = useState<"employer" | "jobseeker">(
-    "jobseeker"
+    isAuthenticated && isEmployer === false ? "jobseeker" : "employer"
   );
   const [formData, setFormData] = useState({
     firstName: "",
@@ -21,6 +28,7 @@ const RegisterModal = () => {
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
+    companyName: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +50,30 @@ const RegisterModal = () => {
     setIsLoading(true);
     try {
       // Implement registration logic here
-      console.log("Registration data:", { accountType, ...formData });
+      const { firstName, lastName, email, password, companyName } = formData;
+      const response = await baseFetcher(accountType === "jobseeker" ? "api/register" : "api/employer/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: accountType === "jobseeker" ? JSON.stringify({
+          name: firstName + " " + lastName,
+          email,  
+          password,
+          password_confirmation: formData?.password,
+          accountType,
+        }) : JSON.stringify({
+          name: companyName,
+          email,  
+          password,
+          password_confirmation: formData?.password,
+          accountType,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Registration failed");
+      }
       closeRegisterModal();
     } catch (err) {
       setError("Registration failed. Please try again.");
@@ -75,16 +106,20 @@ const RegisterModal = () => {
               <Briefcase className="h-5 w-5 mr-2" />
               Employer
             </Button>
-            <Button
-              variant={accountType === "jobseeker" ? "default" : "outline"}
-              className={`flex-1 h-11 ${
-                accountType === "jobseeker" ? "bg-black text-white" : ""
-              }`}
-              onClick={() => setAccountType("jobseeker")}
-            >
-              <User className="h-5 w-5 mr-2" />
-              Job Seeker
-            </Button>
+            {isAuthenticated && !isEmployer ? (
+              <></>
+            ) : (
+              <Button
+                variant={accountType === "jobseeker" ? "default" : "outline"}
+                className={`flex-1 h-11 ${
+                  accountType === "jobseeker" ? "bg-black text-white" : ""
+                }`}
+                onClick={() => setAccountType("jobseeker")}
+              >
+                <User className="h-5 w-5 mr-2" />
+                Job Seeker
+              </Button>
+            )}
           </div>
 
           <Button
@@ -135,7 +170,18 @@ const RegisterModal = () => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+             { isAuthenticated && !isEmployer ? <div className="space-y-2 col-span-2">
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input
+                  id="companyName"
+                  value={formData.companyName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, companyName: e.target.value })
+                  }
+                  placeholder="xyz company"
+                  required
+                />
+              </div> :<> <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
@@ -158,7 +204,7 @@ const RegisterModal = () => {
                   placeholder="Doe"
                   required
                 />
-              </div>
+              </div></>}
             </div>
 
             <div className="space-y-2">
@@ -225,19 +271,22 @@ const RegisterModal = () => {
             </Button>
           </form>
         </div>
-
-        <div className="bg-neutral-50 p-5 text-center border-t border-neutral-200">
-          <p className="text-sm text-neutral-600">
-            Already have an account?{" "}
-            <Button
-              variant="link"
-              className="text-black hover:text-neutral-800 h-auto p-0"
-              onClick={switchToLogin}
-            >
-              Sign in
-            </Button>
-          </p>
-        </div>
+        {isAuthenticated && !isEmployer ? (
+          <></>
+        ) : (
+          <div className="bg-neutral-50 p-5 text-center border-t border-neutral-200">
+            <p className="text-sm text-neutral-600">
+              Already have an account?{" "}
+              <Button
+                variant="link"
+                className="text-black hover:text-neutral-800 h-auto p-0"
+                onClick={switchToLogin}
+              >
+                Sign in
+              </Button>
+            </p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -17,9 +17,9 @@ import {
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { Job } from "@/lib/constants";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
+import { Job } from "@/types/job-type";
 
 interface JobDetailPageClientProps {
   job: Job;
@@ -62,7 +62,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
               <div className="flex items-start gap-6">
                 <div className="w-20 h-20 bg-neutral-200 rounded-lg flex items-center justify-center">
                   <div className="text-white text-3xl">
-                    {job.company.charAt(0)}
+                    {job.employer_name.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
@@ -70,7 +70,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
                     <div>
                       <h1 className="text-2xl mb-2">{job.title}</h1>
                       <p className="text-neutral-600 text-lg mb-3">
-                        {job.company}
+                        {job.employer_name}
                       </p>
                       <div className="flex items-center gap-4 text-sm text-neutral-600">
                         <span className="flex items-center gap-1">
@@ -79,11 +79,11 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {job.type}
+                          {job.employment_type}
                         </span>
                         <span className="flex items-center gap-1">
                           <DollarSign className="h-4 w-4" />
-                          {job.salary}
+                          {job.salary_range.formatted}
                         </span>
                       </div>
                     </div>
@@ -102,9 +102,9 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
             {/* Job Description */}
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
               <h2 className="text-xl mb-4">Job Description</h2>
-              <p className="text-neutral-600 mb-6">{job.shortDescription}</p>
+              <p className="text-neutral-600 mb-6">{job.description}</p>
               <div className="whitespace-pre-line text-neutral-600">
-                {job.fullDescription}
+                {job.description}
               </div>
             </div>
 
@@ -112,7 +112,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
               <h2 className="text-xl mb-4">Key Responsibilities</h2>
               <ul className="space-y-3">
-                {job.responsibilities.map((responsibility, index) => (
+                {job?.responsibilities?.map((responsibility, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-neutral-600"
@@ -128,7 +128,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
               <h2 className="text-xl mb-4">Requirements</h2>
               <ul className="space-y-3">
-                {job.requirements.map((requirement, index) => (
+                {job?.requirements?.map((requirement, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-neutral-600"
@@ -145,12 +145,12 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
               <h2 className="text-xl mb-4">Required Skills</h2>
               {job.skills && (
                 <div className="flex flex-wrap gap-2">
-                  {job.skills.map((skill) => (
+                  {job.skills.map((skill,id) => (
                     <span
-                      key={skill}
+                      key={id}
                       className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full"
                     >
-                      {skill}
+                      {skill?.name}
                     </span>
                   ))}
                 </div>
@@ -161,7 +161,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
               <h2 className="text-xl mb-4">Benefits</h2>
               <ul className="space-y-3">
-                {job.benefits.map((benefit, index) => (
+                {job?.benefits?.map((benefit, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-neutral-600"
@@ -198,14 +198,14 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
                   <Calendar className="text-neutral-500 w-5 h-5" />
                   <div>
                     <p className="text-sm text-neutral-500">Posted Date</p>
-                    <p className="text-neutral-700">{job.postedTime}</p>
+                    <p className="text-neutral-700">{job.posted_date_formatted}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="text-neutral-500 w-5 h-5" />
                   <div>
                     <p className="text-sm text-neutral-500">Job Type</p>
-                    <p className="text-neutral-700">{job.type}</p>
+                    <p className="text-neutral-700">{job.employment_type}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -219,7 +219,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
                   <DollarSign className="text-neutral-500 w-5 h-5" />
                   <div>
                     <p className="text-sm text-neutral-500">Salary Range</p>
-                    <p className="text-neutral-700">{job.salary}</p>
+                    <p className="text-neutral-700">{job.salary_range.formatted}</p>
                   </div>
                 </div>
               </div>
@@ -228,7 +228,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg mb-4">About Company</h3>
               <p className="text-neutral-600 mb-4">
-                {job.company} is a leading technology company specializing in
+                {job.employer_name} is a leading technology company specializing in
                 innovative solutions.
               </p>
               <div className="space-y-2">

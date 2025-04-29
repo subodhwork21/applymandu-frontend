@@ -24,10 +24,12 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import RegisterModal from "./register-modal";
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout, openLoginModal, openRegisterModal } =
+  const { user, isAuthenticated, isEmployer, logout, openLoginModal, openRegisterModal } =
     useAuth();
 
   return (
@@ -219,11 +221,19 @@ const Header = () => {
                           <span>Settings</span>
                         </DropdownMenuItem>
                       </Link>
-                      <Link href="/dashboard/employer">
+                      {
+                isEmployer ?
+                        <Link href="/dashboard/employer">
                         <DropdownMenuItem>
                           <span>Employer</span>
                         </DropdownMenuItem>
-                      </Link>
+                      </Link> : <p onClick={()=> openRegisterModal(true)}>
+                        <DropdownMenuItem>
+                          <span>Sign up as Employer</span>
+                        </DropdownMenuItem>
+                      </p>
+                      }
+                      
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -247,7 +257,7 @@ const Header = () => {
                 <Button
                   variant="outline"
                   className="hidden md:flex bg-white border-neutral-200 hover:bg-neutral-50"
-                  onClick={openRegisterModal}
+                  onClick={() => openRegisterModal(false)}
                 >
                   Register
                 </Button>
@@ -307,7 +317,7 @@ const Header = () => {
                   <Button
                     variant="outline"
                     className="flex-1 bg-white border-neutral-200 hover:bg-neutral-50"
-                    onClick={openRegisterModal}
+                    onClick={() => openRegisterModal(false)}
                   >
                     Register
                   </Button>

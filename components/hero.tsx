@@ -1,7 +1,17 @@
+'use client'
 import React from "react";
 import { SearchIcon } from "./ui/icons";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Hero = () => {
+  const router = useRouter();
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) =>{
+    if(e.key == "Enter"){
+
+      router.push("/jobs?search="+e?.currentTarget?.value);
+    }
+  }
   return (
     <section className="bg-white border-b border-neutral-200 py-20">
       <div className="container mx-auto px-4">
@@ -22,6 +32,7 @@ const Hero = () => {
                 <SearchIcon />
               </div>
               <input
+              onKeyDown={(e)=> handleSearch(e)}
                 type="text"
                 placeholder="Search jobs, keywords, or companies"
                 className="w-full pl-14 md:pl-16 pr-6 py-4 md:py-6 text-base md:text-lg bg-neutral-50 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all"
