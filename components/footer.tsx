@@ -4,7 +4,7 @@ import { SocialIcons, LocationIcon, EnvelopeIcon, PhoneIcon } from "./ui/icons";
 
 const Footer = () => {
   return (
-    <footer className="bg-neutral-900 text-white py-12">
+    <footer className="bg-neutral-900 text-white py-12 2xl:px-0 px-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>

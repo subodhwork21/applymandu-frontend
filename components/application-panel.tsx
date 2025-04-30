@@ -61,7 +61,7 @@ const ApplicationPanel = () => {
           <SheetHeader className="mb-6">
             <SheetTitle>Apply for {selectedJob?.title}</SheetTitle>
             <SheetDescription>
-              Submit your application to {selectedJob?.company}
+              Submit your application to {selectedJob?.employer_name}
             </SheetDescription>
           </SheetHeader>
 

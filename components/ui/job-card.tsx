@@ -32,25 +32,25 @@ const JobCard = ({
   const handleApply = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isAuthenticated) {
-      openApplicationPanel({
-        id,
-        title,
-        company,
-        location,
-        type: jobType,
-        salary,
-        postedTime,
-        shortDescription: "",
-        fullDescription: "",
-        skills: [],
-        featured: false,
-        closingDate: "",
-        views: 0,
-        applications: 0,
-        requirements: [],
-        responsibilities: [],
-        benefits: [],
-      });
+      // openApplicationPanel({
+      //   id,
+      //   title,
+      //   company,
+      //   location,
+      //   type: jobType,
+      //   salary,
+      //   postedTime,
+      //   shortDescription: "",
+      //   fullDescription: "",
+      //   skills: [],
+      //   featured: false,
+      //   closingDate: "",
+      //   views: 0,
+      //   applications: 0,
+      //   requirements: [],
+      //   responsibilities: [],
+      //   benefits: [],
+      // });
     } else {
       openLoginModal();
     }

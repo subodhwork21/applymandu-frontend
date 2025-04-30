@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -58,6 +58,18 @@ import { defaultFetcher } from "@/lib/fetcher";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import DataNavigation from "@/components/ui/data-navigation";
+
+
+
+
+
+export default function Page(){
+  return <>
+   <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}><JobsPage/></Suspense>
+  </>
+}
+
 
 const JobsPage = () => {
 
@@ -73,6 +85,7 @@ const JobsPage = () => {
 
   const router = useRouter();
 
+  
   let urlSearchParams = new URLSearchParams(searchParams);
 
   const url = `api/job/latest?${urlSearchParams.toString()}`;
@@ -195,6 +208,30 @@ const JobsPage = () => {
     // Refresh the job data
     jobMutate();
   };
+
+ 
+// Add this function to your JobsPage component
+const handlePageChange = (url: string) => {
+  // Extract only the query parameters from the full URL
+  const urlObj = new URL(url);
+  const queryParams = urlObj.search;
+  
+  // Update the browser URL without causing a full page reload
+  router.push(`/jobs${queryParams}`);
+  
+  // Create the API URL by taking just the path and query parameters
+  const apiUrl = `api/job/latest${queryParams}`;
+  
+  // Trigger a revalidation of the jobs data with the new URL
+  // This is more efficient than calling the fetcher directly
+  jobMutate();
+  
+  // Scroll to top for better user experience
+  window.scrollTo({
+    top: 0, 
+    behavior: 'smooth'
+  });
+};
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -452,13 +489,13 @@ const JobsPage = () => {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2 my-3">
-                        {job.tags &&
-                          job.tags.map((tag) => (
+                        {job.skills &&
+                          job.skills.map((skill,id) => (
                             <span
-                              key={tag}
+                              key={id}
                               className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-md text-sm"
                             >
-                              {tag}
+                              {skill?.name}
                             </span>
                           ))}
                       </div>
@@ -609,32 +646,11 @@ const JobsPage = () => {
             </div>
 
             <div className="mt-8">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious href={jobs?.meta?.links[0]?.url! ?? undefined} />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#" isActive>
-                      {jobs?.meta?.current_page}
-                    </PaginationLink>
-                  </PaginationItem>
-                  {
-                    jobs?.meta?.links[2]?.active  &&  <PaginationItem>
-                    <PaginationLink href={jobs?.meta?.links[2]?.url! ?? undefined}>
-                      {jobs?.meta?.current_page! + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                  }
-                 
-                  <PaginationItem>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext href="#" />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+            <DataNavigation 
+          meta={jobs?.meta!} 
+          onPageChange={handlePageChange}
+          className="justify-center"
+        />
             </div>
           </div>
         </section>
@@ -644,4 +660,7 @@ const JobsPage = () => {
   );
 };
 
-export default JobsPage;
+
+
+
+

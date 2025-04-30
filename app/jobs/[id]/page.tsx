@@ -10,7 +10,7 @@ import {
 } from "@/lib/constants";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
-import { Job } from "@/types/job-type";
+import {JobDescription } from "@/types/job-type";
 
 // Get all jobs for lookup
 const allJobs = [
@@ -20,26 +20,20 @@ const allJobs = [
   ...getClosingJobs(),
 ];
 
-// export async function generateStaticParams() {
-//   return allJobs.map((job) => ({
-//     id: job.id.toString(),
-//   }));
-// }
+
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const job = allJobs.find((j) => j.id.toString() === params.id);
 
 
-  const {data: jobDesc, isLoading, error, mutate} = useSWR("api/job/description/"+params?.id, defaultFetcher);
+  const {data: jobDesc, isLoading, error, mutate} = useSWR<JobDescription>("api/job/description/"+params?.id, defaultFetcher);
 
-  console.log(jobDesc);
-  if (!job) {
+  if (error) {
     notFound();
   }
 
-  // return <></>
+  return <></>
 
-  return <JobDetailPageClient job={jobDesc?.data} />;
+  return <JobDetailPageClient job={jobDesc?.data!} />;
 };
 
 export default Page;

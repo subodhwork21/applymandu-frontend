@@ -84,25 +84,25 @@ const ApplicationsPage = () => {
 
   const handleReapply = (e: React.MouseEvent, application: any) => {
     e.preventDefault();
-    openApplicationPanel({
-      id: application.id,
-      title: application.position,
-      company: application.company,
-      location: application.location,
-      type: "Full-time",
-      salary: "Competitive",
-      shortDescription: "",
-      fullDescription: "",
-      skills: [],
-      postedTime: application.appliedDate,
-      featured: false,
-      closingDate: "",
-      views: 0,
-      applications: 0,
-      requirements: [],
-      responsibilities: [],
-      benefits: [],
-    });
+    // openApplicationPanel({
+    //   id: application.id,
+    //   title: application.position,
+    //   employer_name: application.company,
+    //   location: application.location,
+    //   employment_type: "Full-time",
+    //   salary_range: "Competitive",
+    //   shortDescription: "",
+    //   fullDescription: "",
+    //   skills: [],
+    //   postedTime: application.appliedDate,
+    //   featured: false,
+    //   closingDate: "",
+    //   views: 0,
+    //   applications: 0,
+    //   requirements: [],
+    //   responsibilities: [],
+    //   benefits: [],
+    // });
   };
 
   return (

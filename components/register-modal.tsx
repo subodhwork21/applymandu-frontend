@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Briefcase, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { baseFetcher } from "@/lib/fetcher";
+import { getValidationErrors } from "@/lib/validation-error";
+import { useToast } from "@/hooks/use-toast";
 
 const RegisterModal = () => {
+  const { toast } = useToast();
   const {
     isRegisterModalOpen,
     closeRegisterModal,
@@ -26,6 +29,7 @@ const RegisterModal = () => {
     lastName: "",
     email: "",
     password: "",
+    phone: "",
     confirmPassword: "",
     agreeToTerms: false,
     companyName: "",
@@ -50,8 +54,8 @@ const RegisterModal = () => {
     setIsLoading(true);
     try {
       // Implement registration logic here
-      const { firstName, lastName, email, password, companyName } = formData;
-      const response = await baseFetcher(accountType === "jobseeker" ? "api/register" : "api/employer/register", {
+      const { firstName, lastName, email, password, companyName, phone } = formData;
+      const {response, result} = await baseFetcher(accountType === "jobseeker" ? "api/register" : "api/employer/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,16 +71,31 @@ const RegisterModal = () => {
           name: companyName,
           email,  
           password,
+          phone,
           password_confirmation: formData?.password,
           accountType,
         }),
       });
       if (!response.ok) {
-        throw new Error("Registration failed");
+        if (result.errors && typeof result.errors === 'object') {
+          getValidationErrors(result.errors);
+          setError(result.message || "Validation failed");
+        } else {
+          // Fallback to the general error message
+          setError(result.message);
+        }
+      }
+      else{
+        toast({
+          title: "Success!",
+          description: result?.message,
+          variant: "default", // or "destructive" for error toasts
+        });
       }
       closeRegisterModal();
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+
+    } catch (err: any) {
+      setError(getValidationErrors(err.data?.errors as Record<string, string[]>));
     } finally {
       setIsLoading(false);
     }
@@ -170,7 +189,7 @@ const RegisterModal = () => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-             { isAuthenticated && !isEmployer ? <div className="space-y-2 col-span-2">
+             { accountType === "employer" ? <><div className="space-y-2 col-span-1">
                 <Label htmlFor="companyName">Company Name</Label>
                 <Input
                   id="companyName"
@@ -181,7 +200,24 @@ const RegisterModal = () => {
                   placeholder="xyz company"
                   required
                 />
-              </div> :<> <div className="space-y-2">
+                
+              </div>
+              <div className="space-y-2 col-span-1">
+                <Label htmlFor="companyName">Phone</Label>
+                <Input
+                  id="companyName"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  type="number"
+                  placeholder=""
+                  required
+                />
+                
+              </div>
+              
+              </> :<> <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"

@@ -20,10 +20,9 @@ const LatestJobs = () => {
   //   .slice(0, 3);
 
   const {data: latestJobs, error, isLoading} = useSWR<JobResponse>("api/job/latest", defaultFetcher);
-  console.log(latestJobs);
 
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-white 2xl:px-0 px-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-semibold">Latest Jobs</h2>

@@ -25,16 +25,26 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import RegisterModal from "./register-modal";
-
+import { usePathname } from "next/navigation";
+import { isActivePath, navigationItems, routes } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, isEmployer, logout, openLoginModal, openRegisterModal } =
-    useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isEmployer,
+    logout,
+    openLoginModal,
+    openRegisterModal,
+  } = useAuth();
 
+  const pathName = usePathname();
+  const isActive = pathName;
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto 2xl:px-4 px-16 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center cursor-pointer">
@@ -46,36 +56,22 @@ const Header = () => {
           </div>
 
           <nav className="hidden md:flex space-x-6">
-            <Link
-              href="/"
-              className="text-sm hover:text-neutral-900 cursor-pointer transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="/jobs"
-              className="text-sm hover:text-neutral-900 cursor-pointer transition-colors"
-            >
-              Browse Jobs
-            </Link>
-            <Link
-              href="/companies"
-              className="text-sm hover:text-neutral-900 cursor-pointer transition-colors"
-            >
-              Companies
-            </Link>
-            <Link
-              href="/resources"
-              className="text-sm hover:text-neutral-900 cursor-pointer transition-colors"
-            >
-              Resources
-            </Link>
-            <Link
-              href="/about"
-              className="text-sm hover:text-neutral-900 cursor-pointer transition-colors"
-            >
-              About Us
-            </Link>
+            {navigationItems.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={cn(
+                  "text-sm hover:text-neutral-900 cursor-pointer transition-colors",
+                  isActivePath(
+                    pathName,
+                    item.path,
+                    item.path === routes.home
+                  ) && "font-bold text-neutral-900"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           <div className="flex items-center space-x-4">
@@ -132,7 +128,7 @@ const Header = () => {
                           </p>
                           <p className="text-xs text-neutral-500 mt-1">
                             Your application for Product Designer at DesignCo
-                            was viewed
+                            was viewed 8
                           </p>
                           <p className="text-xs text-neutral-400 mt-2">
                             1 day ago
@@ -221,19 +217,19 @@ const Header = () => {
                           <span>Settings</span>
                         </DropdownMenuItem>
                       </Link>
-                      {
-                isEmployer ?
+                      {isEmployer ? (
                         <Link href="/dashboard/employer">
-                        <DropdownMenuItem>
-                          <span>Employer</span>
-                        </DropdownMenuItem>
-                      </Link> : <p onClick={()=> openRegisterModal(true)}>
-                        <DropdownMenuItem>
-                          <span>Sign up as Employer</span>
-                        </DropdownMenuItem>
-                      </p>
-                      }
-                      
+                          <DropdownMenuItem>
+                            <span>Employer</span>
+                          </DropdownMenuItem>
+                        </Link>
+                      ) : (
+                        <p onClick={() => openRegisterModal(true)}>
+                          <DropdownMenuItem>
+                            <span>Sign up as Employer</span>
+                          </DropdownMenuItem>
+                        </p>
+                      )}
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -276,36 +272,22 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 bg-white border-t border-neutral-200 mt-3">
             <nav className="flex flex-col space-y-4">
-              <Link
-                href="/"
-                className="text-sm hover:text-neutral-900 cursor-pointer px-2 py-1"
-              >
-                Home
-              </Link>
-              <Link
-                href="/jobs"
-                className="text-sm hover:text-neutral-900 cursor-pointer px-2 py-1"
-              >
-                Browse Jobs
-              </Link>
-              <Link
-                href="/companies"
-                className="text-sm hover:text-neutral-900 cursor-pointer px-2 py-1"
-              >
-                Companies
-              </Link>
-              <Link
-                href="/resources"
-                className="text-sm hover:text-neutral-900 cursor-pointer px-2 py-1"
-              >
-                Resources
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm hover:text-neutral-900 cursor-pointer px-2 py-1"
-              >
-                About Us
-              </Link>
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={cn(
+                    "text-sm hover:text-neutral-900 cursor-pointer px-2 py-1",
+                    isActivePath(
+                      pathName,
+                      item.path,
+                      item.path === routes.home
+                    ) && "font-bold text-neutral-900"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
               {!isAuthenticated && (
                 <div className="flex space-x-4 pt-2">
                   <Button

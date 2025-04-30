@@ -19,10 +19,11 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
-import { Job } from "@/types/job-type";
+import { JobDescription } from "@/types/job-type";
+// import { Job } from "@/types/job-type";
 
 interface JobDetailPageClientProps {
-  job: Job;
+  job: JobDescription["data"];
 }
 
 const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {

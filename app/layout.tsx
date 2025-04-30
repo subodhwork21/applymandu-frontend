@@ -8,6 +8,7 @@ import ApplicationPanel from "@/components/application-panel";
 import LoginModal from "@/components/login-modal";
 import RegisterModal from "@/components/register-modal";
 import ForgotPasswordModal from "@/components/forgot-password-modal";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Applymandu - Your Gateway to Career Opportunities",
@@ -41,6 +42,8 @@ export default function RootLayout({
             </ApplicationProvider>
           </AuthProvider>
         </ThemeProvider>
+      <Toaster />
+
       </body>
     </html>
   );

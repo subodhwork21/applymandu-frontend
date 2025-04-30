@@ -31,10 +31,11 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     
     // Handle error responses
     if (!response.ok) {
-      throw new FetchError(
-        response.status, 
-        response.statusText || 'Request failed'
-      );
+       // Create an error object with the response data
+       const error: any = new Error(data.message || "API request failed");
+       error.status = response.status;
+       error.data = data;
+       throw error;
     }
     
     return {result:data, response};

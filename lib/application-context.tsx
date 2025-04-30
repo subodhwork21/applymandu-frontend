@@ -1,12 +1,13 @@
 "use client"
-import { Job } from '@/types/job-type';
+import { JobDescription } from '@/types/job-type';
+// import { Job } from '@/types/job-type';
 import React, { createContext, useContext, useState } from 'react';
 // import { Job } from './constants';
 
 interface ApplicationContextType {
   isApplyOpen: boolean;
-  selectedJob: Job | null;
-  openApplicationPanel: (job: Job) => void;
+  selectedJob: JobDescription['data'] | null;
+  openApplicationPanel: (job: JobDescription['data']) => void;
   closeApplicationPanel: () => void;
 }
 
@@ -14,9 +15,9 @@ const ApplicationContext = createContext<ApplicationContextType | undefined>(und
 
 export function ApplicationProvider({ children }: { children: React.ReactNode }) {
   const [isApplyOpen, setIsApplyOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobDescription['data'] | null>(null);
 
-  const openApplicationPanel = (job: Job) => {
+  const openApplicationPanel = (job: JobDescription['data']) => {
     setSelectedJob(job);
     setIsApplyOpen(true);
   };

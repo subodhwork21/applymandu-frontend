@@ -31,7 +31,7 @@ const HighlightedJobs = () => {
   };
 
   return (
-    <section className="py-12 bg-neutral-50">
+    <section className="py-12 bg-neutral-50 2xl:px-0 px-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-semibold">Highlighted Jobs</h2>

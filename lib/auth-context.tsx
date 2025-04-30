@@ -14,6 +14,8 @@ import {
   useDeleteCookie,
   useGetCookie,
 } from 'cookies-next/client';
+import { toast } from "react-toastify";
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
   id: string;
@@ -56,6 +58,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const {toast} = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [isEmployer, setIsEmployer] = useState<boolean>(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -73,7 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
     });
 
-    console.log(response);
 
     if(response?.ok){
 
@@ -84,25 +86,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: result?.user?.name,
       })
       setIsEmployer(result?.is_employer);
+      toast({
+        title: "Success!",
+        description: result?.message,
+        variant: "default", 
+        className: "bg-blue"
+      });
       closeLoginModal();
     }
     else{
         throw new Error("Invalid credentials");
     }
-
-
-
-    // This is a mock login - replace with actual API call
-    // if (email === "test@example.com" && password === "password") {
-    //   setUser({
-    //     id: "1",
-    //     email: email,
-    //     name: "Test User",
-    //   });
-    //   closeLoginModal();
-    // } else {
-    //   throw new Error("Invalid credentials");
-    // }
   };
 
   const fetchUserByToken = async(token: string) =>{
@@ -132,6 +126,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     deleteCookie('JOBSEEKER_TOKEN');
+    toast({
+      title: "Success!",
+      description: "Logout successful",
+      variant: "default", 
+      className: "bg-blue"
+    });
   closeLoginModal();
   };
 
