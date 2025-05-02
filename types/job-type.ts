@@ -24,6 +24,9 @@ export interface Job {
   skills: any[];
   created_at: string | null;
   updated_at: string | null;
+  viewed: boolean | null;
+  saved: boolean | null;
+  is_applied: boolean | null;
 }
 
 interface PaginationLink {
@@ -83,5 +86,7 @@ export interface JobDescription {
     skills: Skill[];
     created_at: string;
     updated_at: string;
+    viewed: boolean | null;
+    saved: boolean | null;
   };
 }

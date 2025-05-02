@@ -21,24 +21,55 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
       ...options,
     });
   
-    // Handle no content responses
-    if (response.status === 204) {
-      return null;
-    }
-    
-    // Parse JSON response
-    const data = await response.json();
-    
-    // Handle error responses
-    if (!response.ok) {
-       // Create an error object with the response data
-       const error: any = new Error(data.message || "API request failed");
-       error.status = response.status;
-       error.data = data;
-       throw error;
-    }
-    
-    return {result:data, response};
+  // Handle no content responses
+if (response.status === 500) {
+  return {
+    result: null,
+    response: response,
+    error: null,
+  };
+}
+
+if (response.status === 204 || response.status === 404) {
+  return null;
+}
+
+// Try to parse the response as JSON
+let data;
+try {
+  // Some APIs might return empty responses for certain status codes
+  const text = await response.text();
+  data = text ? JSON.parse(text) : null;
+} catch (error) {
+  console.error("Error parsing response:", error);
+  return {
+    result: null,
+    response,
+    error: new Error("Invalid JSON response"),
+  };
+}
+
+// Handle error responses
+if (!response.ok) {
+  // Create an error object with the response data
+  const errorObj: any = new Error(data?.message || "API request failed");
+  errorObj.status = response.status;
+  errorObj.data = data;
+  
+  // Return the error instead of throwing it
+  return {
+    result: null,
+    response,
+    error: errorObj,
+  };
+}
+
+// Return successful response
+return {
+  result: data,
+  response,
+  error: null,
+};
   }
 
 
@@ -51,6 +82,7 @@ export async function baseFetcher(
   if (!baseUrl) {
     throw new Error("API URL is not defined");
   }
+
 
     const fullUrl = `${baseUrl}${url}`;
 

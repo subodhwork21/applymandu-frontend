@@ -22,21 +22,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import {  Experience as Exp } from "@/types/jobseeker-resume";
 
-interface Experience {
-  id: number;
-  position: string;
-  company: string;
-  industry: string;
-  jobLevel: string;
-  responsibilities: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  currentlyWorking: boolean;
-}
+// interface Experience {
+//   id: number;
+//   position: string;
+//   company: string;
+//   industry: string;
+//   jobLevel: string;
+//   responsibilities: string;
+//   startDate: Date | null;
+//   endDate: Date | null;
+//   currentlyWorking: boolean;
+// }
 
 interface ExperienceProps {
-  experiences: Experience[];
+  experiences: Exp[];
   addExperience: () => void;
   removeExperience: (id: number) => void;
   updateExperience: (id: number, field: string, value: any) => void;

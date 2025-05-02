@@ -28,6 +28,7 @@ import RegisterModal from "./register-modal";
 import { usePathname } from "next/navigation";
 import { isActivePath, navigationItems, routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
+import AuthSkeleton from "./ui/auth-skeleton";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,12 +37,14 @@ const Header = () => {
     isAuthenticated,
     isEmployer,
     logout,
+    isLoading,
     openLoginModal,
     openRegisterModal,
   } = useAuth();
 
   const pathName = usePathname();
   const isActive = pathName;
+
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
       <div className="container mx-auto 2xl:px-4 px-16 py-3">
@@ -75,7 +78,9 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
+            {
+            isLoading ? <AuthSkeleton/>: 
+            isAuthenticated ? (
               <>
                 {/* Notifications */}
                 <DropdownMenu>
@@ -175,12 +180,12 @@ const Header = () => {
                       <Avatar className="h-8 w-8">
                         <AvatarImage
                           src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
-                          alt={user?.name}
+                          alt={user?.first_name}
                         />
-                        <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>{user?.first_name?.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium text-neutral-800">
-                        {user?.name}
+                        {user?.first_name} {user?.last_name}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -188,7 +193,7 @@ const Header = () => {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {user?.name}
+                          {user?.first_name} {user?.last_name}
                         </p>
                         <p className="text-xs leading-none text-neutral-600">
                           {user?.email}
@@ -199,7 +204,7 @@ const Header = () => {
                     <DropdownMenuGroup>
                       <Link href="/dashboard/jobseeker/">
                         <DropdownMenuItem>
-                          <span>Dasboard</span>
+                          <span>Dashboard</span>
                         </DropdownMenuItem>
                       </Link>
                       <Link href="/dashboard/jobseeker/applications">
@@ -288,7 +293,9 @@ const Header = () => {
                   {item.label}
                 </Link>
               ))}
-              {!isAuthenticated && (
+              {isLoading ? (
+                <AuthSkeleton/>
+              ) : !isAuthenticated && (
                 <div className="flex space-x-4 pt-2">
                   <Button
                     className="flex-1 bg-black text-white hover:bg-neutral-800"

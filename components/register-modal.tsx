@@ -62,13 +62,14 @@ const RegisterModal = () => {
         },
 
         body: accountType === "jobseeker" ? JSON.stringify({
-          name: firstName + " " + lastName,
+          first_name: firstName,
+          last_name: lastName,
           email,  
           password,
           password_confirmation: formData?.password,
           accountType,
         }) : JSON.stringify({
-          name: companyName,
+          firstName: companyName,
           email,  
           password,
           phone,
@@ -76,7 +77,7 @@ const RegisterModal = () => {
           accountType,
         }),
       });
-      if (!response.ok) {
+      if (!response?.ok) {
         if (result.errors && typeof result.errors === 'object') {
           getValidationErrors(result.errors);
           setError(result.message || "Validation failed");

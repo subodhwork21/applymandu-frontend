@@ -28,10 +28,9 @@ const Page = ({ params }: { params: { id: string } }) => {
   const {data: jobDesc, isLoading, error, mutate} = useSWR<JobDescription>("api/job/description/"+params?.id, defaultFetcher);
 
   if (error) {
-    notFound();
+    // notFound();
   }
 
-  return <></>
 
   return <JobDetailPageClient job={jobDesc?.data!} />;
 };

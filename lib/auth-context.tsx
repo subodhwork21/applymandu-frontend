@@ -16,11 +16,18 @@ import {
 } from 'cookies-next/client';
 import { toast } from "react-toastify";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
   email: string;
-  name: string;
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
+  image_path?: string;
+  experiences?: [],
+  position_title?: string;
+
 }
 
 interface AuthContextType {
@@ -33,6 +40,7 @@ interface AuthContextType {
   isEmployer: boolean;
   isLoginModalOpen: boolean;
   openRegisterModal: (isEmployer?: boolean) => void;
+  isLoading: boolean;
   closeRegisterModal: () => void;
   isRegisterModalOpen: boolean;
   openForgotPasswordModal: () => void;
@@ -50,6 +58,7 @@ const AuthContext = createContext<AuthContextType>({
   isEmployer: false,
   isLoginModalOpen: false,
   openRegisterModal: () => {},
+  isLoading: false,
   closeRegisterModal: () => {},
   isRegisterModalOpen: false,
   openForgotPasswordModal: () => {},
@@ -59,6 +68,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const {toast} = useToast();
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isEmployer, setIsEmployer] = useState<boolean>(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -66,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
 
+    const [isLoading, setIsLoading] = useState(true);
   const login = async (email: string, password: string) => {
 
     const {response, result} = await baseFetcher('api/login', {
@@ -83,14 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser({
         id: result?.user?.id,
         email: result?.user?.email,
-        name: result?.user?.name,
+        first_name: result?.user?.first_name,
+        last_name: result?.user?.last_name,
+        image_path: result?.user?.image_path,
+        position_title: result?.user?.experiences[0]?.position_title
       })
       setIsEmployer(result?.is_employer);
       toast({
-        title: "Success!",
+        title: "Success",
         description: result?.message,
-        variant: "default", 
-        className: "bg-blue"
       });
       closeLoginModal();
     }
@@ -100,7 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fetchUserByToken = async(token: string) =>{
-    const {response, result} = await baseFetcher("api/login-with-token", {
+
+    const {response, result, error} = await baseFetcher("api/login-with-token", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -108,18 +121,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    if(response?.ok){
+
+
+
+    if(response?.status === 200){
       setUser({
         id: result?.data?.id,
         email: result?.data?.email,
-        name: result?.data?.name,
+        first_name: result?.data?.first_name,
+        last_name: result?.data?.last_name,
+        image_path: result?.data?.image_path,
+        position_title: result?.data?.experiences[0]?.position_title
       })
       setIsEmployer(result?.is_employer);
+      setIsLoading(false);
     }
     else{
-      throw new Error("Invalid token");
       deleteCookie('JOBSEEKER_TOKEN');
       setUser(null);
+      setIsLoading(false);
+      router.push("/")
+      // throw new Error("Invalid token");
+      
+
     }
   }
 
@@ -132,6 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       variant: "default", 
       className: "bg-blue"
     });
+    router.push("/")
   closeLoginModal();
   };
 
@@ -167,6 +192,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [token])
 
+  useEffect(()=>{
+    setIsLoading(false);
+  },[])
+
   return (
     <AuthContext.Provider
       value={{
@@ -177,6 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         openLoginModal,
         closeLoginModal,
         isEmployer,
+        isLoading,
         isLoginModalOpen,
         openRegisterModal,
         closeRegisterModal,

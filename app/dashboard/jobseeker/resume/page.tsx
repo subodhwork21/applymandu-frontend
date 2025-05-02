@@ -12,12 +12,28 @@ import Education from "./components/education";
 import AdditionalDetails from "./components/additional-details";
 import ResumeView from "./view/page";
 import { mockUserProfile } from "@/lib/constants";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+import { useAuth } from "@/lib/auth-context";
+import { JobSeekerProfile, JobSeekerProfileResponse } from "@/types/jobseeker-resume";
 
 const ResumePage = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
+  const {user} = useAuth();
+
+  const {data: resume, mutate} = useSWR<JobSeekerProfileResponse>(user?.id != undefined ? "api/jobseeker/resume/"+user?.id : null, defaultFetcher);
+
+
+  useEffect(()=>{
+    if(user?.id){
+      mutate();
+    }
+  }, [user])
+
+  console.log(resume);
 
   const [experiences, setExperiences] = useState([
     {
@@ -47,23 +63,27 @@ const ResumePage = () => {
     },
   ]);
 
-  const [personalDetails, setPersonalDetails] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    district: "",
-    municipality: "",
-    cityTole: "",
-    dateOfBirth: null as Date | null,
-    mobile: "",
-    hasLicense: false,
-    hasVehicle: false,
-    industry: "",
-    preferredJobType: "",
-    gender: "",
-    lookingFor: "",
-    salaryExpectations: "",
-    careerObjectives: "",
+  const [personalDetails, setPersonalDetails] = useState<JobSeekerProfile['jobseekerProfile']>({
+      id: null,
+      user_id: null,
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      district: "",
+      municipality: "",
+      city_tole: "",
+      date_of_birth: "",
+      mobile: "",
+      industry: "",
+      preferred_job_type: "",
+      gender: "",
+      has_driving_license: false,
+      has_vehicle: false,
+      career_objectives: "",
+      looking_for: "",
+      salary_expectations: "",
+      created_at: "",
+      updated_at: "",
   });
 
   const [additionalDetails, setAdditionalDetails] = useState({
@@ -129,14 +149,16 @@ const ResumePage = () => {
   useEffect(() => {
     // In a real application, you would fetch this data from an API
     const loadMockData = () => {
-      setPersonalDetails(mockUserProfile.personalDetails);
-      setExperiences(mockUserProfile.experiences);
-      setEducations(mockUserProfile.education);
-      setAdditionalDetails(mockUserProfile.additionalDetails);
+      setPersonalDetails(resume?.data?.jobseekerProfile!);
+      // setPersonalDetails(mockUserProfile.personalDetails);
+      // setExperiences(mockUserProfile.experiences);
+      // setEducations(mockUserProfile.education);
+      // setAdditionalDetails(mockUserProfile.additionalDetails);
+
     };
 
     loadMockData();
-  }, []);
+  }, [resume]);
 
   const steps = [
     { number: 1, title: "Personal Details" },
@@ -183,19 +205,19 @@ const ResumePage = () => {
     ]);
   };
 
-  const removeExperience = (id: number) => {
-    if (experiences.length > 1) {
-      setExperiences(experiences.filter((exp) => exp.id !== id));
-    }
-  };
+  // const removeExperience = (id: number) => {
+  //   if (experiences.length > 1) {
+  //     setExperiences(experiences.filter((exp) => exp.id !== id));
+  //   }
+  // };
 
-  const updateExperience = (id: number, field: string, value: any) => {
-    setExperiences(
-      experiences.map((exp) =>
-        exp.id === id ? { ...exp, [field]: value } : exp
-      )
-    );
-  };
+  // const updateExperience = (id: number, field: string, value: any) => {
+  //   setExperiences(
+  //     experiences.map((exp) =>
+  //       exp.id === id ? { ...exp, [field]: value } : exp
+  //     )
+  //   );
+  // };
 
   const addEducation = () => {
     setEducations([
@@ -241,6 +263,9 @@ const ResumePage = () => {
     return <ResumeView />;
   }
 
+
+
+
   // Otherwise, show the resume creation form
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -284,7 +309,7 @@ const ResumePage = () => {
           {/* Step 2: Experience */}
           {currentStep === 2 && (
             <Experience
-              experiences={experiences}
+              experiences={resume?.data?.experiences!}
               addExperience={addExperience}
               removeExperience={removeExperience}
               updateExperience={updateExperience}

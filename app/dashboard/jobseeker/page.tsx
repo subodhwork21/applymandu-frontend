@@ -25,183 +25,206 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUserProfile } from "@/lib/constants";
 import { jobs } from "@/lib/constants";
 import { useApplication } from "@/lib/application-context";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+import { ApplicationResponse } from "@/types/application-type";
+import { Activity } from "@/types/activity-type";
+import { Job } from "@/types/job-type";
+import { useAuth } from "@/lib/auth-context";
 
 const DashboardPage = () => {
   const { openApplicationPanel } = useApplication();
   const pathname = usePathname();
   const profile = mockUserProfile;
+  const {user} = useAuth();
 
-  const recentApplications = [
-    {
-      id: 1,
-      title: "Senior Frontend Developer",
-      company: "TechCorp Nepal",
-      appliedDate: "Apr 15, 2025",
-    },
-    {
-      id: 2,
-      title: "UX Designer",
-      company: "DesignHub",
-      appliedDate: "Apr 12, 2025",
-    },
-  ];
+  // const recentApplications = [
+  //   {
+  //     id: 1,
+  //     title: "Senior Frontend Developer",
+  //     company: "TechCorp Nepal",
+  //     appliedDate: "Apr 15, 2025",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "UX Designer",
+  //     company: "DesignHub",
+  //     appliedDate: "Apr 12, 2025",
+  //   },
+  // ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      message: "Your application for Frontend Developer at TechCorp was viewed",
-      timeAgo: "2h ago",
-      icon: Eye,
-    },
-    {
-      id: 2,
-      message: "Interview scheduled for UX Designer position",
-      timeAgo: "1d ago",
-      icon: Calendar,
-    },
-    {
-      id: 3,
-      message: "Profile viewed by DesignHub",
-      timeAgo: "2d ago",
-      icon: User,
-    },
-    {
-      id: 4,
-      message: "Application status updated for Backend Developer position",
-      timeAgo: "3d ago",
-      icon: Briefcase,
-    },
-    {
-      id: 5,
-      message: "New job match found based on your profile",
-      timeAgo: "4d ago",
-      icon: BookmarkCheck,
-    },
-  ];
+  const { data: recentApplications } = useSWR<ApplicationResponse>(
+    "api/dashboard/jobseeker/recent-applications",
+    defaultFetcher
+  );
+
+  const recentActivityIcons = {
+    profile_viewed: Eye,
+    interview_scheduled: Calendar,
+    application_status_update: Briefcase,
+    job_match_found: BookmarkCheck,
+    job_saved: Heart,
+  };
+
+  const {
+    data: recentActivity,
+    error,
+    mutate: activityMutate,
+  } = useSWR<Record<string, any>>(
+    "api/activity/recent-activity",
+    defaultFetcher
+  );
+
+  // console.log(recentActivity)
 
   // Filter recommended jobs based on user's profile
-  const recommendedJobs = useMemo(() => {
-    // Calculate match score for each job
-    const jobsWithScores = jobs.map((job) => {
-      let score = 0;
+  // const recommendedJobs = useMemo(() => {
+  //   // Calculate match score for each job
+  //   const jobsWithScores = jobs.map((job) => {
+  //     let score = 0;
 
-      // Match skills (highest weight)
-      const matchingSkills = job.skills.filter((skill) =>
-        profile.additionalDetails.skills.includes(skill)
-      );
-      score += (matchingSkills.length / job.skills.length) * 5;
+  //     // Match skills (highest weight)
+  //     const matchingSkills = job.skills.filter((skill) =>
+  //       profile.additionalDetails.skills.includes(skill)
+  //     );
+  //     score += (matchingSkills.length / job.skills.length) * 5;
 
-      // Match job title with current/past positions
-      const titleMatch = profile.experiences.some(
-        (exp) =>
-          job.title.toLowerCase().includes(exp.position.toLowerCase()) ||
-          exp.position.toLowerCase().includes(job.title.toLowerCase())
-      );
-      if (titleMatch) score += 3;
+  //     // Match job title with current/past positions
+  //     const titleMatch = profile.experiences.some(
+  //       (exp) =>
+  //         job.title.toLowerCase().includes(exp.position.toLowerCase()) ||
+  //         exp.position.toLowerCase().includes(job.title.toLowerCase())
+  //     );
+  //     if (titleMatch) score += 3;
 
-      // Match industry
-      const industryMatch = job.shortDescription
-        .toLowerCase()
-        .includes(profile.personalDetails.industry.toLowerCase());
-      if (industryMatch) score += 2;
+  //     // Match industry
+  //     const industryMatch = job.shortDescription
+  //       .toLowerCase()
+  //       .includes(profile.personalDetails.industry.toLowerCase());
+  //     if (industryMatch) score += 2;
 
-      // Match salary expectations
-      const salaryMatch = job.salary
-        .toLowerCase()
-        .includes(
-          profile.personalDetails.salaryExpectations
-            .toLowerCase()
-            .replace(/[^0-9]/g, "")
-        );
-      if (salaryMatch) score += 1;
+  //     // Match salary expectations
+  //     const salaryMatch = job.salary
+  //       .toLowerCase()
+  //       .includes(
+  //         profile.personalDetails.salaryExpectations
+  //           .toLowerCase()
+  //           .replace(/[^0-9]/g, "")
+  //       );
+  //     if (salaryMatch) score += 1;
 
-      return { ...job, matchScore: score };
-    });
+  //     return { ...job, matchScore: score };
+  //   });
 
-    // Sort by match score and return top 2
-    return jobsWithScores
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 2);
-  }, []);
+  //   // Sort by match score and return top 2
+  //   return jobsWithScores
+  //     .sort((a, b) => b.matchScore - a.matchScore)
+  //     .slice(0, 2);
+  // }, []);
 
   const handleApply = (e: React.MouseEvent, job: any) => {
     e.preventDefault();
     openApplicationPanel(job);
   };
 
-  const calculateCompletion = () => {
-    let total = 0;
-    let completed = 0;
+  // const calculateCompletion = () => {
+  //   let total = 0;
+  //   let completed = 0;
 
-    const personalFields = [
-      "firstName",
-      "lastName",
-      "dateOfBirth",
-      "gender",
-      "mobile",
-      "email",
-      "district",
-      "municipality",
-      "industry",
-      "preferredJobType",
-      "careerObjectives",
-    ];
-    total += personalFields.length;
-    completed += personalFields.filter((field) =>
-      Boolean(
-        profile.personalDetails[field as keyof typeof profile.personalDetails]
-      )
-    ).length;
+  //   const personalFields = [
+  //     "firstName",
+  //     "lastName",
+  //     "dateOfBirth",
+  //     "gender",
+  //     "mobile",
+  //     "email",
+  //     "district",
+  //     "municipality",
+  //     "industry",
+  //     "preferredJobType",
+  //     "careerObjectives",
+  //   ];
+  //   total += personalFields.length;
+  //   completed += personalFields.filter((field) =>
+  //     Boolean(
+  //       profile.personalDetails[field as keyof typeof profile.personalDetails]
+  //     )
+  //   ).length;
 
-    if (profile.experiences.length > 0) {
-      const expFields = [
-        "position",
-        "company",
-        "startDate",
-        "responsibilities",
-      ];
-      profile.experiences.forEach((exp) => {
-        total += expFields.length;
-        completed += expFields.filter((field) =>
-          Boolean(exp[field as keyof typeof exp])
-        ).length;
-      });
-    } else {
-      total += 4;
-    }
+  //   if (profile.experiences.length > 0) {
+  //     const expFields = [
+  //       "position",
+  //       "company",
+  //       "startDate",
+  //       "responsibilities",
+  //     ];
+  //     profile.experiences.forEach((exp) => {
+  //       total += expFields.length;
+  //       completed += expFields.filter((field) =>
+  //         Boolean(exp[field as keyof typeof exp])
+  //       ).length;
+  //     });
+  //   } else {
+  //     total += 4;
+  //   }
 
-    if (profile.education.length > 0) {
-      const eduFields = ["degree", "institution", "joinedYear"];
-      profile.education.forEach((edu) => {
-        total += eduFields.length;
-        completed += eduFields.filter((field) =>
-          Boolean(edu[field as keyof typeof edu])
-        ).length;
-      });
-    } else {
-      total += 3;
-    }
+  //   if (profile.education.length > 0) {
+  //     const eduFields = ["degree", "institution", "joinedYear"];
+  //     profile.education.forEach((edu) => {
+  //       total += eduFields.length;
+  //       completed += eduFields.filter((field) =>
+  //         Boolean(edu[field as keyof typeof edu])
+  //       ).length;
+  //     });
+  //   } else {
+  //     total += 3;
+  //   }
 
-    total += 5;
-    completed += Math.min(profile.additionalDetails.skills.length, 5);
+  //   total += 5;
+  //   completed += Math.min(profile.additionalDetails.skills.length, 5);
 
-    total += 2;
-    completed += Math.min(profile.additionalDetails.languages.length, 2);
+  //   total += 2;
+  //   completed += Math.min(profile.additionalDetails.languages.length, 2);
 
-    const socialFields = ["linkedin", "github", "portfolio"];
-    total += socialFields.length;
-    completed += socialFields.filter((field) =>
-      Boolean(
-        profile.additionalDetails.socialLinks[
-          field as keyof typeof profile.additionalDetails.socialLinks
-        ]
-      )
-    ).length;
+  //   const socialFields = ["linkedin", "github", "portfolio"];
+  //   total += socialFields.length;
+  //   completed += socialFields.filter((field) =>
+  //     Boolean(
+  //       profile.additionalDetails.socialLinks[
+  //         field as keyof typeof profile.additionalDetails.socialLinks
+  //       ]
+  //     )
+  //   ).length;
 
-    return Math.round((completed / total) * 100);
-  };
+  //   return Math.round((completed / total) * 100);
+  // };
 
-  const completionPercentage = calculateCompletion();
+  const {data: completionPercentage, isLoading: completionLoading, mutate:completionMutate} = useSWR<Record<string,any>>(
+    "api/dashboard/profile-completion",
+    defaultFetcher
+  );
+
+  const {
+    data: totalApplications,
+    isLoading,
+    mutate,
+  } = useSWR<Record<string, any>>(
+    "api/dashboard/all-applications",
+    defaultFetcher
+  );
+
+  const {
+    data: applicationStats,
+    isLoading: statsLoading,
+    mutate: statsMutate,
+  } = useSWR<Record<string, any>>(
+    "api/dashboard/application-stats",
+    defaultFetcher
+  );
+
+  const { data: recommendedJobs, isLoading: recommendedJobsLoading } = useSWR<
+    Record<string, any>
+  >("api/dashboard/recommended-jobs", defaultFetcher);
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -220,14 +243,18 @@ const DashboardPage = () => {
                 <div className="bg-white p-6 rounded-lg border border-neutral-200">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg">Applications</h3>
-                    <span className="text-2xl">24</span>
+                    <span className="text-2xl">
+                      {totalApplications?.count?.total_applications}
+                    </span>
                   </div>
                   <p className="text-sm text-neutral-600">Total jobs applied</p>
                 </div>
                 <div className="bg-white p-6 rounded-lg border border-neutral-200">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg">Interviews</h3>
-                    <span className="text-2xl">8</span>
+                    <span className="text-2xl">
+                      {totalApplications?.count?.total_interviews}
+                    </span>
                   </div>
                   <p className="text-sm text-neutral-600">
                     Scheduled this month
@@ -236,7 +263,9 @@ const DashboardPage = () => {
                 <div className="bg-white p-6 rounded-lg border border-neutral-200">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg">Saved</h3>
-                    <span className="text-2xl">12</span>
+                    <span className="text-2xl">
+                      {totalApplications?.count?.saved_jobs}
+                    </span>
                   </div>
                   <p className="text-sm text-neutral-600">Bookmarked jobs</p>
                 </div>
@@ -245,19 +274,21 @@ const DashboardPage = () => {
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <h2 className="text-xl mb-4">Recent Applications</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentApplications.map((application) => (
+                  {recentApplications?.data?.map((application) => (
                     <Link
                       key={application.id}
                       href={`/dashboard/applications/${application.id}`}
                     >
                       <div className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer">
                         <div>
-                          <h3 className="font-medium">{application.title}</h3>
+                          <h3 className="font-medium">
+                            {application.job_title}
+                          </h3>
                           <p className="text-sm text-neutral-600">
-                            {application.company}
+                            {application.company_name}
                           </p>
                           <p className="text-xs text-neutral-500 mt-1">
-                            Applied on {application.appliedDate}
+                            Applied on {application.formatted_applied_at}
                           </p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-neutral-400" />
@@ -277,8 +308,11 @@ const DashboardPage = () => {
                   </div>
                   <ScrollArea className="h-[200px] pr-4">
                     <div className="space-y-4">
-                      {recentActivity.map((activity) => {
-                        const IconComponent = activity.icon;
+                      {recentActivity?.data?.map((activity: Activity) => {
+                        let IconComponent =
+                          recentActivityIcons[
+                            activity.type as keyof typeof recentActivityIcons
+                          ];
                         return (
                           <div
                             key={activity.id}
@@ -289,10 +323,10 @@ const DashboardPage = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-neutral-800">
-                                {activity.message}
+                                {activity.description}
                               </p>
                               <span className="text-xs text-neutral-500">
-                                {activity.timeAgo}
+                                {activity.created_at_formatted}
                               </span>
                             </div>
                           </div>
@@ -310,12 +344,16 @@ const DashboardPage = () => {
                         <span className="text-sm text-neutral-600">
                           Success Rate
                         </span>
-                        <span className="text-sm font-medium">65%</span>
+                        <span className="text-sm font-medium">
+                          {applicationStats?.data?.success_rate}%
+                        </span>
                       </div>
                       <div className="w-full bg-neutral-100 rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
-                          style={{ width: "65%" }}
+                          style={{
+                            width: `${applicationStats?.data?.success_rate}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -324,12 +362,16 @@ const DashboardPage = () => {
                         <span className="text-sm text-neutral-600">
                           Response Rate
                         </span>
-                        <span className="text-sm font-medium">78%</span>
+                        <span className="text-sm font-medium">
+                          {applicationStats?.data?.response_rate}%
+                        </span>
                       </div>
                       <div className="w-full bg-neutral-100 rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
-                          style={{ width: "78%" }}
+                          style={{
+                            width: `${applicationStats?.data?.response_rate}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -338,12 +380,16 @@ const DashboardPage = () => {
                         <span className="text-sm text-neutral-600">
                           Interview Rate
                         </span>
-                        <span className="text-sm font-medium">45%</span>
+                        <span className="text-sm font-medium">
+                          {applicationStats?.data?.interview_rate}%
+                        </span>
                       </div>
                       <div className="w-full bg-neutral-100 rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
-                          style={{ width: "45%" }}
+                          style={{
+                            width: `${applicationStats?.data?.interview_rate}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -354,7 +400,7 @@ const DashboardPage = () => {
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <h2 className="text-xl mb-4">Recommended Jobs</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recommendedJobs.map((job) => (
+                  {recommendedJobs?.data?.map((job: Job) => (
                     <div
                       key={job.id}
                       className="bg-white rounded-lg border border-neutral-200"
@@ -362,14 +408,16 @@ const DashboardPage = () => {
                       <div className="flex items-start gap-4 p-4">
                         <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center">
                           <div className="text-white text-2xl">
-                            {job.company[0]}
+                            {job.employer_name[0]}
                           </div>
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>
                               <h3 className="text-lg">{job.title}</h3>
-                              <p className="text-neutral-600">{job.company}</p>
+                              <p className="text-neutral-600">
+                                {job.employer_name}
+                              </p>
                             </div>
                             <Button
                               variant="ghost"
@@ -380,12 +428,12 @@ const DashboardPage = () => {
                             </Button>
                           </div>
                           <div className="flex flex-wrap gap-2 my-3">
-                            {job.skills.slice(0, 3).map((skill) => (
+                            {job.skills.slice(0, 3).map((skill, id) => (
                               <span
-                                key={skill}
+                                key={id}
                                 className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-md text-sm"
                               >
-                                {skill}
+                                {skill?.name}
                               </span>
                             ))}
                           </div>
@@ -396,11 +444,11 @@ const DashboardPage = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
-                              {job.type}
+                              {job.employment_type}
                             </span>
                             <span className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4" />
-                              {job.salary}
+                              {/* <DollarSign className="h-4 w-4" /> */}
+                              {job?.salary_range?.formatted}
                             </span>
                           </div>
                           <Button
@@ -426,11 +474,11 @@ const DashboardPage = () => {
                     className="w-24 h-24 rounded-full mx-auto mb-4"
                   />
                   <h2 className="text-xl font-medium">
-                    {profile.personalDetails.firstName}{" "}
-                    {profile.personalDetails.lastName}
+                    {user?.first_name}{" "}
+                    {user?.last_name}
                   </h2>
                   <p className="text-neutral-600 mt-1">
-                    {profile.personalDetails.lookingFor}
+                    {user?.position_title}
                   </p>
                   <div className="flex justify-center gap-4 mt-4">
                     {profile.additionalDetails.socialLinks.linkedin && (
@@ -465,16 +513,16 @@ const DashboardPage = () => {
                       Completion Status
                     </span>
                     <span className="text-sm font-medium">
-                      {completionPercentage}%
+                      {completionPercentage?.data?.profile_completion?.overall_percentage}%
                     </span>
                   </div>
                   <div className="w-full bg-neutral-200 rounded-full h-2">
                     <div
                       className="h-2 rounded-full bg-black"
-                      style={{ width: `${completionPercentage}%` }}
+                      style={{ width: `${completionPercentage?.data?.profile_completion?.overall_percentage}%` }}
                     />
                   </div>
-                  {completionPercentage === 100 ? (
+                  {completionPercentage?.data?.profile_completion?.overall_percentage === 100 ? (
                     <p className="text-sm text-green-600">
                       Your profile is complete!
                     </p>
