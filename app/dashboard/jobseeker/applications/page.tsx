@@ -19,41 +19,93 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useApplication } from "@/lib/application-context";
+import { defaultFetcher } from "@/lib/fetcher";
+import useSWR from "swr";
+import { format } from "date-fns";
 
-const applications = [
-  {
-    id: 1,
-    position: "Senior Frontend Developer",
-    company: "TechCorp Nepal",
-    appliedDate: "Apr 18, 2025",
-    location: "Kathmandu",
-    status: "Shortlisted",
-  },
-  {
-    id: 2,
-    position: "UI/UX Designer",
-    company: "Design Studio Nepal",
-    appliedDate: "Apr 15, 2025",
-    location: "Lalitpur",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    position: "Full Stack Developer",
-    company: "WebSolutions Ltd",
-    appliedDate: "Apr 10, 2025",
-    location: "Bhaktapur",
-    status: "Rejected",
-  },
-];
+// Define interfaces for the API response
+interface Application {
+  id: number;
+  user_id: number;
+  job_id: number;
+  year_of_experience: number;
+  expected_salary: number;
+  notice_period: number;
+  status: number;
+  applied_at: string;
+  cover_letter: string | null;
+  created_at: string;
+  updated_at: string;
+  position?: string;
+  company?: string;
+  location?: string;
+}
+
+interface UserWithApplications {
+  id: number;
+  first_name: string;
+  last_name: string;
+  company_name: string | null;
+  email: string;
+  phone: string | null;
+  image: string | null;
+  email_verified_at: string;
+  is_active: number;
+  reset_password_token: string | null;
+  verify_email_token: string;
+  created_at: string;
+  updated_at: string;
+  applications: Application[];
+}
+
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: UserWithApplications[];
+}
 
 const ApplicationsPage = () => {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const { openApplicationPanel } = useApplication();
+  const { data, isLoading, error } = useSWR<ApiResponse>("api/jobseeker/application", defaultFetcher);
+
+  // Process applications to add necessary display information
+  const processedApplications = useMemo(() => {
+    if (!data?.data || data.data.length === 0) return [];
+
+    // Flatten the nested applications from all users
+    const allApplications: Application[] = [];
+    
+    data.data.forEach(user => {
+      user.applications.forEach(app => {
+        // Map status codes to readable strings
+        const statusMap: Record<number, string> = {
+          0: "Pending",
+          1: "Shortlisted",
+          2: "Rejected",
+          // Add more status mappings as needed
+        };
+
+        // Add additional fields needed for display
+        allApplications.push({
+          ...app,
+          position: `Job #${app.job_id}`, // Replace with actual job title when available
+          company: user.company_name || "Company Name Not Available",
+          location: "Location Not Available", // Replace with actual location when available
+          status: statusMap[app.status] || "Unknown",
+          appliedDate: format(new Date(app.applied_at), "MMM dd, yyyy")
+        });
+      });
+    });
+
+    return allApplications;
+  }, [data]);
 
   const filteredApplications = useMemo(() => {
-    return applications
+    if (!processedApplications) return [];
+    
+    return processedApplications
       .filter((app) => {
         if (filter === "all") return true;
         return app.status.toLowerCase() === filter.toLowerCase();
@@ -64,10 +116,10 @@ const ApplicationsPage = () => {
         return (
           app.position.toLowerCase().includes(searchLower) ||
           app.company.toLowerCase().includes(searchLower) ||
-          app.location.toLowerCase().includes(searchLower)
+          (app.location && app.location.toLowerCase().includes(searchLower))
         );
       });
-  }, [filter, search]);
+  }, [filter, search, processedApplications]);
 
   const getStatusStyles = (status: string) => {
     switch (status) {
@@ -84,26 +136,32 @@ const ApplicationsPage = () => {
 
   const handleReapply = (e: React.MouseEvent, application: any) => {
     e.preventDefault();
-    // openApplicationPanel({
-    //   id: application.id,
-    //   title: application.position,
-    //   employer_name: application.company,
-    //   location: application.location,
-    //   employment_type: "Full-time",
-    //   salary_range: "Competitive",
-    //   shortDescription: "",
-    //   fullDescription: "",
-    //   skills: [],
-    //   postedTime: application.appliedDate,
-    //   featured: false,
-    //   closingDate: "",
-    //   views: 0,
-    //   applications: 0,
-    //   requirements: [],
-    //   responsibilities: [],
-    //   benefits: [],
-    // });
+    // Implementation for reapply functionality
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p>Loading your applications...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p className="text-red-500">Error loading applications. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-8">
@@ -149,7 +207,7 @@ const ApplicationsPage = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredApplications.map((application) => (
+                {filteredApplications.map((application: Application) => (
                   <div
                     key={application.id}
                     className="bg-white rounded-lg border border-neutral-200 p-6 hover:shadow-md transition-shadow"
@@ -165,10 +223,12 @@ const ApplicationsPage = () => {
                             <Calendar className="h-4 w-4 mr-2" />
                             Applied on {application.appliedDate}
                           </span>
-                          <span className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            {application.location}
-                          </span>
+                          {application.location && (
+                            <span className="flex items-center">
+                              <MapPin className="h-4 w-4 mr-2" />
+                              {application.location}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -194,7 +254,7 @@ const ApplicationsPage = () => {
                             className="w-[200px]"
                           >
                             <Link
-                              href={`/dashboard/applications/${application.id}`}
+                              href={`/dashboard/jobseeker/applications/${application.id}`}
                             >
                               <DropdownMenuItem>View Details</DropdownMenuItem>
                             </Link>
@@ -219,7 +279,7 @@ const ApplicationsPage = () => {
           <div className="p-6 border-t border-neutral-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-neutral-600">
-                Showing {filteredApplications.length} of {applications.length}{" "}
+                Showing {filteredApplications.length} of {processedApplications.length}{" "}
                 applications
               </div>
               <div className="flex space-x-2">

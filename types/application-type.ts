@@ -4,7 +4,7 @@ export interface ApplicationResponse {
     data: Application[];
   }
   
-  interface Application {
+  export interface Application {
     id: number;
     job_id: number;
     user_id: number;

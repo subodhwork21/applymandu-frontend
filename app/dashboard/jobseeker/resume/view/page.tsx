@@ -16,98 +16,61 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { mockUserProfile } from "@/lib/constants";
 import { format } from "date-fns";
+import { JobSeekerProfileResponse } from "@/types/jobseeker-resume";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+import { useAuth } from "@/lib/auth-context";
 
 const ResumeView = () => {
-  const profile = mockUserProfile;
+  const { user } = useAuth();
+  
+  const { data: resume, mutate } = useSWR<JobSeekerProfileResponse>(
+    user?.id !== undefined ? `api/jobseeker/resume/${user.id}` : null, 
+    defaultFetcher
+  );
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return "Present";
-    return format(date, "MMM yyyy");
+  const { data: resumeCompletion } = useSWR<Record<string, any>>(
+    user?.id !== undefined ? "api/dashboard/profile-completion" : null,
+    defaultFetcher
+  );
+
+  if (!resume?.data) {
+    return (
+      <div className="py-8 text-center">
+        <p>No resume data available...</p>
+        <p className="text-sm text-neutral-600 mb-6">
+            Complete your resume to increase visibility to employers
+          </p> 
+          <Link href="/dashboard/jobseeker/resume/edit">
+                  <Button className="bg-black text-white hover:bg-neutral-800">
+                    Add Resume
+                  </Button>
+                </Link>
+      </div>
+    );
+  }
+
+  const profile = resume.data;
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Present";
+    try {
+      return format(new Date(dateString), "MMM yyyy");
+    } catch (error) {
+      return dateString;
+    }
   };
 
-  // Calculate resume completion percentage
-  const calculateCompletion = () => {
-    let total = 0;
-    let completed = 0;
-
-    // Personal Details (25%)
-    const personalFields = [
-      "firstName",
-      "lastName",
-      "dateOfBirth",
-      "gender",
-      "mobile",
-      "email",
-      "district",
-      "municipality",
-      "industry",
-      "preferredJobType",
-      "careerObjectives",
-    ];
-    total += personalFields.length;
-    completed += personalFields.filter((field) =>
-      Boolean(
-        profile.personalDetails[field as keyof typeof profile.personalDetails]
-      )
-    ).length;
-
-    // Experience (25%)
-    if (profile.experiences.length > 0) {
-      const expFields = [
-        "position",
-        "company",
-        "startDate",
-        "responsibilities",
-      ];
-      profile.experiences.forEach((exp) => {
-        total += expFields.length;
-        completed += expFields.filter((field) =>
-          Boolean(exp[field as keyof typeof exp])
-        ).length;
-      });
-    } else {
-      total += 4; // Minimum required experience fields
+  // Calculate resume completion percentage from API response
+  const getCompletionPercentage = () => {
+    if (!resumeCompletion?.data?.profile_completion?.overall_percentage) {
+      return 0;
     }
-
-    // Education (25%)
-    if (profile.education.length > 0) {
-      const eduFields = ["degree", "institution", "joinedYear"];
-      profile.education.forEach((edu) => {
-        total += eduFields.length;
-        completed += eduFields.filter((field) =>
-          Boolean(edu[field as keyof typeof edu])
-        ).length;
-      });
-    } else {
-      total += 3; // Minimum required education fields
-    }
-
-    // Additional Details (25%)
-    // Skills
-    total += 5; // Expecting at least 5 skills
-    completed += Math.min(profile.additionalDetails.skills.length, 5);
-
-    // Languages
-    total += 2; // Expecting at least 2 languages
-    completed += Math.min(profile.additionalDetails.languages.length, 2);
-
-    // Social Links
-    const socialFields = ["linkedin", "github", "portfolio"];
-    total += socialFields.length;
-    completed += socialFields.filter((field) =>
-      Boolean(
-        profile.additionalDetails.socialLinks[
-          field as keyof typeof profile.additionalDetails.socialLinks
-        ]
-      )
-    ).length;
-
-    return Math.round((completed / total) * 100);
+    return resumeCompletion.data.profile_completion.overall_percentage;
   };
 
-  const completionPercentage = calculateCompletion();
+  const completionPercentage = getCompletionPercentage();
 
   return (
     <section id="resume" className="py-8">
@@ -131,7 +94,7 @@ const ResumeView = () => {
                 </Link>
               </div>
               <p className="text-neutral-600">
-                {profile.personalDetails.careerObjectives}
+                {profile.jobseekerProfile.career_objectives || "No career objectives provided."}
               </p>
             </div>
 
@@ -143,9 +106,9 @@ const ResumeView = () => {
                   <div>
                     <h3 className="text-sm text-neutral-500 mb-1">Full Name</h3>
                     <p className="text-neutral-800">
-                      {profile.personalDetails.firstName}{" "}
-                      {profile.personalDetails.middleName}{" "}
-                      {profile.personalDetails.lastName}
+                      {profile.jobseekerProfile.first_name}{" "}
+                      {profile.jobseekerProfile.middle_name}{" "}
+                      {profile.jobseekerProfile.last_name}
                     </p>
                   </div>
                   <div>
@@ -154,15 +117,15 @@ const ResumeView = () => {
                     </h3>
                     <p className="text-neutral-800 flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-neutral-500" />
-                      {profile.personalDetails.dateOfBirth
-                        ? format(profile.personalDetails.dateOfBirth, "PPP")
+                      {profile.jobseekerProfile.date_of_birth
+                        ? format(new Date(profile.jobseekerProfile.date_of_birth), "PPP")
                         : "Not specified"}
                     </p>
                   </div>
                   <div>
                     <h3 className="text-sm text-neutral-500 mb-1">Gender</h3>
                     <p className="text-neutral-800 capitalize">
-                      {profile.personalDetails.gender}
+                      {profile.jobseekerProfile.gender}
                     </p>
                   </div>
                 </div>
@@ -174,11 +137,11 @@ const ResumeView = () => {
                     <div className="space-y-2">
                       <p className="text-neutral-800 flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-neutral-500" />
-                        {profile.personalDetails.industry}
+                        {profile.jobseekerProfile.industry}
                       </p>
                       <p className="text-neutral-800 flex items-center gap-2">
                         <Briefcase className="h-4 w-4 text-neutral-500" />
-                        {profile.personalDetails.preferredJobType}
+                        {profile.jobseekerProfile.preferred_job_type}
                       </p>
                     </div>
                   </div>
@@ -187,10 +150,10 @@ const ResumeView = () => {
                       Transportation
                     </h3>
                     <div className="space-y-1">
-                      {profile.personalDetails.hasLicense && (
+                      {profile.jobseekerProfile.has_driving_license && (
                         <p className="text-neutral-800">Has Driving License</p>
                       )}
-                      {profile.personalDetails.hasVehicle && (
+                      {profile.jobseekerProfile.has_vehicle && (
                         <p className="text-neutral-800">Has Vehicle</p>
                       )}
                     </div>
@@ -200,7 +163,7 @@ const ResumeView = () => {
                       Expected Salary
                     </h3>
                     <p className="text-neutral-800">
-                      {profile.personalDetails.salaryExpectations}
+                      {profile.jobseekerProfile.salary_expectations}
                     </p>
                   </div>
                 </div>
@@ -210,60 +173,68 @@ const ResumeView = () => {
             {/* Work Experience */}
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-6">Work Experience</h2>
-              <div className="space-y-6">
-                {profile.experiences.map((exp, index) => (
-                  <div
-                    key={exp.id}
-                    className={`${
-                      index !== profile.experiences.length - 1
-                        ? "border-b border-neutral-200"
-                        : ""
-                    } pb-6`}
-                  >
-                    <h3 className="text-lg mb-2">{exp.position}</h3>
-                    <p className="text-neutral-600 mb-2">{exp.company}</p>
-                    <p className="text-sm text-neutral-500 mb-2">
-                      {exp.industry} • {exp.jobLevel} Level
-                    </p>
-                    <p className="text-sm text-neutral-500 mb-4">
-                      {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
-                      {exp.currentlyWorking && " (Current)"}
-                    </p>
-                    <ul className="list-disc list-inside text-neutral-600 space-y-2">
-                      {exp.responsibilities.split("\n").map((resp, i) => (
-                        <li key={i}>{resp}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
+              {profile.experiences && profile.experiences.length > 0 ? (
+                <div className="space-y-6">
+                  {profile.experiences.map((exp, index) => (
+                    <div
+                      key={exp.id}
+                      className={`${
+                        index !== profile.experiences.length - 1
+                          ? "border-b border-neutral-200"
+                          : ""
+                      } pb-6`}
+                    >
+                      <h3 className="text-lg mb-2">{exp.position_title}</h3>
+                      <p className="text-neutral-600 mb-2">{exp.company_name}</p>
+                      <p className="text-sm text-neutral-500 mb-2">
+                        {exp.industry} • {exp.job_level} Level
+                      </p>
+                      <p className="text-sm text-neutral-500 mb-4">
+                        {formatDate(exp.start_date)} - {formatDate(exp.end_date)}
+                        {exp.currently_work_here && " (Current)"}
+                      </p>
+                      <ul className="list-disc list-inside text-neutral-600 space-y-2">
+                        {exp.roles_and_responsibilities.split("\n").map((resp, i) => (
+                          <li key={i}>{resp}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-neutral-500">No work experience added yet.</p>
+              )}
             </div>
 
             {/* Education */}
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-6">Education</h2>
-              <div className="space-y-6">
-                {profile.education.map((edu, index) => (
-                  <div
-                    key={edu.id}
-                    className={`${
-                      index !== profile.education.length - 1
-                        ? "border-b border-neutral-200"
-                        : ""
-                    } pb-6`}
-                  >
-                    <h3 className="text-lg">
-                      {edu.degree} in {edu.subject}
-                    </h3>
-                    <p className="text-neutral-600">{edu.institution}</p>
-                    <p className="text-sm text-neutral-500">
-                      {formatDate(edu.joinedYear)} -{" "}
-                      {formatDate(edu.passedYear)}
-                      {edu.currentlyStudying && " (Current)"}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {profile.educations && profile.educations.length > 0 ? (
+                <div className="space-y-6">
+                  {profile.educations.map((edu, index) => (
+                    <div
+                      key={edu.id}
+                      className={`${
+                        index !== profile.educations.length - 1
+                          ? "border-b border-neutral-200"
+                          : ""
+                      } pb-6`}
+                    >
+                      <h3 className="text-lg">
+                        {edu.degree} in {edu.subject_major}
+                      </h3>
+                      <p className="text-neutral-600">{edu.institution}</p>
+                      <p className="text-sm text-neutral-500">
+                        {formatDate(edu.joined_year)} -{" "}
+                        {formatDate(edu.passed_year)}
+                        {edu.currently_studying && " (Current)"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-neutral-500">No education history added yet.</p>
+              )}
             </div>
 
             {/* Skills and Languages Grid */}
@@ -271,34 +242,42 @@ const ResumeView = () => {
               {/* Skills */}
               <div className="bg-white p-6 rounded-lg border border-neutral-200 h-full">
                 <h2 className="text-xl mb-6">Skills</h2>
-                <div className="flex flex-wrap gap-2">
-                  {profile.additionalDetails.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1 bg-neutral-100 rounded-full text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+                {profile.skills && profile.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.skills.map((skill) => (
+                      <span
+                        key={skill.id}
+                        className="px-3 py-1 bg-neutral-100 rounded-full text-sm"
+                      >
+                        {skill.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-neutral-500">No skills added yet.</p>
+                )}
               </div>
 
               {/* Languages */}
               <div className="bg-white p-6 rounded-lg border border-neutral-200 h-full">
                 <h2 className="text-xl mb-6">Languages</h2>
-                <div className="space-y-4">
-                  {profile.additionalDetails.languages.map((lang) => (
-                    <div
-                      key={lang.id}
-                      className="flex justify-between items-center"
-                    >
-                      <span className="text-neutral-600">{lang.language}</span>
-                      <span className="text-sm text-neutral-500 capitalize">
-                        {lang.proficiency}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                {profile.languages && profile.languages.length > 0 ? (
+                  <div className="space-y-4">
+                    {profile.languages.map((lang) => (
+                      <div
+                        key={lang.id}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-neutral-600">{lang.language}</span>
+                        <span className="text-sm text-neutral-500 capitalize">
+                          {lang.proficiency}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-neutral-500">No languages added yet.</p>
+                )}
               </div>
             </div>
 
@@ -307,11 +286,11 @@ const ResumeView = () => {
               <h2 className="text-xl mb-6">Training & Certificates</h2>
 
               {/* Training */}
-              {profile.additionalDetails.training.length > 0 && (
+              {profile.trainings && profile.trainings.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg mb-4">Training</h3>
                   <div className="space-y-4">
-                    {profile.additionalDetails.training.map((train) => (
+                    {profile.trainings.map((train) => (
                       <div
                         key={train.id}
                         className="border-b border-neutral-200 pb-4"
@@ -330,11 +309,11 @@ const ResumeView = () => {
               )}
 
               {/* Certificates */}
-              {profile.additionalDetails.certificates.length > 0 && (
+              {profile.certificates && profile.certificates.length > 0 && (
                 <div>
                   <h3 className="text-lg mb-4">Certificates</h3>
                   <div className="space-y-4">
-                    {profile.additionalDetails.certificates.map((cert) => (
+                    {profile.certificates.map((cert) => (
                       <div
                         key={cert.id}
                         className="border-b border-neutral-200 pb-4"
@@ -348,27 +327,36 @@ const ResumeView = () => {
                   </div>
                 </div>
               )}
+
+              {(!profile.trainings || profile.trainings.length === 0) && 
+               (!profile.certificates || profile.certificates.length === 0) && (
+                <p className="text-neutral-500">No training or certificates added yet.</p>
+              )}
             </div>
 
             {/* References */}
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-6">References</h2>
-              <div className="space-y-6">
-                {profile.additionalDetails.references.map((ref) => (
-                  <div
-                    key={ref.id}
-                    className="border-b border-neutral-200 pb-6"
-                  >
-                    <h3 className="text-lg">{ref.name}</h3>
-                    <p className="text-neutral-600">{ref.position}</p>
-                    <p className="text-neutral-600">{ref.company}</p>
-                    <div className="mt-2 space-y-1 text-sm text-neutral-500">
-                      <p>{ref.email}</p>
-                      <p>{ref.phone}</p>
+              {profile.references && profile.references.length > 0 ? (
+                <div className="space-y-6">
+                  {profile.references.map((ref) => (
+                    <div
+                      key={ref.id}
+                      className="border-b border-neutral-200 pb-6"
+                    >
+                      <h3 className="text-lg">{ref.name}</h3>
+                      <p className="text-neutral-600">{ref.position}</p>
+                      <p className="text-neutral-600">{ref.company}</p>
+                      <div className="mt-2 space-y-1 text-sm text-neutral-500">
+                        <p>{ref.email}</p>
+                        <p>{ref.phone}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-neutral-500">No references added yet.</p>
+              )}
             </div>
           </div>
 
@@ -382,44 +370,48 @@ const ResumeView = () => {
                   className="w-24 h-24 rounded-full mx-auto mb-4"
                 />
                 <h2 className="text-xl">
-                  {profile.personalDetails.firstName}{" "}
-                  {profile.personalDetails.middleName}{" "}
-                  {profile.personalDetails.lastName}
+                  {profile.jobseekerProfile.first_name}{" "}
+                  {profile.jobseekerProfile.middle_name}{" "}
+                  {profile.jobseekerProfile.last_name}
                 </h2>
                 <p className="text-neutral-600">
-                  {profile.personalDetails.lookingFor}
+                  {profile.jobseekerProfile.looking_for}
                 </p>
               </div>
               <div className="flex justify-center gap-4 mt-4">
-                {profile.additionalDetails.socialLinks.portfolio && (
-                  <a
-                    href={profile.additionalDetails.socialLinks.portfolio}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neutral-600 hover:text-neutral-900"
-                  >
-                    <Globe className="w-5 h-5" />
-                  </a>
-                )}
-                {profile.additionalDetails.socialLinks.linkedin && (
-                  <a
-                    href={profile.additionalDetails.socialLinks.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neutral-600 hover:text-neutral-900"
-                  >
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                )}
-                {profile.additionalDetails.socialLinks.github && (
-                  <a
-                    href={profile.additionalDetails.socialLinks.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neutral-600 hover:text-neutral-900"
-                  >
-                    <Github className="w-5 h-5" />
-                  </a>
+                {profile.social_links && profile.social_links.length > 0 && (
+                  <>
+                    {profile.social_links.find(link => link.platform === 'portfolio') && (
+                      <a
+                        href={profile.social_links.find(link => link.platform === 'portfolio')?.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-neutral-600 hover:text-neutral-900"
+                      >
+                        <Globe className="w-5 h-5" />
+                      </a>
+                    )}
+                    {profile.social_links.find(link => link.platform === 'linkedin') && (
+                      <a
+                        href={profile.social_links.find(link => link.platform === 'linkedin')?.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-neutral-600 hover:text-neutral-900"
+                      >
+                        <Linkedin className="w-5 h-5" />
+                      </a>
+                    )}
+                    {profile.social_links.find(link => link.platform === 'github') && (
+                      <a
+                        href={profile.social_links.find(link => link.platform === 'github')?.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-neutral-600 hover:text-neutral-900"
+                      >
+                        <Github className="w-5 h-5" />
+                      </a>
+                    )}
+                  </>
                 )}
               </div>
               <div className="mt-6">
@@ -441,12 +433,7 @@ const ResumeView = () => {
                     {completionPercentage}%
                   </span>
                 </div>
-                <div className="w-full bg-neutral-200 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full bg-black"
-                    style={{ width: `${completionPercentage}%` }}
-                  />
-                </div>
+                <Progress value={completionPercentage} className="h-2" />
                 {completionPercentage === 100 ? (
                   <p className="text-sm text-green-600">
                     Your profile is complete!
@@ -492,7 +479,9 @@ const ResumeView = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Last Updated</span>
-                  <span className="text-sm">Apr 15, 2025</span>
+                  <span className="text-sm">
+                    {profile.updated_at ? format(new Date(profile.updated_at), "MMM d, yyyy") : "Not updated yet"}
+                  </span>
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import  FormInput  from "@/components/fields/input-field"; // Import FormInput
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -22,25 +22,29 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import {  Experience as Exp } from "@/types/jobseeker-resume";
 
-// interface Experience {
-//   id: number;
-//   position: string;
-//   company: string;
-//   industry: string;
-//   jobLevel: string;
-//   responsibilities: string;
-//   startDate: Date | null;
-//   endDate: Date | null;
-//   currentlyWorking: boolean;
-// }
+// Updated interface to match the API structure from edit/page.tsx
+interface Experience {
+  id: number;
+  user_id: number;
+  position_title: string;
+  company_name: string;
+  industry: string;
+  job_level: string;
+  roles_and_responsibilities: string;
+  start_date: string | Date;
+  end_date: string | Date | null;
+  currently_work_here: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 interface ExperienceProps {
-  experiences: Exp[];
+  experiences: Experience[];
   addExperience: () => void;
   removeExperience: (id: number) => void;
   updateExperience: (id: number, field: string, value: any) => void;
+  errors?: Record<string, string>; // Add errors prop
 }
 
 const Experience: React.FC<ExperienceProps> = ({
@@ -48,7 +52,13 @@ const Experience: React.FC<ExperienceProps> = ({
   addExperience,
   removeExperience,
   updateExperience,
+  errors = {}, // Default to empty object
 }) => {
+  // Helper function to get error for a specific field
+  const getError = (id: number, field: string): string => {
+    return errors[`experiences.${id}.${field}`] || '';
+  };
+
   return (
     <div className="bg-white rounded-lg p-6 border border-neutral-200">
       <div className="flex justify-between items-center mb-6">
@@ -81,24 +91,26 @@ const Experience: React.FC<ExperienceProps> = ({
                 <Label className="text-sm font-medium pb-2 block">
                   Position Title
                 </Label>
-                <Input
-                  value={exp.position}
+                <FormInput
+                  value={exp.position_title}
                   onChange={(e) =>
-                    updateExperience(exp.id, "position", e.target.value)
+                    updateExperience(exp.id, "position_title", e.target.value)
                   }
                   placeholder="Enter position title"
+                  error={getError(exp.id, "position_title")}
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
                   Company Name
                 </Label>
-                <Input
-                  value={exp.company}
+                <FormInput
+                  value={exp.company_name}
                   onChange={(e) =>
-                    updateExperience(exp.id, "company", e.target.value)
+                    updateExperience(exp.id, "company_name", e.target.value)
                   }
                   placeholder="Enter company name"
+                  error={getError(exp.id, "company_name")}
                 />
               </div>
             </div>
@@ -114,28 +126,61 @@ const Experience: React.FC<ExperienceProps> = ({
                     updateExperience(exp.id, "industry", value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={getError(exp.id, "industry") ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="it">IT</SelectItem>
                     <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="healthcare">Healthcare</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="engineering">Engineering</SelectItem>
                     <SelectItem value="education">Education</SelectItem>
+                    <SelectItem value="healthcare">Healthcare</SelectItem>
+                    <SelectItem value="hospitality">Hospitality</SelectItem>
+                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="construction">Construction</SelectItem>
+                    <SelectItem value="transportation">
+                      Transportation
+                    </SelectItem>
+                    <SelectItem value="retail">Retail</SelectItem>
+                    <SelectItem value="customer service">
+                      Customer Service
+                    </SelectItem>
+                    <SelectItem value="legal">Legal</SelectItem>
+                    <SelectItem value="arts">Arts</SelectItem>
+                    <SelectItem value="media">Media</SelectItem>
+                    <SelectItem value="non-profit">Non-Profit</SelectItem>
+                    <SelectItem value="real estate">Real Estate</SelectItem>
+                    <SelectItem value="insurance">Insurance</SelectItem>
+                    <SelectItem value="consulting">Consulting</SelectItem>
+                    <SelectItem value="logistics">Logistics</SelectItem>
+                    <SelectItem value="wholesale">Wholesale</SelectItem>
+                    <SelectItem value="energy">Energy</SelectItem>
+                    <SelectItem value="agriculture">Agriculture</SelectItem>
+                    <SelectItem value="mining">Mining</SelectItem>
+                    <SelectItem value="defense">Defense</SelectItem>
+                    <SelectItem value="government">Government</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {getError(exp.id, "industry") && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {getError(exp.id, "industry")}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
                   Job Level
                 </Label>
                 <Select
-                  value={exp.jobLevel.toLowerCase()}
+                  value={exp.job_level.toLowerCase()}
                   onValueChange={(value) =>
-                    updateExperience(exp.id, "jobLevel", value)
+                    updateExperience(exp.id, "job_level", value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={getError(exp.id, "job_level") ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select job level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -145,6 +190,11 @@ const Experience: React.FC<ExperienceProps> = ({
                     <SelectItem value="lead">Lead/Manager</SelectItem>
                   </SelectContent>
                 </Select>
+                {getError(exp.id, "job_level") && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {getError(exp.id, "job_level")}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -153,13 +203,25 @@ const Experience: React.FC<ExperienceProps> = ({
                 Roles and Responsibilities
               </Label>
               <Textarea
-                value={exp.responsibilities}
+                value={exp.roles_and_responsibilities}
                 onChange={(e) =>
-                  updateExperience(exp.id, "responsibilities", e.target.value)
+                  updateExperience(
+                    exp.id,
+                    "roles_and_responsibilities",
+                    e.target.value
+                  )
                 }
                 placeholder="Describe your roles and responsibilities"
-                className="h-32"
+                className={cn(
+                  "h-32",
+                  getError(exp.id, "roles_and_responsibilities") ? "border-red-500" : ""
+                )}
               />
+              {getError(exp.id, "roles_and_responsibilities") && (
+                <p className="text-sm text-red-500 mt-1">
+                  {getError(exp.id, "roles_and_responsibilities")}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -173,26 +235,34 @@ const Experience: React.FC<ExperienceProps> = ({
                       variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !exp.startDate && "text-neutral-500"
+                        !exp.start_date && "text-neutral-500",
+                        getError(exp.id, "start_date") && "border-red-500"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {exp.startDate
-                        ? format(exp.startDate, "PPP")
+                      {exp.start_date
+                        ? format(new Date(exp.start_date), "PPP")
                         : "Select start date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={exp.startDate || undefined}
+                      selected={
+                        exp.start_date ? new Date(exp.start_date) : undefined
+                      }
                       onSelect={(date) =>
-                        updateExperience(exp.id, "startDate", date)
+                        updateExperience(exp.id, "start_date", date)
                       }
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
+                {getError(exp.id, "start_date") && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {getError(exp.id, "start_date")}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
@@ -204,30 +274,38 @@ const Experience: React.FC<ExperienceProps> = ({
                       variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !exp.endDate && "text-neutral-500"
+                        !exp.end_date && "text-neutral-500",
+                        getError(exp.id, "end_date") && !exp.currently_work_here && "border-red-500"
                       )}
-                      disabled={exp.currentlyWorking}
+                      disabled={exp.currently_work_here}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {exp.endDate
-                        ? format(exp.endDate, "PPP")
+                      {exp.end_date
+                        ? format(new Date(exp.end_date), "PPP")
                         : "Select end date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={exp.endDate || undefined}
+                      selected={
+                        exp.end_date ? new Date(exp.end_date) : undefined
+                      }
                       onSelect={(date) =>
-                        updateExperience(exp.id, "endDate", date)
+                        updateExperience(exp.id, "end_date", date)
                       }
                       initialFocus
                       disabled={(date) =>
-                        exp.startDate ? date < exp.startDate : false
+                        exp.start_date ? date < new Date(exp.start_date) : false
                       }
                     />
                   </PopoverContent>
                 </Popover>
+                {getError(exp.id, "end_date") && !exp.currently_work_here && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {getError(exp.id, "end_date")}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -235,11 +313,11 @@ const Experience: React.FC<ExperienceProps> = ({
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={`currentlyWorking-${exp.id}`}
-                  checked={exp.currentlyWorking}
+                  checked={exp.currently_work_here}
                   onCheckedChange={(checked: boolean) => {
-                    updateExperience(exp.id, "currentlyWorking", checked);
+                    updateExperience(exp.id, "currently_work_here", checked);
                     if (checked) {
-                      updateExperience(exp.id, "endDate", null);
+                      updateExperience(exp.id, "end_date", null);
                     }
                   }}
                 />
@@ -250,6 +328,11 @@ const Experience: React.FC<ExperienceProps> = ({
                   I currently work here
                 </Label>
               </div>
+              {getError(exp.id, "currently_work_here") && (
+                <p className="text-sm text-red-500 mt-1">
+                  {getError(exp.id, "currently_work_here")}
+                </p>
+              )}
             </div>
           </div>
         ))}

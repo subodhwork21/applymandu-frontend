@@ -64,6 +64,7 @@ const DashboardPage = () => {
     application_status_update: Briefcase,
     job_match_found: BookmarkCheck,
     job_saved: Heart,
+    default: Calendar,
   };
 
   const {
@@ -312,7 +313,7 @@ const DashboardPage = () => {
                         let IconComponent =
                           recentActivityIcons[
                             activity.type as keyof typeof recentActivityIcons
-                          ];
+                          ] || recentActivityIcons.default;
                         return (
                           <div
                             key={activity.id}

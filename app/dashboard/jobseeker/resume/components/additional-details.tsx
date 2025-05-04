@@ -3,67 +3,107 @@
 import React from 'react';
 import { Plus, X, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import FormInput from "@/components/fields/input-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+interface Skill {
+  id: number;
+  name: string;
+}
+
+interface Language {
+  id: number;
+  user_id: number;
+  language: string;
+  proficiency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Training {
+  id: number;
+  user_id: number;
+  title: string;
+  institution: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Certificate {
+  id: number;
+  user_id: number;
+  title: string;
+  issuer: string;
+  year: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SocialLink {
+  id: number;
+  user_id: number;
+  platform: string;
+  url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Reference {
+  id: number;
+  user_id: number;
+  name: string;
+  position: string;
+  company: string;
+  email: string;
+  phone: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AdditionalDetailsProps {
   additionalDetails: {
-    skills: string[];
-    languages: Array<{
-      id: number;
-      language: string;
-      proficiency: string;
-    }>;
-    training: Array<{
-      id: number;
-      title: string;
-      institution: string;
-      description: string;
-    }>;
-    certificates: Array<{
-      id: number;
-      title: string;
-      issuer: string;
-      year: string;
-    }>;
-    socialLinks: {
-      linkedin: string;
-      github: string;
-      portfolio: string;
-    };
-    references: Array<{
-      id: number;
-      name: string;
-      position: string;
-      company: string;
-      email: string;
-      phone: string;
-    }>;
+    skills: Skill[];
+    languages: Language[];
+    trainings: Training[];
+    certificates: Certificate[];
+    social_links: SocialLink[];
+    references: Reference[];
   };
   updateAdditionalDetails: (field: string, value: any) => void;
+  errors?: Record<string, string>; // Add errors prop
 }
 
 const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
   additionalDetails,
   updateAdditionalDetails,
+  errors = {}, // Default to empty object
 }) => {
-  const addSkill = (skill: string) => {
-    if (skill.trim()) {
-      updateAdditionalDetails('skills', [...additionalDetails.skills, skill.trim()]);
+  const addSkill = (skillName: string) => {
+    if (skillName.trim()) {
+      const newSkill: Skill = {
+        id: additionalDetails.skills.length ? Math.max(...additionalDetails.skills.map(s => s.id)) + 1 : 1,
+        name: skillName.trim()
+      };
+      updateAdditionalDetails('skills', [...additionalDetails.skills, newSkill]);
     }
   };
 
-  const removeSkill = (skillToRemove: string) => {
-    updateAdditionalDetails('skills', additionalDetails.skills.filter(skill => skill !== skillToRemove));
+  const removeSkill = (skillId: number) => {
+    updateAdditionalDetails('skills', additionalDetails.skills.filter(skill => skill.id !== skillId));
   };
 
   const addLanguage = () => {
-    const newLanguage = {
-      id: additionalDetails.languages.length + 1,
+    const newLanguage: Language = {
+      id: additionalDetails.languages.length ? Math.max(...additionalDetails.languages.map(l => l.id)) + 1 : 1,
+      user_id: 0, // This will be set by the backend
       language: '',
       proficiency: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     updateAdditionalDetails('languages', [...additionalDetails.languages, newLanguage]);
   };
@@ -79,31 +119,37 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
   };
 
   const addTraining = () => {
-    const newTraining = {
-      id: additionalDetails.training.length + 1,
+    const newTraining: Training = {
+      id: additionalDetails.trainings.length ? Math.max(...additionalDetails.trainings.map(t => t.id)) + 1 : 1,
+      user_id: 0, // This will be set by the backend
       title: '',
       institution: '',
       description: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
-    updateAdditionalDetails('training', [...additionalDetails.training, newTraining]);
+    updateAdditionalDetails('trainings', [...additionalDetails.trainings, newTraining]);
   };
 
   const removeTraining = (id: number) => {
-    updateAdditionalDetails('training', additionalDetails.training.filter(train => train.id !== id));
+    updateAdditionalDetails('trainings', additionalDetails.trainings.filter(train => train.id !== id));
   };
 
   const updateTraining = (id: number, field: string, value: string) => {
-    updateAdditionalDetails('training', additionalDetails.training.map(train =>
+    updateAdditionalDetails('trainings', additionalDetails.trainings.map(train =>
       train.id === id ? { ...train, [field]: value } : train
     ));
   };
 
   const addCertificate = () => {
-    const newCertificate = {
-      id: additionalDetails.certificates.length + 1,
+    const newCertificate: Certificate = {
+      id: additionalDetails.certificates.length ? Math.max(...additionalDetails.certificates.map(c => c.id)) + 1 : 1,
+      user_id: 0, // This will be set by the backend
       title: '',
       issuer: '',
       year: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     updateAdditionalDetails('certificates', [...additionalDetails.certificates, newCertificate]);
   };
@@ -118,21 +164,44 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
     ));
   };
 
-  const updateSocialLink = (platform: string, value: string) => {
-    updateAdditionalDetails('socialLinks', {
-      ...additionalDetails.socialLinks,
-      [platform]: value,
-    });
+  const updateSocialLink = (platform: string, url: string) => {
+    // Find if this platform already exists
+    const existingIndex = additionalDetails.social_links.findIndex(link => link.platform === platform);
+    
+    if (existingIndex >= 0) {
+      // Update existing link
+      const updatedLinks = [...additionalDetails.social_links];
+      updatedLinks[existingIndex] = {
+        ...updatedLinks[existingIndex],
+        url: url,
+        updated_at: new Date().toISOString()
+      };
+      updateAdditionalDetails('social_links', updatedLinks);
+    } else {
+      // Add new link
+      const newLink: SocialLink = {
+        id: additionalDetails.social_links.length ? Math.max(...additionalDetails.social_links.map(l => l.id)) + 1 : 1,
+        user_id: 0, // This will be set by the backend
+        platform: platform,
+        url: url,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      updateAdditionalDetails('social_links', [...additionalDetails.social_links, newLink]);
+    }
   };
 
   const addReference = () => {
-    const newReference = {
-      id: additionalDetails.references.length + 1,
+    const newReference: Reference = {
+      id: additionalDetails.references.length ? Math.max(...additionalDetails.references.map(r => r.id)) + 1 : 1,
+      user_id: 0, // This will be set by the backend
       name: '',
       position: '',
       company: '',
       email: '',
       phone: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     updateAdditionalDetails('references', [...additionalDetails.references, newReference]);
   };
@@ -147,6 +216,17 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
     ));
   };
 
+  // Helper function to get social link URL by platform
+  const getSocialLinkUrl = (platform: string): string => {
+    const link = additionalDetails.social_links.find(link => link.platform === platform);
+    return link ? link.url : '';
+  };
+
+  // Helper function to get error for a specific field
+  const getError = (field: string): string => {
+    return errors[field] || '';
+  };
+
   return (
     <div className="bg-white rounded-lg p-6 border border-neutral-200">
       <div className="space-y-8">
@@ -155,8 +235,9 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
           <h3 className="text-lg font-medium mb-4">Skills</h3>
           <div className="space-y-4">
             <div className="flex gap-2">
-              <Input
+              <FormInput
                 placeholder="Add a skill"
+                error={getError('skills')}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     addSkill((e.target as HTMLInputElement).value);
@@ -178,12 +259,12 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
             <div className="flex flex-wrap gap-2">
               {additionalDetails.skills.map((skill) => (
                 <div
-                  key={skill}
+                  key={skill.id}
                   className="bg-neutral-100 text-neutral-700 px-3 py-1 rounded-full flex items-center gap-2"
                 >
-                  <span>{skill}</span>
+                  <span>{skill.name}</span>
                   <button
-                    onClick={() => removeSkill(skill)}
+                    onClick={() => removeSkill(skill.id)}
                     className="hover:text-neutral-900"
                   >
                     <X className="h-3 w-3" />
@@ -207,25 +288,31 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
             {additionalDetails.languages.map((lang) => (
               <div key={lang.id} className="flex gap-4 items-start">
                 <div className="flex-1 grid grid-cols-2 gap-4">
-                  <Input
+                  <FormInput
                     placeholder="Language"
                     value={lang.language}
+                    error={getError(`languages.${lang.id}.language`)}
                     onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
                   />
                   <Select
                     value={lang.proficiency}
                     onValueChange={(value) => updateLanguage(lang.id, 'proficiency', value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={errors[`languages.${lang.id}.proficiency`] ? 'border-red-500' : ''}>
                       <SelectValue placeholder="Select proficiency" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="native">Native</SelectItem>
-                      <SelectItem value="fluent">Fluent</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="basic">Basic</SelectItem>
+                      <SelectItem value="Native">Native</SelectItem>
+                      <SelectItem value="Fluent">Fluent</SelectItem>
+                      <SelectItem value="Intermediate">Intermediate</SelectItem>
+                      <SelectItem value="Basic">Basic</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors[`languages.${lang.id}.proficiency`] && (
+                    <p className="text-sm text-red-500 mt-1 col-span-2">
+                      {errors[`languages.${lang.id}.proficiency`]}
+                    </p>
+                  )}
                 </div>
                 <Button
                   variant="ghost"
@@ -249,25 +336,33 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
             </Button>
           </div>
           <div className="space-y-6">
-            {additionalDetails.training.map((train) => (
+            {additionalDetails.trainings.map((train) => (
               <div key={train.id} className="border border-neutral-200 rounded-lg p-4">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1 space-y-4">
-                    <Input
+                    <FormInput
                       placeholder="Training Title"
                       value={train.title}
+                      error={getError(`trainings.${train.id}.title`)}
                       onChange={(e) => updateTraining(train.id, 'title', e.target.value)}
                     />
-                    <Input
+                    <FormInput
                       placeholder="Institution"
                       value={train.institution}
+                      error={getError(`trainings.${train.id}.institution`)}
                       onChange={(e) => updateTraining(train.id, 'institution', e.target.value)}
                     />
                     <Textarea
                       placeholder="Description"
                       value={train.description}
                       onChange={(e) => updateTraining(train.id, 'description', e.target.value)}
+                      className={errors[`trainings.${train.id}.description`] ? 'border-red-500' : ''}
                     />
+                    {errors[`trainings.${train.id}.description`] && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors[`trainings.${train.id}.description`]}
+                      </p>
+                    )}
                   </div>
                   <Button
                     variant="ghost"
@@ -296,20 +391,23 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               <div key={cert.id} className="border border-neutral-200 rounded-lg p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 grid grid-cols-3 gap-4">
-                    <Input
+                    <FormInput
                       placeholder="Certificate Title"
                       value={cert.title}
+                      error={getError(`certificates.${cert.id}.title`)}
                       onChange={(e) => updateCertificate(cert.id, 'title', e.target.value)}
                       className="col-span-2"
                     />
-                    <Input
+                    <FormInput
                       placeholder="Year"
                       value={cert.year}
+                      error={getError(`certificates.${cert.id}.year`)}
                       onChange={(e) => updateCertificate(cert.id, 'year', e.target.value)}
                     />
-                    <Input
+                    <FormInput
                       placeholder="Issuing Organization"
                       value={cert.issuer}
+                      error={getError(`certificates.${cert.id}.issuer`)}
                       onChange={(e) => updateCertificate(cert.id, 'issuer', e.target.value)}
                       className="col-span-3"
                     />
@@ -333,25 +431,28 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <LinkIcon className="h-5 w-5 text-neutral-500" />
-              <Input
+              <FormInput
                 placeholder="LinkedIn URL"
-                value={additionalDetails.socialLinks.linkedin}
+                value={getSocialLinkUrl('linkedin')}
+                error={getError('social_links.linkedin')}
                 onChange={(e) => updateSocialLink('linkedin', e.target.value)}
               />
             </div>
             <div className="flex items-center gap-4">
               <LinkIcon className="h-5 w-5 text-neutral-500" />
-              <Input
+              <FormInput
                 placeholder="GitHub URL"
-                value={additionalDetails.socialLinks.github}
+                value={getSocialLinkUrl('github')}
+                error={getError('social_links.github')}
                 onChange={(e) => updateSocialLink('github', e.target.value)}
               />
             </div>
             <div className="flex items-center gap-4">
               <LinkIcon className="h-5 w-5 text-neutral-500" />
-              <Input
+              <FormInput
                 placeholder="Portfolio URL"
-                value={additionalDetails.socialLinks.portfolio}
+                value={getSocialLinkUrl('portfolio')}
+                error={getError('social_links.portfolio')}
                 onChange={(e) => updateSocialLink('portfolio', e.target.value)}
               />
             </div>
@@ -381,30 +482,35 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
                   </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
+                  <FormInput
                     placeholder="Full Name"
                     value={ref.name}
+                    error={getError(`references.${ref.id}.name`)}
                     onChange={(e) => updateReference(ref.id, 'name', e.target.value)}
                   />
-                  <Input
+                  <FormInput
                     placeholder="Position"
                     value={ref.position}
+                    error={getError(`references.${ref.id}.position`)}
                     onChange={(e) => updateReference(ref.id, 'position', e.target.value)}
                   />
-                  <Input
+                  <FormInput
                     placeholder="Company"
                     value={ref.company}
+                    error={getError(`references.${ref.id}.company`)}
                     onChange={(e) => updateReference(ref.id, 'company', e.target.value)}
                   />
-                  <Input
+                  <FormInput
                     placeholder="Email"
                     type="email"
                     value={ref.email}
+                    error={getError(`references.${ref.id}.email`)}
                     onChange={(e) => updateReference(ref.id, 'email', e.target.value)}
                   />
-                  <Input
+                  <FormInput
                     placeholder="Phone"
                     value={ref.phone}
+                    error={getError(`references.${ref.id}.phone`)}
                     onChange={(e) => updateReference(ref.id, 'phone', e.target.value)}
                   />
                 </div>

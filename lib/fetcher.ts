@@ -31,7 +31,12 @@ if (response.status === 500) {
 }
 
 if (response.status === 204 || response.status === 404) {
-  return null;
+  return {
+    result: null,
+    response: response,
+    error: null,
+    message: null,
+  };
 }
 
 // Try to parse the response as JSON
@@ -46,6 +51,7 @@ try {
     result: null,
     response,
     error: new Error("Invalid JSON response"),
+    message: null,
   };
 }
 
@@ -61,6 +67,7 @@ if (!response.ok) {
     result: null,
     response,
     error: errorObj,
+    message: data?.message,
   };
 }
 
@@ -69,6 +76,7 @@ return {
   result: data,
   response,
   error: null,
+  message: data?.message,
 };
   }
 
@@ -88,9 +96,9 @@ export async function baseFetcher(
 
     const fetch = await fetchApi (fullUrl, options);
 
-    if (!fetch) {
-      throw new Error("Failed to fetch data");
-    }
+    // if (!fetch) {
+    //   throw new Error(fetch?.message);
+    // }
     return fetch;
 }
 

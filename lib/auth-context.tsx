@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
   const login = async (email: string, password: string) => {
 
-    const {response, result} = await baseFetcher('api/login', {
+    const {response, result, error, message} = await baseFetcher('api/login', {
       method: "POST",
       body: JSON.stringify({
         email: email,
@@ -87,6 +87,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
     });
 
+    // console.log(response?.ok,result);
+
+    // if(response?.status === 401){
+    //   throw new Error("Invalid credentials");
+    // }
 
     if(response?.ok){
 
@@ -97,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         first_name: result?.user?.first_name,
         last_name: result?.user?.last_name,
         image_path: result?.user?.image_path,
-        position_title: result?.user?.experiences[0]?.position_title
+        // position_title: result?.user?.experiences[0]?.position_title
       })
       setIsEmployer(result?.is_employer);
       toast({
@@ -107,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       closeLoginModal();
     }
     else{
-        throw new Error("Invalid credentials");
+      throw new Error(result?.message || "Login failed");
     }
   };
 

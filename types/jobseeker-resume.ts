@@ -42,15 +42,15 @@ export interface JobSeekerProfileResponse {
   }
   
  export interface Experience {
-    id: number;
-    user_id: number;
+    id: number ;
+    user_id: number ;
     position_title: string;
     company_name: string;
     industry: string;
     job_level: string;
     roles_and_responsibilities: string;
     start_date: string;
-    end_date: string | null;
+    end_date: string ;
     currently_work_here: boolean;
     created_at: string;
     updated_at: string;
@@ -87,13 +87,15 @@ export  interface Training {
     description: string;
     created_at: string;
     updated_at: string;
+    institution: string;
   }
   
-export  interface Certificate {
+export interface Certificate {
     id: number;
     user_id: number;
     title: string;
     year: string;
+    issuer: string;
     created_at: string;
     updated_at: string;
   }
@@ -102,6 +104,7 @@ export  interface Certificate {
     id: number;
     user_id: number;
     url: string;
+    platform: string;
     created_at: string;
     updated_at: string;
   }
@@ -118,7 +121,7 @@ export  interface Certificate {
     updated_at: string;
   }
   
-  interface Skill {
+ export interface Skill {
     id: number;
     name: string;
   }

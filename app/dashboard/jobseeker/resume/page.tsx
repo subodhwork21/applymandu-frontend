@@ -7,15 +7,153 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import PersonalDetails from "./components/personal-details";
-import Experience from "./components/experience";
-import Education from "./components/education";
+import Experiences from "./components/experience";
+import Educations from "./components/education";
 import AdditionalDetails from "./components/additional-details";
 import ResumeView from "./view/page";
-import { mockUserProfile } from "@/lib/constants";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { useAuth } from "@/lib/auth-context";
-import { JobSeekerProfile, JobSeekerProfileResponse } from "@/types/jobseeker-resume";
+
+// Updated interfaces to match the API response
+interface Skill {
+  id: number;
+  name: string;
+}
+
+interface Language {
+  id: number;
+  user_id: number;
+  language: string;
+  proficiency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Training {
+  id: number;
+  user_id: number;
+  title: string;
+  institution: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Certificate {
+  id: number;
+  user_id: number;
+  title: string;
+  issuer: string;
+  year: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SocialLink {
+  id: number;
+  user_id: number;
+  platform: string;
+  url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Reference {
+  id: number;
+  user_id: number;
+  name: string;
+  position: string;
+  company: string;
+  email: string;
+  phone: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Experience {
+  id: number;
+  user_id: number;
+  position_title: string;
+  company_name: string;
+  industry: string;
+  job_level: string;
+  roles_and_responsibilities: string;
+  start_date: string;
+  end_date: string | null;
+  currently_work_here: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Education {
+  id: number;
+  user_id: number;
+  degree: string;
+  subject_major: string;
+  institution: string;
+  university_board: string;
+  grading_type: string;
+  joined_year: string;
+  passed_year: string | null;
+  currently_studying: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface JobSeekerProfile {
+  id: number | null;
+  user_id: number | null;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  district: string;
+  municipality: string;
+  city_tole: string;
+  date_of_birth: string;
+  mobile: string;
+  industry: string;
+  preferred_job_type: string;
+  gender: string;
+  has_driving_license: boolean;
+  has_vehicle: boolean;
+  career_objectives: string;
+  looking_for: string;
+  salary_expectations: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface JobSeekerProfileData {
+  id: number;
+  name: string | null;
+  email: string;
+  phone: string | null;
+  jobseekerProfile: JobSeekerProfile;
+  experiences: Experience[];
+  educations: Education[];
+  languages: Language[];
+  trainings: Training[];
+  certificates: Certificate[];
+  social_links: SocialLink[];
+  references: Reference[];
+  skills: Skill[];
+  created_at: string;
+  updated_at: string;
+}
+
+interface JobSeekerProfileResponse {
+  data: JobSeekerProfileData;
+}
+
+interface AdditionalDetailsState {
+  skills: Skill[];
+  languages: Language[];
+  trainings: Training[];
+  certificates: Certificate[];
+  social_links: SocialLink[];
+  references: Reference[];
+}
 
 const ResumePage = () => {
   const router = useRouter();
@@ -24,141 +162,68 @@ const ResumePage = () => {
   const progress = (currentStep / totalSteps) * 100;
   const {user} = useAuth();
 
-  const {data: resume, mutate} = useSWR<JobSeekerProfileResponse>(user?.id != undefined ? "api/jobseeker/resume/"+user?.id : null, defaultFetcher);
+  const {data: resume, mutate} = useSWR<JobSeekerProfileResponse>(
+    user?.id !== undefined ? `api/jobseeker/resume/${user.id}` : null, 
+    defaultFetcher
+  );
 
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [educations, setEducations] = useState<Education[]>([]);
+  const [personalDetails, setPersonalDetails] = useState<JobSeekerProfile | undefined>();
+  const [additionalDetails, setAdditionalDetails] = useState<AdditionalDetailsState>({
+    skills: [],
+    languages: [],
+    trainings: [],
+    certificates: [],
+    social_links: [],
+    references: [],
+  });
 
-  useEffect(()=>{
+  // Fetch profile completion data
+  const {data: resumeComplete, mutate: mutateResumeComplete} = useSWR<Record<string,any>>(
+    user?.id !== undefined ? "api/dashboard/profile-completion" : null, 
+    defaultFetcher
+  );
+
+  // Refetch data when user changes
+  useEffect(() => {
     if(user?.id){
       mutate();
+      mutateResumeComplete();
     }
-  }, [user])
+  }, [user, mutate, mutateResumeComplete]);
 
-  console.log(resume);
-
-  const [experiences, setExperiences] = useState([
-    {
-      id: 1,
-      position: "",
-      company: "",
-      industry: "",
-      jobLevel: "",
-      responsibilities: "",
-      startDate: null as Date | null,
-      endDate: null as Date | null,
-      currentlyWorking: false,
-    },
-  ]);
-
-  const [educations, setEducations] = useState([
-    {
-      id: 1,
-      degree: "",
-      subject: "",
-      institution: "",
-      university: "",
-      gradingType: "",
-      joinedYear: null as Date | null,
-      passedYear: null as Date | null,
-      currentlyStudying: false,
-    },
-  ]);
-
-  const [personalDetails, setPersonalDetails] = useState<JobSeekerProfile['jobseekerProfile']>({
-      id: null,
-      user_id: null,
-      first_name: "",
-      middle_name: "",
-      last_name: "",
-      district: "",
-      municipality: "",
-      city_tole: "",
-      date_of_birth: "",
-      mobile: "",
-      industry: "",
-      preferred_job_type: "",
-      gender: "",
-      has_driving_license: false,
-      has_vehicle: false,
-      career_objectives: "",
-      looking_for: "",
-      salary_expectations: "",
-      created_at: "",
-      updated_at: "",
-  });
-
-  const [additionalDetails, setAdditionalDetails] = useState({
-    skills: [] as string[],
-    languages: [] as Array<{
-      id: number;
-      language: string;
-      proficiency: string;
-    }>,
-    training: [] as Array<{
-      id: number;
-      title: string;
-      institution: string;
-      description: string;
-    }>,
-    certificates: [] as Array<{
-      id: number;
-      title: string;
-      issuer: string;
-      year: string;
-    }>,
-    socialLinks: {
-      linkedin: "",
-      github: "",
-      portfolio: "",
-    },
-    references: [] as Array<{
-      id: number;
-      name: string;
-      position: string;
-      company: string;
-      email: string;
-      phone: string;
-    }>,
-  });
-
-  // Check if required steps are completed
-  const isPersonalDetailsComplete = () => {
-    return (
-      personalDetails.firstName &&
-      personalDetails.lastName &&
-      personalDetails.industry
-    );
-  };
-
-  const isExperienceComplete = () => {
-    return experiences.some((exp) => exp.position && exp.company);
-  };
-
-  const isEducationComplete = () => {
-    return educations.some((edu) => edu.degree && edu.institution);
-  };
-
-  const areRequiredStepsComplete = () => {
-    return (
-      isPersonalDetailsComplete() &&
-      isExperienceComplete() &&
-      isEducationComplete()
-    );
-  };
-
-  // Load mock data for demonstration
+  // Load data from API response
   useEffect(() => {
-    // In a real application, you would fetch this data from an API
-    const loadMockData = () => {
-      setPersonalDetails(resume?.data?.jobseekerProfile!);
-      // setPersonalDetails(mockUserProfile.personalDetails);
-      // setExperiences(mockUserProfile.experiences);
-      // setEducations(mockUserProfile.education);
-      // setAdditionalDetails(mockUserProfile.additionalDetails);
-
-    };
-
-    loadMockData();
+    if (!resume?.data) return;
+    
+    setPersonalDetails(resume.data.jobseekerProfile);
+    setExperiences(resume.data.experiences || []);
+    setEducations(resume.data.educations || []);
+    
+    setAdditionalDetails({
+      skills: resume.data.skills || [],
+      languages: resume.data.languages || [],
+      trainings: resume.data.trainings || [],
+      certificates: resume.data.certificates || [],
+      social_links: resume.data.social_links || [],
+      references: resume.data.references || [],
+    });
   }, [resume]);
+
+  // Calculate profile completion percentage
+  const calculateProfileCompletion = () => {
+    if (!resumeComplete?.data?.profile_completion?.section_weights) {
+      return 0;
+    }
+    
+    const weights = resumeComplete.data.profile_completion.section_weights;
+    return (
+      (weights.personal_info / 25) * 100 + 
+      (weights.work_experience / 20) * 100 + 
+      (weights.education / 20) * 100
+    ) / 3;
+  };
 
   const steps = [
     { number: 1, title: "Personal Details" },
@@ -189,49 +254,61 @@ const ResumePage = () => {
   };
 
   const addExperience = () => {
+    if (!user?.id) return;
+    
+    const newId = experiences.length ? Math.max(...experiences.map(exp => exp.id)) + 1 : 1;
     setExperiences([
       ...experiences,
       {
-        id: experiences.length + 1,
-        position: "",
-        company: "",
+        id: newId,
+        user_id: Number(user.id),
+        position_title: "",
+        company_name: "",
         industry: "",
-        jobLevel: "",
-        responsibilities: "",
-        startDate: null,
-        endDate: null,
-        currentlyWorking: false,
+        job_level: "",
+        roles_and_responsibilities: "",
+        start_date: "",
+        end_date: null,
+        currently_work_here: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
     ]);
   };
 
-  // const removeExperience = (id: number) => {
-  //   if (experiences.length > 1) {
-  //     setExperiences(experiences.filter((exp) => exp.id !== id));
-  //   }
-  // };
+  const removeExperience = (id: number) => {
+    if (experiences.length > 1) {
+      setExperiences(experiences.filter((exp) => exp.id !== id));
+    }
+  };
 
-  // const updateExperience = (id: number, field: string, value: any) => {
-  //   setExperiences(
-  //     experiences.map((exp) =>
-  //       exp.id === id ? { ...exp, [field]: value } : exp
-  //     )
-  //   );
-  // };
+  const updateExperience = (id: number, field: string, value: any) => {
+    setExperiences(
+      experiences.map((exp) =>
+        exp.id === id ? { ...exp, [field]: value } : exp
+      )
+    );
+  };
 
   const addEducation = () => {
+    if (!user?.id) return;
+    
+    const newId = educations.length ? Math.max(...educations.map(edu => edu.id)) + 1 : 1;
     setEducations([
       ...educations,
       {
-        id: educations.length + 1,
+        id: newId,
+        user_id: Number(user.id),
         degree: "",
-        subject: "",
+        subject_major: "",
         institution: "",
-        university: "",
-        gradingType: "",
-        joinedYear: null,
-        passedYear: null,
-        currentlyStudying: false,
+        university_board: "",
+        grading_type: "",
+        joined_year: "",
+        passed_year: null,
+        currently_studying: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
     ]);
   };
@@ -251,7 +328,8 @@ const ResumePage = () => {
   };
 
   const updatePersonalDetails = (field: string, value: any) => {
-    setPersonalDetails((prev) => ({ ...prev, [field]: value }));
+    if (!personalDetails) return;
+    setPersonalDetails({ ...personalDetails, [field]: value });
   };
 
   const updateAdditionalDetails = (field: string, value: any) => {
@@ -259,12 +337,11 @@ const ResumePage = () => {
   };
 
   // If required steps are complete, show the resume view
-  if (areRequiredStepsComplete()) {
+  const profileCompletionPercentage = calculateProfileCompletion();
+  console.log(profileCompletionPercentage)
+  if (profileCompletionPercentage >= 100) {
     return <ResumeView />;
   }
-
-
-
 
   // Otherwise, show the resume creation form
   return (
@@ -299,7 +376,7 @@ const ResumePage = () => {
           </div>
 
           {/* Step 1: Personal Details */}
-          {currentStep === 1 && (
+          {currentStep === 1 && personalDetails && (
             <PersonalDetails
               personalDetails={personalDetails}
               updatePersonalDetails={updatePersonalDetails}
@@ -308,8 +385,8 @@ const ResumePage = () => {
 
           {/* Step 2: Experience */}
           {currentStep === 2 && (
-            <Experience
-              experiences={resume?.data?.experiences!}
+            <Experiences
+              experiences={experiences}
               addExperience={addExperience}
               removeExperience={removeExperience}
               updateExperience={updateExperience}
@@ -318,7 +395,7 @@ const ResumePage = () => {
 
           {/* Step 3: Education */}
           {currentStep === 3 && (
-            <Education
+            <Educations
               educations={educations}
               addEducation={addEducation}
               removeEducation={removeEducation}

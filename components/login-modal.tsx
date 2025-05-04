@@ -29,8 +29,8 @@ const LoginModal = () => {
 
     try {
       await login(email, password);
-    } catch (err) {
-      setError("Invalid email or password");
+    } catch (error: any) {
+      setError(error?.message);
     } finally {
       setIsLoading(false);
     }
