@@ -22,10 +22,8 @@ import { Button } from "@/components/ui/button";
 import RichTextEditor from "@/components/ui/rich-text-editor";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
-import { mockUserProfile } from "@/lib/constants";
 import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
-import { notFound } from "next/navigation";
 import { UserProfile } from "@/types/user-profile-type";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -33,22 +31,16 @@ import { AlertCircle } from "lucide-react";
 
 const ApplicationPanel = () => {
   const { isApplyOpen, selectedJob, closeApplicationPanel } = useApplication();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [apiError, setApiError] = useState<{
     message: string;
     errors?: Record<string, string[]>;
   } | null>(null);
-  // const profile = mockUserProfile;
 
   const { data: jobseekerData, isLoading, mutate, error } = useSWR<UserProfile>(
-    "api/jobseeker/user-profile",
+    isAuthenticated ? "api/jobseeker/user-profile" : null,
     defaultFetcher
   );
-
-
-  if(error){
-    // notFound();
-  }
 
   // Initialize form with empty values first
   const form = useForm({
@@ -60,46 +52,54 @@ const ApplicationPanel = () => {
       year_of_experience: "",
       expected_salary: "",
       notice_period: "",
-      coverLetter: "",
+      cover_letter: "",
     },
   });
 
   // Update form values when data is loaded
   useEffect(() => {
-    if (jobseekerData?.data && !isLoading) {
+    if (user && jobseekerData?.data && !isLoading) {
       form.reset({
-        first_name: jobseekerData.data.first_name || "",
-        lastName: jobseekerData.data.last_name || "",
+        first_name: user?.first_name || "",
+        lastName: user?.last_name || "",
         email: jobseekerData.data.email || "",
         phone: jobseekerData.data.phone || "+977",
-        year_of_experience:  "",
-        expected_salary: "",
-        notice_period: "",
-        coverLetter: "",
+        year_of_experience: selectedJob?.year_of_experience?.toString() || "",
+        expected_salary: selectedJob?.expected_salary?.toString() || "",
+        notice_period: selectedJob?.notice_period?.toString() || "",
+        cover_letter: selectedJob?.cover_letter || "",
       });
-      
-      // Log the updated form values
     }
-  }, [jobseekerData, isLoading, form]);
-
-
+  }, [jobseekerData, isLoading, form, user, selectedJob]);
 
   const onSubmit = async(data: any) => {
-    console.log(data);
-    const {first_name, lastName, email, phone, ...selectedData } = data;
-    const {response, result} = await baseFetcher("api/jobseeker/application/apply/"+selectedJob?.id, {
-      method: "POST",
-      body: JSON.stringify(selectedData),
-    });
-    if(response?.ok){
-      toast({
-        title: "Application submitted successfully",
-        description: "Your application has been submitted successfully",
-        variant:"default"
+    setApiError(null); // Clear previous errors
+    
+    try {
+      const {first_name, lastName, email, phone, ...applicationData } = data;
+      
+      if (!selectedJob?.id) {
+        toast({
+          title: "Error",
+          description: "No job selected",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const {response, result} = await baseFetcher(`api/jobseeker/application/apply/${selectedJob.id}`, {
+        method: "POST",
+        body: JSON.stringify(applicationData),
       });
-      closeApplicationPanel();
-    }
-      else {
+      
+      if(response?.ok) {
+        toast({
+          title: "Application submitted successfully",
+          description: "Your application has been submitted successfully",
+          variant: "default"
+        });
+        closeApplicationPanel();
+      } else {
         if (result?.error && result?.errors) {
           setApiError({
             message: result.message || "Validation failed",
@@ -127,9 +127,15 @@ const ApplicationPanel = () => {
             variant: "destructive"
           });
         }
-      
+      }
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
     }
-    // closeApplicationPanel();
   };
 
   return (
@@ -173,7 +179,7 @@ const ApplicationPanel = () => {
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input  {...field} disabled/>
+                        <Input {...field} disabled />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -283,7 +289,7 @@ const ApplicationPanel = () => {
 
               <FormField
                 control={form.control}
-                name="coverLetter"
+                name="cover_letter"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cover Letter</FormLabel>

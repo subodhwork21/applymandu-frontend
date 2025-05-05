@@ -70,6 +70,8 @@ export interface JobDescription {
     id: number;
     title: string;
     experience_level: string | null;
+    year_of_experience: string | null;
+    expected_salary: string | null;
     location: string;
     description: string;
     is_remote: boolean;
@@ -88,5 +90,8 @@ export interface JobDescription {
     updated_at: string;
     viewed: boolean | null;
     saved: boolean | null;
+    notice_period: string;
+    coverLetter: string;
+    cover_letter:string;
   };
 }

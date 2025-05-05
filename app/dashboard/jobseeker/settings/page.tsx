@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,10 +16,392 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import useSWR from "swr";
+import { defaultFetcher, baseFetcher } from "@/lib/fetcher";
+import { toast, useToast } from '@/hooks/use-toast';
+import { deleteCookie } from 'cookies-next/client';
+import { useAuth } from '@/lib/auth-context';
+import { jobSeekerToken } from '@/lib/tokens';
+
+interface UserProfile {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  image_path: string | null;
+  profile_visibility: boolean;
+  searchable: boolean;
+  show_contact_info: boolean;
+  show_activity_status: boolean;
+  allow_data_usage: boolean;
+  email_notifications: boolean;
+  sms_notifications: boolean;
+  newsletter_subscription: boolean;
+}
 
 const SettingsPage = () => {
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
-  const [showDeactivateDialog, setShowDeactivateDialog] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState<UserProfile>({
+    id: 0,
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    image_path: null,
+    profile_visibility: false,
+    searchable: false,
+    show_contact_info: false,
+    show_activity_status: false,
+    allow_data_usage: false,
+    email_notifications: false,
+    sms_notifications: false,
+    newsletter_subscription: false
+  });
+  
+  // Password state
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    new_password_confirmation: ""
+  });
+
+  const {user, logout} = useAuth();
+
+  // Fetch user profile data
+  const { data, error, isLoading, mutate } = useSWR<Record<string,any>>('api/jobseeker/user-profile', defaultFetcher);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  // Update form data when API data is loaded
+  useEffect(() => {
+    if (data && data?.success) {
+      const userData = data?.data;
+      setFormData({
+        id: userData.id,
+        first_name: userData.first_name || "",
+        last_name: userData.last_name || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+        image_path: userData.image_path,
+        profile_visibility: userData.profile_visibility || false,
+        searchable: userData.searchable || false,
+        show_contact_info: userData.show_contact_info || false,
+        show_activity_status: userData.show_activity_status || false,
+        allow_data_usage: userData.allow_data_usage || false,
+        email_notifications: userData.email_notifications || false,
+        sms_notifications: userData.sms_notifications || false,
+        newsletter_subscription: userData.newsletter_subscription || false
+      });
+    }
+  }, [data]);
+
+  // Handle input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (field: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: checked
+    }));
+  };
+
+  
+  const handleImageUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    const fileInput = fileInputRef.current;
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select an image to upload",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const file = fileInput.files[0];
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select a valid image file",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size should be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+  
+    try {
+      // Create FormData object
+      const formData = new FormData();
+      formData.append('image', file);
+  
+      // Get the base URL
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!baseUrl) {
+        throw new Error("API URL is not defined");
+      }
+  
+      // Make a direct fetch request instead of using baseFetcher
+      const response = await fetch(`${baseUrl}api/jobseeker/upload-image`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          // Don't set Content-Type when sending FormData
+          // Let the browser set it automatically with the boundary
+          'Authorization': `Bearer ${jobSeekerToken()}`
+        },
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Profile image updated successfully",
+        });
+        
+        // Update the user state with the new image path if available
+        if (result?.data?.image_path) {
+          setFormData(prev => ({
+            ...prev,
+            image_path: result.data.image_path
+          }));
+        }
+        
+        // Refresh the data
+        mutate();
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to upload image",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Image upload error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Handle password changes
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const { response, result } = await baseFetcher('api/jobseeker/user-profile', {
+        method: 'PUT',
+        body: JSON.stringify(formData)
+      });
+
+      if (response?.ok) {
+        toast({
+          title: "Success",
+          description: "Your settings have been updated successfully.",
+          variant: "default",
+        });
+        mutate(); // Refresh the data
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to update settings. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle password update
+  const handlePasswordUpdate = async () => {
+    if (passwordData.new_password !== passwordData.new_password_confirmation) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { response, result, error, message, errors } = await baseFetcher('api/jobseeker/change-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          current_password: passwordData.current_password,
+          password: passwordData.new_password,
+          password_confirmation: passwordData.new_password_confirmation
+        })
+      });
+
+
+      if (response?.ok) {
+        toast({
+          title: "Success",
+          description: "Your password has been updated successfully.",
+          variant: "default",
+        });
+        setPasswordData({
+          current_password: "",
+          new_password: "",
+          new_password_confirmation: ""
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errors["current_password"] || errors["password"] || errors["password_confirmation"] || "Failed to update password. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle account deactivation
+  const handleDeactivateAccount = async () => {
+    try {
+      const { response, result } = await baseFetcher('api/jobseeker/deactivate-account', {
+        method: 'POST'
+      });
+
+      if (response?.ok) {
+        toast({
+          title: "Account Deactivated",
+          description: "Your account has been deactivated successfully.",
+          variant: "default",
+        });
+        // Redirect to logout or home page
+        deleteCookie('JOBSEEKER_TOKEN');
+        logout();
+        window.location.href = "/";
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to deactivate account. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
+    setShowDeactivateDialog(false);
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = async () => {
+    try {
+      const { response, result } = await baseFetcher('api/jobseeker/delete-account', {
+        method: 'DELETE'
+      });
+
+      if (response?.ok) {
+        toast({
+          title: "Account Deleted",
+          description: "Your account has been permanently deleted.",
+          variant: "default",
+        });
+        // Redirect to home page
+        window.location.href = "/";
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to delete account. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
+    setShowDeleteDialog(false);
+  };
+
+  if (isLoading) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p>Loading your settings...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p className="text-red-500">Error loading your settings. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-8">
@@ -32,34 +414,81 @@ const SettingsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Profile Photo */}
-            <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-lg mb-4">Profile Photo</h3>
-              <div className="flex items-center space-x-4">
-                <img 
-                  src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=789" 
-                  alt="Profile" 
-                  className="w-20 h-20 rounded-full"
-                />
-                <div>
-                  <Button className="bg-black text-white hover:bg-neutral-800">Change Photo</Button>
-                  <p className="text-sm text-neutral-500 mt-2">Recommended: Square JPG, PNG (300x300px)</p>
-                </div>
-              </div>
-            </div>
+<form onSubmit={handleImageUpload} className="bg-white rounded-lg border border-neutral-200 p-6">
+  <h3 className="text-lg mb-4">Profile Photo</h3>
+  <div className="flex items-center space-x-4">
+    <img 
+      src={formData.image_path || "https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=789"} 
+      alt="Profile" 
+      className="w-20 h-20 rounded-full object-cover"
+    />
+    <div>
+      <Button 
+        type='button' 
+        className="bg-black text-white hover:bg-neutral-800"
+        onClick={triggerFileInput}
+        disabled={isUploading}
+      >
+        {isUploading ? "Uploading..." : "Change Photo"}
+        <input 
+          type="file" 
+          accept="image/*" 
+          className="sr-only" 
+          ref={fileInputRef}
+          onChange={() => {
+            // Auto-submit the form when a file is selected
+            if (fileInputRef.current?.files?.length) {
+              handleImageUpload(new Event('submit') as any);
+            }
+          }}
+        />
+      </Button>
+      <p className="text-sm text-neutral-500 mt-2">Recommended: Square JPG, PNG (300x300px)</p>
+    </div>
+  </div>
+</form>
 
             {/* Password */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
               <h3 className="text-lg mb-4">Password</h3>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Current Password</Label>
-                  <Input type="password" />
+                  <Label htmlFor="current_password">Current Password</Label>
+                  <Input 
+                    id="current_password"
+                    name="current_password"
+                    type="password" 
+                    value={passwordData.current_password}
+                    onChange={handlePasswordChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>New Password</Label>
-                  <Input type="password" />
+                  <Label htmlFor="new_password">New Password</Label>
+                  <Input 
+                    id="new_password"
+                    name="new_password"
+                    type="password" 
+                    value={passwordData.new_password}
+                    onChange={handlePasswordChange}
+                  />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new_password_confirmation">Confirm New Password</Label>
+                  <Input 
+                    id="new_password_confirmation"
+                    name="new_password_confirmation"
+                    type="password" 
+                    value={passwordData.new_password_confirmation}
+                    onChange={handlePasswordChange}
+                  />
+                </div>
+                <Button 
+                  className="w-full bg-black text-white hover:bg-neutral-800"
+                  onClick={handlePasswordUpdate}
+                  disabled={isSubmitting}
+                >
+                  Update Password
+                </Button>
               </div>
             </div>
           </div>
@@ -72,19 +501,35 @@ const SettingsPage = () => {
                 <h2 className="text-xl mb-6">Personal Information</h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>First Name</Label>
-                    <Input defaultValue="John" />
+                    <Label htmlFor="first_name">First Name</Label>
+                    <Input 
+                      id="first_name"
+                      name="first_name"
+                      value={formData.first_name} 
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label>Last Name</Label>
-                    <Input defaultValue="Doe" />
+                    <Label htmlFor="last_name">Last Name</Label>
+                    <Input 
+                      id="last_name"
+                      name="last_name"
+                      value={formData.last_name} 
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label>Email Address</Label>
-                    <Input type="email" defaultValue="john.doe@example.com" />
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input 
+                      id="email"
+                      name="email"
+                      type="email" 
+                      value={formData.email} 
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label>Phone Number</Label>
+                    <Label htmlFor="phone">Phone Number</Label>
                     <div className="flex">
                       <Input 
                         value="+977" 
@@ -92,8 +537,11 @@ const SettingsPage = () => {
                         disabled 
                       />
                       <Input 
+                        id="phone"
+                        name="phone"
                         type="tel" 
-                        defaultValue="98XXXXXXXX" 
+                        value={formData.phone} 
+                        onChange={handleInputChange}
                         className="flex-1 rounded-l-none" 
                         placeholder="Enter phone number"
                       />
@@ -109,24 +557,54 @@ const SettingsPage = () => {
                     <h3 className="text-xl mb-4">Privacy Preferences</h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="profileVisibility" />
-                        <Label htmlFor="profileVisibility">Make my profile visible to employers</Label>
+                        <Checkbox 
+                          id="profile_visibility" 
+                          checked={formData.profile_visibility}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('profile_visibility', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="profile_visibility">Make my profile visible to employers</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="searchable" />
+                        <Checkbox 
+                          id="searchable" 
+                          checked={formData.searchable}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('searchable', checked as boolean)
+                          }
+                        />
                         <Label htmlFor="searchable">Allow my profile to appear in search results</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="contactInfo" />
-                        <Label htmlFor="contactInfo">Show my contact information to employers</Label>
+                        <Checkbox 
+                          id="show_contact_info" 
+                          checked={formData.show_contact_info}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('show_contact_info', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="show_contact_info">Show my contact information to employers</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="activityStatus" />
-                        <Label htmlFor="activityStatus">Show my online activity status</Label>
+                        <Checkbox 
+                          id="show_activity_status" 
+                          checked={formData.show_activity_status}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('show_activity_status', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="show_activity_status">Show my online activity status</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="dataUsage" />
-                        <Label htmlFor="dataUsage">Allow data usage for personalized job recommendations</Label>
+                        <Checkbox 
+                          id="allow_data_usage" 
+                          checked={formData.allow_data_usage}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('allow_data_usage', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="allow_data_usage">Allow data usage for personalized job recommendations</Label>
                       </div>
                     </div>
                   </div>
@@ -135,16 +613,34 @@ const SettingsPage = () => {
                     <h3 className="text-xl mb-4">Notification Preferences</h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="emailNotif" />
-                        <Label htmlFor="emailNotif">Email notifications for new job matches</Label>
+                        <Checkbox 
+                          id="email_notifications" 
+                          checked={formData.email_notifications}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('email_notifications', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="email_notifications">Email notifications for new job matches</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="smsNotif" />
-                        <Label htmlFor="smsNotif">SMS notifications for application updates</Label>
+                        <Checkbox 
+                          id="sms_notifications" 
+                          checked={formData.sms_notifications}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('sms_notifications', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="sms_notifications">SMS notifications for application updates</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="newsletter" />
-                        <Label htmlFor="newsletter">Subscribe to newsletter</Label>
+                        <Checkbox 
+                          id="newsletter_subscription" 
+                          checked={formData.newsletter_subscription}
+                          onCheckedChange={(checked) => 
+                            handleCheckboxChange('newsletter_subscription', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="newsletter_subscription">Subscribe to newsletter</Label>
                       </div>
                     </div>
                   </div>
@@ -171,7 +667,10 @@ const SettingsPage = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction className="bg-black text-white hover:bg-neutral-800">
+                      <AlertDialogAction 
+                        className="bg-black text-white hover:bg-neutral-800"
+                        onClick={handleDeactivateAccount}
+                      >
                         Deactivate Account
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -193,7 +692,10 @@ const SettingsPage = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction className="bg-red-600 text-white hover:bg-red-700">
+                      <AlertDialogAction 
+                        className="bg-red-600 text-white hover:bg-red-700"
+                        onClick={handleDeleteAccount}
+                      >
                         Delete Account
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -205,7 +707,13 @@ const SettingsPage = () => {
             {/* Save Changes */}
             <div className="flex justify-end space-x-4">
               <Button variant="outline">Cancel</Button>
-              <Button className="bg-black text-white hover:bg-neutral-800">Save Changes</Button>
+              <Button 
+                className="bg-black text-white hover:bg-neutral-800"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </div>
         </div>

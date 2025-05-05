@@ -24,6 +24,7 @@ interface User {
   first_name?: string;
   last_name?: string;
   company_name?: string;
+  phone?: string;
   image_path?: string;
   experiences?: [],
   position_title?: string;

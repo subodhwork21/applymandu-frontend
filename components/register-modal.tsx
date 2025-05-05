@@ -32,7 +32,7 @@ const RegisterModal = () => {
     phone: "",
     confirmPassword: "",
     agreeToTerms: false,
-    companyName: "",
+    company_name: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +54,7 @@ const RegisterModal = () => {
     setIsLoading(true);
     try {
       // Implement registration logic here
-      const { firstName, lastName, email, password, companyName, phone } = formData;
+      const { firstName, lastName, email, password, company_name, phone } = formData;
       const {response, result} = await baseFetcher(accountType === "jobseeker" ? "api/register" : "api/employer/register", {
         method: "POST",
         headers: {
@@ -69,7 +69,7 @@ const RegisterModal = () => {
           password_confirmation: formData?.password,
           accountType,
         }) : JSON.stringify({
-          firstName: companyName,
+          company_name: company_name,
           email,  
           password,
           phone,
@@ -191,12 +191,12 @@ const RegisterModal = () => {
 
             <div className="grid grid-cols-2 gap-4">
              { accountType === "employer" ? <><div className="space-y-2 col-span-1">
-                <Label htmlFor="companyName">Company Name</Label>
+                <Label htmlFor="company_name">Company Name</Label>
                 <Input
-                  id="companyName"
-                  value={formData.companyName}
+                  id="company_name"
+                  value={formData.company_name}
                   onChange={(e) =>
-                    setFormData({ ...formData, companyName: e.target.value })
+                    setFormData({ ...formData, company_name: e.target.value })
                   }
                   placeholder="xyz company"
                   required
@@ -204,9 +204,9 @@ const RegisterModal = () => {
                 
               </div>
               <div className="space-y-2 col-span-1">
-                <Label htmlFor="companyName">Phone</Label>
+                <Label htmlFor="phone">Phone</Label>
                 <Input
-                  id="companyName"
+                  id="phone"
                   value={formData.phone}
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
