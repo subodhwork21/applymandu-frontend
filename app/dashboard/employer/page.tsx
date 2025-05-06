@@ -16,6 +16,68 @@ import PostJobModal from "@/components/post-job-modal";
 import UpgradePlanModal from "@/components/upgrade-plan-modal";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+import { format, formatDistanceToNow } from "date-fns";
+
+// Define interfaces for the API response
+interface ActiveJob {
+  id: number;
+  title: string;
+  location: string;
+  department: string;
+  company_name: string | null;
+  description: string;
+  location_type: string;
+  employment_type: string;
+  salary_min: string;
+  salary_max: string;
+  posted_date: string;
+  status: number;
+  applicants_count: number;
+  posted: string;
+  views_count: number;
+  experience_level: string;
+  deadline: string;
+  skills: Record<string,any>[];
+  requirements: string[];
+  responsibilities: string[];
+  benifits: string[];
+
+}
+
+interface PaginationLink {
+  url: string | null;
+  label: string;
+  active: boolean;
+}
+
+interface ActiveJobsResponse {
+  current_page: number;
+  data: ActiveJob[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: PaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+}
+
+interface DashboardData {
+  active_jobs: number;
+  active_applications: number;
+  hired_applications: number;
+}
+
+interface DashboardResponse {
+  active_jobs: ActiveJobsResponse;
+}
 
 const EmployerDashboardPage = () => {
   const router = useRouter();
@@ -28,6 +90,25 @@ const EmployerDashboardPage = () => {
     setIsPostJobModalOpen(true);
   };
 
+  const { user } = useAuth();
+
+  // Fetch dashboard stats
+  const { data: statsData, isLoading: statsLoading, mutate: mutateStats } = 
+    useSWR<DashboardData>("api/dashboard/active-jobs-applications", defaultFetcher);
+
+  // Fetch active job listings
+  const { data: jobsData, isLoading: jobsLoading, mutate: mutateJobs } = 
+    useSWR<DashboardResponse>("api/dashboard/active-job-listing", defaultFetcher);
+
+  // Format posted date to relative time (e.g., "5 days ago")
+  const getPostedTimeAgo = (postedDate: string) => {
+    try {
+      return formatDistanceToNow(new Date(postedDate), { addSuffix: true });
+    } catch (error) {
+      return "Recently";
+    }
+  };
+
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">
@@ -37,21 +118,21 @@ const EmployerDashboardPage = () => {
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg">Active Jobs</h3>
-                  <span className="text-2xl">15</span>
+                  <span className="text-2xl">{statsData?.active_jobs || 0}</span>
                 </div>
                 <p className="text-sm text-neutral-600">Currently posted</p>
               </div>
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg">Applications</h3>
-                  <span className="text-2xl">147</span>
+                  <span className="text-2xl">{statsData?.active_applications || 0}</span>
                 </div>
                 <p className="text-sm text-neutral-600">Total received</p>
               </div>
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg">Hired</h3>
-                  <span className="text-2xl">8</span>
+                  <span className="text-2xl">{statsData?.hired_applications || 0}</span>
                 </div>
                 <p className="text-sm text-neutral-600">This month</p>
               </div>
@@ -100,51 +181,109 @@ const EmployerDashboardPage = () => {
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-4">Active Job Listings</h2>
-              <div className="space-y-4">
-                <div className="p-4 border border-neutral-200 rounded-md">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-lg mb-2">
-                        Senior Frontend Developer
-                      </h3>
-                      <div className="space-y-2 text-sm text-neutral-600">
-                        <p className="flex items-center gap-2">
-                          <Users className="h-4 w-4" />
-                          32 Applicants
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          Posted 5 days ago
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          245 Views
-                        </p>
+              {jobsLoading ? (
+                <div className="text-center py-4">Loading job listings...</div>
+              ) : jobsData?.active_jobs?.data?.length === 0 ? (
+                <div className="text-center py-4 text-neutral-600">
+                  No active job listings found. Post a new job to get started!
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {jobsData?.active_jobs?.data?.map((job) => (
+                    <div key={job.id} className="p-4 border border-neutral-200 rounded-md">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg mb-2">
+                            {job.title}
+                          </h3>
+                          <div className="space-y-2 text-sm text-neutral-600">
+                            <p className="flex items-center gap-2">
+                              <Users className="h-4 w-4" />
+                              {job.applicants_count} Applicants
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              Posted {getPostedTimeAgo(job.posted)}
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Eye className="h-4 w-4" />
+                              {job.views_count} Views
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4" />
+                              {job?.location_type +" : "+ job.location}
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Briefcase className="h-4 w-4" />
+                              {job.employment_type}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleEditJob({
+                                id: job.id,
+                                title: job.title,
+                                department: job?.department,
+                                employment_type: job.employment_type,
+                                experience_level: job?.experience_level,
+                                location: job.location,
+                                salary_min: parseInt(job.salary_min),
+                                salary_max: parseInt(job.salary_max),
+                                description: job.description,
+                                location_type: job.location_type,
+                                deadline: job?.deadline,
+                                skills: job?.skills,
+                                requirements: job?.requirements,
+                                responsibilities: job?.responsibilities,
+                                benifits: job?.benifits,
+                              })
+                            }
+                          >
+                            Edit
+                          </Button>
+                          <Link href={`/dashboard/employer/jobs/${job.id}`}>
+                            <Button variant="outline" size="sm" className="w-full">
+                              View
+                            </Button>
+                          </Link>
+                          <Button variant="outline" size="sm">
+                            Close
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex flex-col space-y-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleEditJob({
-                            title: "Senior Frontend Developer",
-                            type: "Full-time",
-                            location: "Remote",
-                            salary: "$80k-$100k",
-                            expires: "2025-04-30",
-                          })
-                        }
-                      >
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Close
-                      </Button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              </div>
+              )}
+              
+              {/* Pagination controls if needed */}
+              {jobsData && jobsData?.active_jobs?.last_page > 1 && (
+                <div className="flex justify-center mt-6 space-x-2">
+                  {jobsData.active_jobs.links.map((link, index) => (
+                    <Button
+                      key={index}
+                      variant={link.active ? "default" : "outline"}
+                      size="sm"
+                      disabled={!link.url}
+                      onClick={() => {
+                        if (link.url) {
+                          // Extract page number from URL
+                          const url = new URL(link.url);
+                          const page = url.searchParams.get('page');
+                          if (page) {
+                            // mutateJobs(`api/dashboard/active-job-listing?page=${page}`);
+                          }
+                        }
+                      }}
+                      dangerouslySetInnerHTML={{ __html: link.label }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -154,18 +293,18 @@ const EmployerDashboardPage = () => {
                 <div className="w-24 h-24 bg-neutral-200 rounded-full mb-4 flex items-center justify-center">
                   <Building className="h-8 w-8 text-neutral-600" />
                 </div>
-                <h2 className="text-xl mb-2">TechCorp Nepal</h2>
+                <h2 className="text-xl mb-2">{user?.company_name || "Your Company"}</h2>
                 <p className="text-neutral-600 mb-6">
                   IT Services & Consulting
                 </p>
                 <div className="w-full space-y-3 text-sm">
                   <div className="flex items-center gap-2">
                     <Mail className="w-5 h-5 text-neutral-600" />
-                    <span>hr@techcorp.com</span>
+                    <span>{user?.email || "email@example.com"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-5 h-5 text-neutral-600" />
-                    <span>+977 01-XXXXXXX</span>
+                    <span>+977 {user?.phone || "98XXXXXXXX"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-neutral-600" />
@@ -221,6 +360,9 @@ const EmployerDashboardPage = () => {
         onClose={() => {
           setIsPostJobModalOpen(false);
           setSelectedJob(null);
+          // Refresh job listings after closing the modal
+          mutateJobs();
+          mutateStats();
         }}
         editJob={selectedJob}
       />

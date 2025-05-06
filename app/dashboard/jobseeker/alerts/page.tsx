@@ -25,55 +25,32 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import useSWR from "swr";
+import { defaultFetcher, baseFetcher } from "@/lib/fetcher";
+import { toast } from '@/hooks/use-toast';
 
-const alerts = [
-  {
-    id: 1,
-    title: "Frontend Developer Jobs",
-    keywords: ["React", "TypeScript", "Next.js"],
-    frequency: "Daily",
-    location: "Kathmandu",
-    status: "Active",
-    category: "Technology",
-    salaryRange: "$60K - $90K",
-    experienceLevel: "Mid Level"
-  },
-  {
-    id: 2,
-    title: "UI/UX Designer Positions",
-    keywords: ["Figma", "UI Design", "User Research"],
-    frequency: "Weekly",
-    location: "Remote",
-    status: "Active",
-    category: "Design",
-    salaryRange: "$50K - $80K",
-    experienceLevel: "Entry Level"
-  },
-  {
-    id: 3,
-    title: "Product Manager Roles",
-    keywords: ["Product Strategy", "Agile", "Leadership"],
-    frequency: "Daily",
-    location: "Lalitpur",
-    status: "Paused",
-    category: "Management",
-    salaryRange: "$80K - $120K",
-    experienceLevel: "Senior Level"
-  }
-];
+// Define the interface for job alert data
+interface JobAlert {
+  id: number;
+  alert_title: string;
+  job_category: string;
+  experience_level: string;
+  salary_min: string;
+  salary_max: string;
+  location: string;
+  keywords: string;
+  alert_frequency: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  status?: string; // Adding status field for UI purposes
+}
 
-const jobCategories = [
-  "Technology",
-  "Design",
-  "Management",
-  "Marketing",
-  "Sales",
-  "Finance",
-  "Healthcare",
-  "Education",
-  "Engineering",
-  "Customer Service"
-];
+interface JobAlertResponse {
+  data: JobAlert[];
+}
+
+const jobCategories = ['IT', 'Finance', 'Marketing', 'Sales', 'Engineering', 'Design', 'Human Resources', 'Customer Service', 'Operations', 'Legal', 'Research', 'Education', 'Healthcare', 'Consulting', 'Real Estate', 'Hospitality', 'Transportation', 'Media', 'Non-Profit'];
 
 const experienceLevels = [
   "Entry Level",
@@ -89,6 +66,31 @@ const AlertsPage = () => {
   const [isCreateAlertOpen, setIsCreateAlertOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingAlertId, setEditingAlertId] = useState<number | null>(null);
+  const [currentKeyword, setCurrentKeyword] = useState("");
+
+  // Fetch job alerts data
+  const { data, error, isLoading, mutate } = useSWR<JobAlertResponse>(
+    'api/job-alert',
+    defaultFetcher
+  );
+
+  // Format alerts for display
+  const formattedAlerts = useMemo(() => {
+    if (!data?.data) return [];
+    
+    return data.data.map(alert => ({
+      id: alert.id,
+      title: alert.alert_title,
+      keywords: alert.keywords.split(',').map(k => k.trim()),
+      frequency: alert.alert_frequency.charAt(0).toUpperCase() + alert.alert_frequency.slice(1),
+      location: alert.location,
+      status: alert.status,
+      category: alert.job_category,
+      salaryRange: `$${parseInt(alert.salary_min)/1000}K - $${parseInt(alert.salary_max)/1000}K`,
+      experienceLevel: alert.experience_level,
+    }));
+  }, [data]);
+
   const [newAlert, setNewAlert] = useState({
     title: "",
     location: "",
@@ -99,10 +101,10 @@ const AlertsPage = () => {
     salaryMax: "",
     experienceLevel: ""
   });
-  const [currentKeyword, setCurrentKeyword] = useState("");
 
+  // Filter alerts based on search and filter criteria
   const filteredAlerts = useMemo(() => {
-    return alerts
+    return formattedAlerts
       .filter(alert => {
         if (filter === "all") return true;
         return alert.status.toLowerCase() === filter.toLowerCase();
@@ -116,7 +118,7 @@ const AlertsPage = () => {
           alert.location.toLowerCase().includes(searchLower)
         );
       });
-  }, [filter, search]);
+  }, [filter, search, formattedAlerts]);
 
   const getStatusStyles = (status: string) => {
     switch (status.toLowerCase()) {
@@ -156,31 +158,74 @@ const AlertsPage = () => {
       location: alert.location,
       keywords: [...alert.keywords],
       frequency: alert.frequency.toLowerCase(),
-      category: alert.category.toLowerCase(),
+      category: alert.category,
       salaryMin: salaryMin,
       salaryMax: salaryMax,
-      experienceLevel: alert.experienceLevel.toLowerCase()
+      experienceLevel: alert.experienceLevel
     });
     setEditingAlertId(alert.id);
     setIsEditMode(true);
     setIsCreateAlertOpen(true);
   };
 
-  const handleCreateOrUpdateAlert = () => {
-    if (isEditMode) {
-      console.log('Updating alert:', {
-        id: editingAlertId,
-        ...newAlert,
-        salaryRange: newAlert.salaryMin && newAlert.salaryMax 
-          ? `$${newAlert.salaryMin}K - $${newAlert.salaryMax}K`
-          : undefined
-      });
-    } else {
-      console.log('Creating new alert:', {
-        ...newAlert,
-        salaryRange: newAlert.salaryMin && newAlert.salaryMax 
-          ? `$${newAlert.salaryMin}K - $${newAlert.salaryMax}K`
-          : undefined
+  const handleCreateOrUpdateAlert = async () => {
+    try {
+      const alertData = {
+        alert_title: newAlert.title,
+        job_category: newAlert.category,
+        experience_level: newAlert.experienceLevel,
+        salary_min: newAlert.salaryMin + '000',
+        salary_max: newAlert.salaryMax + '000',
+        location: newAlert.location,
+        keywords: newAlert.keywords.join(', '),
+        alert_frequency: newAlert.frequency
+      };
+
+      if (isEditMode) {
+        const { response, result } = await baseFetcher(`api/job-alert/update/${editingAlertId}`, {
+          method: 'POST',
+          body: JSON.stringify(alertData)
+        });
+
+        if (response?.ok) {
+          toast({
+            title: "Success",
+            description: "Job alert updated successfully",
+          });
+          mutate(); // Refresh the data
+        } else {
+          toast({
+            title: "Error",
+            description: result?.message || "Failed to update job alert",
+            variant: "destructive",
+          });
+        }
+      } else {
+        const { response, result } = await baseFetcher('api/job-alert', {
+          method: 'POST',
+          body: JSON.stringify(alertData)
+        });
+
+        if (response?.ok) {
+          toast({
+            title: "Success",
+            description: "Job alert created successfully",
+          });
+          mutate(); // Refresh the data
+        } else {
+          toast({
+            title: "Error",
+            description: result?.message || "Failed to create job alert",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error creating/updating alert:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
     }
 
@@ -199,6 +244,65 @@ const AlertsPage = () => {
     });
   };
 
+  const handleDeleteAlert = async (id: number) => {
+    try {
+      const { response, result } = await baseFetcher(`api/job-alert/delete/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response?.ok) {
+        toast({
+          title: "Success",
+          description: "Job alert deleted successfully",
+        });
+        mutate(); // Refresh the data
+      } else {
+        toast({
+          title: "Error",
+          description: result?.message || "Failed to delete job alert",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting alert:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleAlertStatus = async (id: number, currentStatus: string) => {
+    try {
+      const newStatus = currentStatus.toLowerCase() === 'active' ? 'paused' : 'active';
+      
+      const { response, result } = await baseFetcher(`api/job-alert/pause-alert/${id}`, {
+        method: 'POST',
+      });
+
+      if (response?.ok) {
+        toast({
+          title: "Success",
+          description: `Job alert ${newStatus}`,
+        });
+        mutate(); // Refresh the data
+      } else {
+        toast({
+          title: "Error",
+          description: result?.message || `Failed to ${newStatus} job alert`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCloseModal = () => {
     setIsCreateAlertOpen(false);
     setIsEditMode(false);
@@ -214,6 +318,30 @@ const AlertsPage = () => {
       experienceLevel: ""
     });
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p>Loading your job alerts...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p className="text-red-500">Error loading your job alerts. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-8">
@@ -250,72 +378,83 @@ const AlertsPage = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAlerts.map((alert) => (
-                <div key={alert.id} className="bg-white rounded-lg border border-neutral-200 p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                        <Bell className="h-5 w-5 text-white" />
+            {filteredAlerts.length === 0 ? (
+              <div className="text-center py-12 text-neutral-600">
+                {formattedAlerts.length === 0 ? 
+                  "You don't have any job alerts yet. Create one to get started!" : 
+                  "No alerts match your search criteria."}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAlerts.map((alert) => (
+                  <div key={alert.id} className="bg-white rounded-lg border border-neutral-200 p-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+                          <Bell className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-lg">{alert.title}</h3>
+                          <p className="text-neutral-600 text-sm">{alert.location}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium text-lg">{alert.title}</h3>
-                        <p className="text-neutral-600 text-sm">{alert.location}</p>
-                      </div>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[200px]">
-                        <DropdownMenuItem onClick={() => handleEditAlert(alert)}>
-                          Edit Alert
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          {alert.status === 'Active' ? 'Pause Alert' : 'Resume Alert'}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Delete Alert
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm text-neutral-600 mb-2">Keywords</p>
-                      <div className="flex flex-wrap gap-2">
-                        {alert.keywords.map((keyword, index) => (
-                          <span 
-                            key={index}
-                            className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm"
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[200px]">
+                          <DropdownMenuItem onClick={() => handleEditAlert(alert)}>
+                            Edit Alert
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleAlertStatus(alert.id, alert.status)}>
+                            {alert.status === 'active' ? 'Pause Alert' : 'Resume Alert'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeleteAlert(alert.id)}
                           >
-                            {keyword}
-                          </span>
-                        ))}
-                      </div>
+                            Delete Alert
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600">
-                        {alert.frequency} updates
-                      </span>
-                      <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyles(alert.status)}`}>
-                        {alert.status}
-                      </span>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-neutral-600 mb-2">Keywords</p>
+                        <div className="flex flex-wrap gap-2">
+                          {alert.keywords.map((keyword, index) => (
+                            <span 
+                              key={index}
+                              className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm"
+                            >
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-neutral-600">
+                          {alert.frequency} updates
+                        </span>
+                        <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyles(alert.status)}`}>
+                          {alert.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="p-6 border-t border-neutral-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-neutral-600">
-                Showing {filteredAlerts.length} of {alerts.length} alerts
+                Showing {filteredAlerts.length} of {formattedAlerts.length} alerts
               </div>
               <Button 
                 className="bg-black text-white hover:bg-neutral-800"
@@ -359,7 +498,7 @@ const AlertsPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {jobCategories.map((category) => (
-                    <SelectItem key={category} value={category.toLowerCase()}>
+                    <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
                   ))}
@@ -378,7 +517,7 @@ const AlertsPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {experienceLevels.map((level) => (
-                    <SelectItem key={level} value={level.toLowerCase()}>
+                    <SelectItem key={level} value={level}>
                       {level}
                     </SelectItem>
                   ))}

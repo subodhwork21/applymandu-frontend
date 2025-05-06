@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Mail,
@@ -19,11 +19,14 @@ import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { JobSeekerProfileResponse } from "@/types/jobseeker-resume";
 import useSWR from "swr";
-import { defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { useAuth } from "@/lib/auth-context";
+import { jobSeekerToken } from "@/lib/tokens";
 
 const ResumeView = () => {
   const { user } = useAuth();
+
+  const [resumePdf, setResumePdf] = useState<string | null>(null);
   
   const { data: resume, mutate } = useSWR<JobSeekerProfileResponse>(
     user?.id !== undefined ? `api/jobseeker/resume/${user.id}` : null, 
@@ -71,6 +74,38 @@ const ResumeView = () => {
   };
 
   const completionPercentage = getCompletionPercentage();
+
+
+  const downloadResume = async(id: number) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+
+  const res = await fetch(`${baseUrl}api/jobseeker/generate-resume`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${jobSeekerToken()}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    console.error("Failed to fetch PDF");
+    return;
+  }
+
+  const blob = await res.blob();
+  const fileUrl = URL.createObjectURL(blob);
+
+  // Option: Open PDF in new tab
+  window.open(fileUrl);
+   
+   
+  };
+
+
+
+
+
 
   return (
     <section id="resume" className="py-8">
@@ -415,7 +450,7 @@ const ResumeView = () => {
                 )}
               </div>
               <div className="mt-6">
-                <Button className="w-full px-4 py-2 bg-black text-white rounded-md hover:bg-neutral-800">
+                <Button onClick={()=> downloadResume(profile?.id)} className="w-full px-4 py-2 bg-black text-white rounded-md hover:bg-neutral-800">
                   Download Resume
                 </Button>
               </div>

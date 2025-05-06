@@ -1,6 +1,6 @@
 "use client";
 
-import React, { SetStateAction, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,15 @@ const RegisterModal = () => {
   const [accountType, setAccountType] = useState<"employer" | "jobseeker">(
     isAuthenticated && isEmployer === false ? "jobseeker" : "employer"
   );
+
+  useEffect(()=>{
+    if (isAuthenticated && isEmployer === false) {
+      setAccountType("jobseeker");
+    }
+    else{
+      setAccountType("employer");
+    }
+  }, [isAuthenticated, isEmployer])
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -116,25 +125,25 @@ const RegisterModal = () => {
 
         <div className="p-5">
           <div className="flex gap-4 mb-6">
-            <Button
-              variant={accountType === "employer" ? "default" : "outline"}
-              className={`flex-1 h-11 ${
-                accountType === "employer" ? "bg-black text-white" : ""
-              }`}
-              onClick={() => setAccountType("employer")}
-            >
-              <Briefcase className="h-5 w-5 mr-2" />
-              Employer
-            </Button>
+           
             {isAuthenticated && !isEmployer ? (
-              <></>
+               <Button
+               variant={accountType === "employer" ? "default" : "outline"}
+               className={`flex-1 h-11 ${
+                 accountType === "employer" ? "bg-black text-white" : ""
+               }`}
+               onClick={() => setAccountType("jobseeker")}
+             >
+               <Briefcase className="h-5 w-5 mr-2" />
+               Employer
+             </Button>
             ) : (
               <Button
                 variant={accountType === "jobseeker" ? "default" : "outline"}
                 className={`flex-1 h-11 ${
                   accountType === "jobseeker" ? "bg-black text-white" : ""
                 }`}
-                onClick={() => setAccountType("jobseeker")}
+                onClick={() => setAccountType("employer")}
               >
                 <User className="h-5 w-5 mr-2" />
                 Job Seeker
@@ -190,7 +199,30 @@ const RegisterModal = () => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-             { accountType === "employer" ? <><div className="space-y-2 col-span-1">
+             { accountType === "employer" ?<> <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
+                  placeholder="John"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
+                  placeholder="Doe"
+                  required
+                />
+              </div></>:  <><div className="space-y-2 col-span-1">
                 <Label htmlFor="company_name">Company Name</Label>
                 <Input
                   id="company_name"
@@ -218,30 +250,7 @@ const RegisterModal = () => {
                 
               </div>
               
-              </> :<> <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  placeholder="John"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  placeholder="Doe"
-                  required
-                />
-              </div></>}
+              </> }
             </div>
 
             <div className="space-y-2">

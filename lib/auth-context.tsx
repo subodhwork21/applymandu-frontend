@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserByToken = async(token: string) =>{
 
-    const {response, result, error} = await baseFetcher("api/login-with-token", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/login-with-token`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -127,20 +127,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-
-
-
+    const result = await response?.json();
     if(response?.status === 200){
-      setUser({
-        id: result?.data?.id,
-        email: result?.data?.email,
-        first_name: result?.data?.first_name,
-        last_name: result?.data?.last_name,
-        image_path: result?.data?.image_path,
-        position_title: result?.data?.experiences[0]?.position_title
-      })
-      setIsEmployer(result?.is_employer);
-      setIsLoading(false);
+      if(result?.is_employer === true){
+        deleteCookie("JOBSEEKER_TOKEN");
+        setCookie('EMPLOYER_TOKEN', result?.token);
+        setUser({
+          id: result?.data?.id,
+          email: result?.data?.email,
+          image_path: result?.data?.image_path,
+          company_name: result?.data?.company_name
+        })
+        setIsEmployer(result?.is_employer);
+        setIsLoading(false);
+      }
+      else{
+        setCookie('JOBSEEKER_TOKEN', result?.token);
+        setUser({
+          id: result?.data?.id,
+          email: result?.data?.email,
+          first_name: result?.data?.first_name,
+          last_name: result?.data?.last_name,
+          image_path: result?.data?.image_path,
+          position_title: result?.data?.experiences[0]?.position_title
+        })
+        setIsEmployer(result?.is_employer);
+        setIsLoading(false);
+      }
+      
     }
     else{
       deleteCookie('JOBSEEKER_TOKEN');
@@ -148,7 +162,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       router.push("/")
       // throw new Error("Invalid token");
-      
 
     }
   }
@@ -156,6 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     deleteCookie('JOBSEEKER_TOKEN');
+    deleteCookie('EMPLOYER_TOKEN');
     toast({
       title: "Success!",
       description: "Logout successful",
@@ -190,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeForgotPasswordModal = () => setIsForgotPasswordModalOpen(false);
 
-  const token = getCookie('JOBSEEKER_TOKEN');
+  const token = getCookie('JOBSEEKER_TOKEN') || getCookie('EMPLOYER_TOKEN');
 
   useEffect(()=>{
     if(token){

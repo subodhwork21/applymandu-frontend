@@ -179,7 +179,7 @@ const Header = () => {
                     >
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
+                          src={user?.image_path}
                           alt={user?.first_name}
                         />
                         <AvatarFallback>{user?.first_name?.charAt(0)}</AvatarFallback>
@@ -202,11 +202,25 @@ const Header = () => {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <Link href="/dashboard/jobseeker/">
-                        <DropdownMenuItem>
-                          <span>Dashboard</span>
-                        </DropdownMenuItem>
-                      </Link>
+                      {
+
+                      }
+                      {
+                        isEmployer ? (
+                          <Link href="/dashboard/employer">
+                            <DropdownMenuItem>
+                              <span>Employer</span>
+                            </DropdownMenuItem>
+                          </Link>
+                        ) : (
+                          <Link href="/dashboard/jobseeker/">
+                            <DropdownMenuItem>
+                              <span>Dashboard</span>
+                            </DropdownMenuItem>
+                          </Link>
+                        )
+                      }
+                      
                       <Link href="/dashboard/jobseeker/applications">
                         <DropdownMenuItem>
                           <span>My Applications</span>
@@ -223,11 +237,11 @@ const Header = () => {
                         </DropdownMenuItem>
                       </Link>
                       {isEmployer ? (
-                        <Link href="/dashboard/employer">
+                        <p onClick={() => openRegisterModal(false)}>
                           <DropdownMenuItem>
-                            <span>Employer</span>
+                            <span>Sign up as JobSeeker</span>
                           </DropdownMenuItem>
-                        </Link>
+                        </p>
                       ) : (
                         <p onClick={() => openRegisterModal(true)}>
                           <DropdownMenuItem>

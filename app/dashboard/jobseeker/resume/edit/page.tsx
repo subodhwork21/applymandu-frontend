@@ -312,10 +312,10 @@ const prepareFormData = () => {
     industry: exp.industry,
     job_level: exp.job_level,
     roles_and_responsibilities: exp.roles_and_responsibilities,
-    start_date: typeof exp.start_date === 'object' ? exp.start_date.toISOString().split('T')[0] : exp.start_date,
+    start_date: typeof exp.start_date === 'object' ? new Date(exp.start_date).toISOString().split('T')[0] : exp.start_date,
     end_date: exp.currently_work_here ? null : 
       (typeof exp.end_date === 'object' && exp.end_date ? 
-        exp.end_date.toISOString().split('T')[0] : exp.end_date),
+        new Date(exp.end_date).toISOString().split('T')[0] : exp.end_date),
     currently_work_here: exp.currently_work_here
   }));
 
@@ -327,10 +327,10 @@ const prepareFormData = () => {
     university_board: edu.university_board,
     grading_type: edu.grading_type,
     joined_year: typeof edu.joined_year === 'object' ? 
-      edu.joined_year.toISOString().split('T')[0] : edu.joined_year,
+      new Date(edu.joined_year).toISOString().split('T')[0] : edu.joined_year,
     passed_year: edu.currently_studying ? null : 
       (typeof edu.passed_year === 'object' && edu.passed_year ? 
-        edu.passed_year.toISOString().split('T')[0] : edu.passed_year),
+        new Date(edu.passed_year).toISOString().split('T')[0] : edu.passed_year),
     currently_studying: edu.currently_studying
   }));
 
@@ -381,7 +381,7 @@ const prepareFormData = () => {
     municipality,
     city_tole,
     date_of_birth: typeof date_of_birth === 'object' ? 
-      date_of_birth.toISOString().split('T')[0] : date_of_birth,
+      new Date(date_of_birth).toISOString().split('T')[0] : date_of_birth,
     mobile,
     industry,
     preferred_job_type,
@@ -454,13 +454,13 @@ const prepareFormData = () => {
         body: JSON.stringify(profileData),
       });
       
-      if (response.ok) {
+      if (response?.ok) {
         // Revalidate the data cache
         await mutate();
         // Navigate back to resume view
         router.push("/dashboard/jobseeker/resume");
       } else {
-        const errorData = await response.json();
+        const errorData = await response?.json();
         console.error("Failed to update profile:", errorData);
         // Here you could add toast or alert to notify the user
       }
@@ -554,10 +554,10 @@ const prepareFormData = () => {
               educations={educations!}
               addEducation={() => {
                 const newId = educations?.length ? Math.max(...educations.map(edu => edu.id)) + 1 : 1;
-                setEducations(resume?.data?.educations?.length! > 0 
-                  ? resume?.data.educations 
-                  : [{ 
-                      id: 1, 
+                setEducations( [
+                    ...educations!,
+                    { 
+                      id: newId, 
                       user_id: user?.id ? Number(user.id) : 1, 
                       degree: "", 
                       subject_major: "", 

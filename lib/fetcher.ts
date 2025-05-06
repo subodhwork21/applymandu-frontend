@@ -14,7 +14,7 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
-        "Authorization": `Bearer ${jobSeekerToken()}`,
+        "Authorization": `Bearer ${jobSeekerToken() || employerToken()}`,
         ...options.headers,
       },
       ...options,
@@ -31,27 +31,36 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     // Some APIs might return empty responses for certain status codes
     const text = await response.text();
     data = text ? JSON.parse(text) : null;
-  } catch (error) {
+    let errors = data.errors;
+        for (const key in errors) {
+          if (errors.hasOwnProperty(key) && errors[key].length > 0) {
+              errors = errors[key][0];
+            };
+          }
+        }
+   catch (error) {
     console.error("Error parsing response:", error);
     return {
       result: null,
       response,
-      errors: {},
+      errors: "",
       error: new Error("Invalid JSON response"),
       message: "Invalid JSON response",
     };
   }
-  const firstErrors: Record<string, any> = {};
+  // const firstErrors: Record<string, any> = {};
   
-  for (const field in data?.errors) {
-    if (data?.errors[field] && data?.errors[field].length > 0) {
-      firstErrors[field] = data?.errors[field][0];
+  let firstErrors = data.errors;
+  for (const key in firstErrors) {
+    if (firstErrors.hasOwnProperty(key) && firstErrors[key].length > 0) {
+      firstErrors = firstErrors[key][0];
+      };
     }
 
   // Handle client errors (400, 404, 422) - return error with message
   if (response.status === 400 || response.status === 404 || response.status === 422) {
     
-  }
+  
     return {
       result: data,
       response,
@@ -87,7 +96,7 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
       result: null,
       response,
       errors: firstErrors,
-      error: errorObj,
+      error: "",
       message: data?.message || "API request failed",
     };
   }
@@ -97,7 +106,7 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     result: data,
     response,
     errors: firstErrors,
-    error: null,
+    error: "",
     message: data?.message,
   };
 }
@@ -121,7 +130,7 @@ export async function baseFetcher(
     return {
       result: null,
       response: null,
-      errors: {},
+      errors: "",
       error: e,
       message: "Error in fetcher",
     };

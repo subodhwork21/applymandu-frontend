@@ -30,14 +30,14 @@ interface UserProfile {
   email: string;
   phone: string;
   image_path: string | null;
-  profile_visibility: boolean;
-  searchable: boolean;
+  visible_to_employers: boolean;
+  appear_in_search_results: boolean;
   show_contact_info: boolean;
-  show_activity_status: boolean;
-  allow_data_usage: boolean;
-  email_notifications: boolean;
-  sms_notifications: boolean;
-  newsletter_subscription: boolean;
+  show_online_status: boolean;
+  allow_personalized_recommendations  : boolean;
+  email_job_matches: boolean;
+  sms_application_updates: boolean;
+  subscribe_to_newsletter: boolean;
 }
 
 const SettingsPage = () => {
@@ -53,14 +53,14 @@ const SettingsPage = () => {
     email: "",
     phone: "",
     image_path: null,
-    profile_visibility: false,
-    searchable: false,
+    visible_to_employers: false,
+    appear_in_search_results: false,
     show_contact_info: false,
-    show_activity_status: false,
-    allow_data_usage: false,
-    email_notifications: false,
-    sms_notifications: false,
-    newsletter_subscription: false
+    show_online_status: false,
+    allow_personalized_recommendations: false,
+    email_job_matches: false,
+    sms_application_updates: false,
+    subscribe_to_newsletter: false
   });
   
   // Password state
@@ -73,7 +73,7 @@ const SettingsPage = () => {
   const {user, logout} = useAuth();
 
   // Fetch user profile data
-  const { data, error, isLoading, mutate } = useSWR<Record<string,any>>('api/jobseeker/user-profile', defaultFetcher);
+  const { data, error, isLoading, mutate } = useSWR<Record<string,any>>('api/jobseeker/user-preference', defaultFetcher);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -88,14 +88,14 @@ const SettingsPage = () => {
         email: userData.email || "",
         phone: userData.phone || "",
         image_path: userData.image_path,
-        profile_visibility: userData.profile_visibility || false,
-        searchable: userData.searchable || false,
-        show_contact_info: userData.show_contact_info || false,
-        show_activity_status: userData.show_activity_status || false,
-        allow_data_usage: userData.allow_data_usage || false,
-        email_notifications: userData.email_notifications || false,
-        sms_notifications: userData.sms_notifications || false,
-        newsletter_subscription: userData.newsletter_subscription || false
+        visible_to_employers: userData.preferences.visible_to_employers || false,
+        appear_in_search_results: userData.preferences.appear_in_search_results || false,
+        show_contact_info: userData.preferences.show_contact_info || false,
+        show_online_status: userData.preferences.show_online_status || false,
+        allow_personalized_recommendations: userData.preferences.allow_personalized_recommendations || false,
+        email_job_matches: userData.preferences.email_job_matches || false,
+        sms_application_updates: userData.preferences.sms_application_updates || false,
+        subscribe_to_newsletter: userData.preferences.subscribe_to_newsletter || false
       });
     }
   }, [data]);
@@ -171,8 +171,6 @@ const SettingsPage = () => {
         method: 'POST',
         body: formData,
         headers: {
-          // Don't set Content-Type when sending FormData
-          // Let the browser set it automatically with the boundary
           'Authorization': `Bearer ${jobSeekerToken()}`
         },
       });
@@ -192,7 +190,6 @@ const SettingsPage = () => {
             image_path: result.data.image_path
           }));
         }
-        
         // Refresh the data
         mutate();
       } else {
@@ -231,10 +228,12 @@ const SettingsPage = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const { response, result } = await baseFetcher('api/jobseeker/user-profile', {
-        method: 'PUT',
+      const { response, result, errors } = await baseFetcher('api/jobseeker/update-preference', {
+        method: 'POST',
         body: JSON.stringify(formData)
       });
+
+      // console.log(result);
 
       if (response?.ok) {
         toast({
@@ -242,13 +241,18 @@ const SettingsPage = () => {
           description: "Your settings have been updated successfully.",
           variant: "default",
         });
-        mutate(); // Refresh the data
+        mutate(); 
       } else {
-        toast({
-          title: "Error",
-          description: result.message || "Failed to update settings. Please try again.",
-          variant: "destructive",
-        });
+        // const errors = errors;
+        // for (const key in errors) {
+        //   if (errors.hasOwnProperty(key) && errors[key].length > 0) {
+            toast({
+              title: "Error",
+              description: errors,
+              variant: "destructive",
+            });
+        //   }
+        // }
       }
     } catch (error) {
       toast({
@@ -298,7 +302,7 @@ const SettingsPage = () => {
       } else {
         toast({
           title: "Error",
-          description: errors["current_password"] || errors["password"] || errors["password_confirmation"] || "Failed to update password. Please try again.",
+          description: errors,
           variant: "destructive",
         });
       }
@@ -559,9 +563,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="profile_visibility" 
-                          checked={formData.profile_visibility}
+                          checked={formData.visible_to_employers}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('profile_visibility', checked as boolean)
+                            handleCheckboxChange('visible_to_employers', checked as boolean)
                           }
                         />
                         <Label htmlFor="profile_visibility">Make my profile visible to employers</Label>
@@ -569,9 +573,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="searchable" 
-                          checked={formData.searchable}
+                          checked={formData.appear_in_search_results}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('searchable', checked as boolean)
+                            handleCheckboxChange('appear_in_search_results', checked as boolean)
                           }
                         />
                         <Label htmlFor="searchable">Allow my profile to appear in search results</Label>
@@ -589,9 +593,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="show_activity_status" 
-                          checked={formData.show_activity_status}
+                          checked={formData.show_online_status}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('show_activity_status', checked as boolean)
+                            handleCheckboxChange('show_online_status', checked as boolean)
                           }
                         />
                         <Label htmlFor="show_activity_status">Show my online activity status</Label>
@@ -599,9 +603,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="allow_data_usage" 
-                          checked={formData.allow_data_usage}
+                          checked={formData.allow_personalized_recommendations}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('allow_data_usage', checked as boolean)
+                            handleCheckboxChange('allow_personalized_recommendations', checked as boolean)
                           }
                         />
                         <Label htmlFor="allow_data_usage">Allow data usage for personalized job recommendations</Label>
@@ -615,9 +619,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="email_notifications" 
-                          checked={formData.email_notifications}
+                          checked={formData.email_job_matches}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('email_notifications', checked as boolean)
+                            handleCheckboxChange('email_job_matches', checked as boolean)
                           }
                         />
                         <Label htmlFor="email_notifications">Email notifications for new job matches</Label>
@@ -625,9 +629,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="sms_notifications" 
-                          checked={formData.sms_notifications}
+                          checked={formData.sms_application_updates}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('sms_notifications', checked as boolean)
+                            handleCheckboxChange('sms_application_updates', checked as boolean)
                           }
                         />
                         <Label htmlFor="sms_notifications">SMS notifications for application updates</Label>
@@ -635,9 +639,9 @@ const SettingsPage = () => {
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="newsletter_subscription" 
-                          checked={formData.newsletter_subscription}
+                          checked={formData.subscribe_to_newsletter}
                           onCheckedChange={(checked) => 
-                            handleCheckboxChange('newsletter_subscription', checked as boolean)
+                            handleCheckboxChange('subscribe_to_newsletter', checked as boolean)
                           }
                         />
                         <Label htmlFor="newsletter_subscription">Subscribe to newsletter</Label>

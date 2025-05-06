@@ -533,7 +533,7 @@ const DashboardPage = () => {
                         Complete your profile to increase visibility to
                         employers
                       </p>
-                      <Link href="/dashboard/resume/edit">
+                      <Link href="/dashboard/jobseeker/resume/edit">
                         <Button size="sm" className="w-full">
                           Complete Profile
                         </Button>
