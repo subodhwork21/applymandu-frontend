@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { X, Plus } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
+import debounce from "lodash/debounce";
+
 import {
   Select,
   SelectContent,
@@ -31,22 +33,28 @@ interface PostJobModalProps {
   editJob?: {
     id: string;
     title: string;
-    type: string;
+    experience_level: string;
     location: string;
     salary: string;
-    applicants: number;
-    expires: string;
-    status: string;
+    department: string;
+    employment_type: string;
     description?: string;
+    location_type?: string;
     is_remote?: boolean;
     requirements?: string[];
     responsibilities?: string[];
     benefits?: string[];
     skills?: string[];
+    salary_min?: string;
+    salary_max?: string;
+    application_deadline?: string;
+    status?: boolean;
+    slug?: string;
   };
 }
 
 const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
+  console.log(editJob);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form state with arrays for multi-option fields
@@ -60,7 +68,8 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
     salary_max: "",
     description: "",
     location: "",
-    deadline: undefined as Date | undefined,
+    application_deadline: undefined as Date | undefined,
+    slug: "", // Added slug field
   });
 
   // Separate state for multi-option fields
@@ -74,8 +83,10 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
   const [currentRequirement, setCurrentRequirement] = useState("");
   const [currentResponsibility, setCurrentResponsibility] = useState("");
   const [currentBenefit, setCurrentBenefit] = useState("");
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+  const [slugStatus, setSlugStatus] = useState<"available" | "unavailable" | "checking" | null>(null);
+  
 
-  // Parse JSON string arrays
   const parseJsonArray = (jsonStr: string | undefined): string[] => {
     if (!jsonStr) return [];
     
@@ -96,22 +107,23 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
       // Set basic form data
       setFormData({
         title: editJob.title || "",
-        department: "",
-        employment_type: editJob.type || "",
+        department: editJob?.department || "",
+        employment_type: editJob.employment_type || "",
         location_type: editJob.is_remote ? "remote" : "on-site",
-        experience_level: "",
-        salary_min: salaryFrom || "",
-        salary_max: salaryTo || "",
+        experience_level: editJob?.experience_level,
+        salary_min: editJob?.salary_min || "",
+        salary_max: editJob?.salary_max || "",
         description: editJob.description || "",
         location: editJob.location || "",
-        deadline: editJob.expires ? new Date(editJob.expires) : undefined,
+        application_deadline: editJob.application_deadline ? new Date(editJob.application_deadline) : undefined,
+        slug: editJob.slug || "", // Set slug from editJob
       });
 
       // Set multi-option fields
       setSkills(editJob.skills || []);
-      setRequirements(parseJsonArray(editJob.requirements as unknown as string));
-      setResponsibilities(parseJsonArray(editJob.responsibilities as unknown as string));
-      setBenefits(parseJsonArray(editJob.benefits as unknown as string));
+      setRequirements(editJob.requirements || []);
+      setResponsibilities(editJob.responsibilities || []);
+      setBenefits(editJob.benefits || []);
     } else {
       // Reset form for new job
       setFormData({
@@ -124,7 +136,8 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
         salary_max: "",
         description: "",
         location: "",
-        deadline: undefined,
+        application_deadline: undefined,
+        slug: "", // Reset slug for new job
       });
       
       // Reset multi-option fields
@@ -187,8 +200,64 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
     setBenefits(benefits.filter((_, i) => i !== index));
   };
 
+
+  // Create a debounced version of handleCheckSlug
+  const debouncedCheckSlug = useCallback(
+    debounce(async (slug: string, jobId: string) => {
+      if (!slug.trim()) {
+        setSlugStatus(null);
+        return;
+      }
+      
+      setIsCheckingSlug(true);
+      setSlugStatus("checking");
+      
+      const {response, result, errors} = await baseFetcher(`api/employer/available-slug/${jobId}`, {
+        method: "POST",
+        body: JSON.stringify({slug}),
+      });
+  
+      if (response?.ok) {
+        setSlugStatus("available");
+        toast({
+          title: "Success",
+          description: result?.message
+        });
+      } else {
+        setSlugStatus("unavailable");
+        toast({
+          title: "Error",
+          description: errors,
+          variant: "destructive",
+        });
+      }
+      
+      setIsCheckingSlug(false);
+    }, 2000), 
+    []
+  );
+  
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    if(!formData.slug.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a slug",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if(slugStatus === "unavailable") {
+      toast({
+        title: "Error",
+        description: "Slug is not available",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
     
     try {
       // Format the data for API
@@ -198,19 +267,20 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
         employment_type: formData.employment_type,
         location_type: formData.location_type,
         experience_level: formData.experience_level,
-        salary_min: parseInt(formData.salary_min) * 1000 || 0,
-        salary_max: parseInt(formData.salary_max) * 1000 || 0,
+        salary_min: parseInt(formData.salary_min) || 0,
+        salary_max: parseInt(formData.salary_max) || 0,
         description: formData.description,
         skills: skills,
         requirements: requirements,
         responsibilities: responsibilities,
         benefits: benefits,
         location: formData.location,
-        application_deadline: formData.deadline ? format(formData.deadline, 'yyyy-MM-dd') : null,
+        application_deadline: formData.application_deadline ? format(formData.application_deadline, 'yyyy-MM-dd') : null,
+        slug: editJob ? formData.slug : undefined, // Only include slug when editing
       };
 
       if (editJob) {
-        const { response, result } = await baseFetcher(`api/job/update/${editJob?.id}`, {
+        const { response, result, errors } = await baseFetcher(`api/job/update/${editJob?.id}`, {
           method: "POST",
           body: JSON.stringify(apiData),
         });
@@ -225,7 +295,7 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
         } else {
           toast({
             title: "Error",
-            description: result?.message || "Failed to update job",
+            description: errors || "Failed to update job",
             variant: "destructive",
           });
         }
@@ -282,6 +352,52 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
                 }
               />
             </div>
+
+            {/* Slug field - only visible when editing */}
+            {editJob && (
+  <div>
+    <Label>URL Slug</Label>
+    <div className="relative">
+      <Input
+        placeholder="job-url-slug"
+        value={formData.slug}
+        onChange={(e) => {
+          const newSlug = e.target.value;
+          setFormData({ ...formData, slug: newSlug });
+          
+          // Trigger the debounced check
+          if (newSlug.trim()) {
+            debouncedCheckSlug(newSlug, editJob.id);
+          } else {
+            setSlugStatus(null);
+          }
+        }}
+        className={cn(
+          "font-mono text-sm pr-10",
+          slugStatus === "available" && "border-green-500",
+          slugStatus === "unavailable" && "border-red-500",
+          slugStatus === "checking" && "border-yellow-500"
+        )}
+      />
+      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+        {slugStatus === "checking" && (
+          <span className="h-4 w-4 block rounded-full border-2 border-yellow-500 border-t-transparent animate-spin" />
+        )}
+        {slugStatus === "available" && (
+          <span className="text-green-500">✓</span>
+        )}
+        {slugStatus === "unavailable" && (
+          <span className="text-red-500">✗</span>
+        )}
+      </div>
+    </div>
+    <p className="text-xs text-neutral-500 mt-1">
+      {slugStatus === "available" && "This slug is available."}
+      {slugStatus === "unavailable" && "This slug is already taken."}
+      {slugStatus === "checking" && "Checking slug availability..."}
+      {!slugStatus && "This is the URL path for this job. Edit with caution as it affects existing links."}
+    </p>
+  </div>)}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -597,11 +713,11 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !formData.deadline && "text-muted-foreground"
+                      !formData.application_deadline && "text-muted-foreground"
                     )}
                   >
-                    {formData.deadline ? (
-                      format(formData.deadline, "PPP")
+                    {formData.application_deadline ? (
+                      format(formData.application_deadline, "PPP")
                     ) : (
                       <span>Pick a deadline date</span>
                     )}
@@ -610,9 +726,9 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={formData.deadline}
+                    selected={formData.application_deadline}
                     onSelect={(date) =>
-                      setFormData({ ...formData, deadline: date })
+                      setFormData({ ...formData, application_deadline: date })
                     }
                     disabled={(date) => date < new Date()}
                     initialFocus
@@ -632,7 +748,7 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : (editJob ? "Update Job" : "Post Job")}
+            {isSubmitting ? "Submitting..." : (editJob ? "Update Job": "Post Job")}
           </Button>
         </div>
       </DialogContent>

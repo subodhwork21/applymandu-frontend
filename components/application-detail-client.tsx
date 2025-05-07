@@ -16,8 +16,46 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import MessageModal from "@/components/message-modal";
 import InterviewScheduleModal from "@/components/interview-schedule-modal";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+import { format, parseISO } from "date-fns";
+import { employerToken } from "@/lib/tokens";
 
-const ApplicationDetailClient = () => {
+interface ApplicationStatus {
+  id: number;
+  application_id: number;
+  status: string;
+  remarks: string | null;
+  changed_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ApplicationData {
+  id: number;
+  job_id: number;
+  user_id: number;
+  year_of_experience: number;
+  expected_salary: number;
+  notice_period: number;
+  cover_letter: string | null;
+  applied_at: string;
+  formatted_applied_at: string;
+  updated_at: string;
+  status: number;
+  job_title: string;
+  company_name: string;
+  applied_user: string;
+  skills: string[];
+  status_history: ApplicationStatus[];
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: ApplicationData[];
+}
+
+const ApplicationDetailClient = ({id}: {id: string}) => {
   const [isMessageModalOpen, setIsMessageModalOpen] = React.useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
   const [newNote, setNewNote] = React.useState("");
@@ -29,11 +67,9 @@ const ApplicationDetailClient = () => {
     },
   ]);
 
-  const candidate = {
-    name: "John Doe",
-    position: "Frontend Developer",
-    avatar: "789",
-  };
+  const {data: applicationData, isLoading, error, mutate} = useSWR<ApiResponse>(`api/employer/job/application/${id}`, defaultFetcher);
+
+  const application = applicationData?.data[0];
 
   const handleAddNote = () => {
     if (newNote.trim()) {
@@ -52,6 +88,66 @@ const ApplicationDetailClient = () => {
       setNewNote("");
     }
   };
+
+  // Create a candidate object from the application data
+  const candidate = application ? {
+    name: application.applied_user,
+    position: application.job_title,
+    avatar: "789", // Using a default avatar seed
+  } : {
+    name: "John Doe",
+    position: "Frontend Developer",
+    avatar: "789",
+  };
+
+  if (isLoading) {
+    return <div className="py-8 text-center">Loading application details...</div>;
+  }
+
+  if (error) {
+    return <div className="py-8 text-center text-red-500">Error loading application: {error.message}</div>;
+  }
+
+  if (!application) {
+    return <div className="py-8 text-center">Application not found</div>;
+  }
+
+  // Format the application date
+  const appliedDate = application.formatted_applied_at || 
+    format(parseISO(application.applied_at), "MMM dd, yyyy");
+
+  // Get the current status from status history
+  const currentStatus = application.status_history && application.status_history.length > 0 
+    ? application.status_history[0].status 
+    : "Applied";
+
+  // Capitalize the status for display
+  const displayStatus = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+
+  const downloadFile = async(id: number) =>{
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    
+    
+      const res = await fetch(`${baseUrl}api/employer/download-document/`+id, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${employerToken()}`,
+          "Content-Type": "application/json",
+        },
+      });
+    
+      if (!res.ok) {
+        console.error("Failed to fetch PDF");
+        return;
+      }
+    
+      const blob = await res.blob();
+      const fileUrl = URL.createObjectURL(blob);
+    
+      // Option: Open PDF in new tab
+      window.open(fileUrl);
+  }
+
 
   return (
     <section className="py-8">
@@ -80,27 +176,32 @@ const ApplicationDetailClient = () => {
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex gap-4">
                     <div className="w-16 h-16 bg-neutral-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <div className="text-white text-2xl">T</div>
+                      <div className="text-white text-2xl">{application.applied_user.charAt(0)}</div>
                     </div>
                     <div>
                       <h3 className="text-lg font-medium mb-2">
-                        Senior Frontend Developer
+                        {application.job_title}
                       </h3>
-                      <p className="text-neutral-600 mb-2">TechCorp Nepal</p>
+                      <p className="text-neutral-600 mb-2">{application.company_name}</p>
                       <div className="flex space-x-4 text-sm text-neutral-500">
                         <span className="flex items-center">
                           <Calendar className="h-4 w-4 mr-2" />
-                          Applied on Apr 18, 2025
+                          Applied on {appliedDate}
                         </span>
                         <span className="flex items-center">
                           <MapPin className="h-4 w-4 mr-2" />
+                          {/* Location not provided in the data, using placeholder */}
                           Kathmandu
                         </span>
                       </div>
                     </div>
                   </div>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                    Shortlisted
+                  <span className={`px-3 py-1 ${
+                    displayStatus === "Shortlisted" ? "bg-green-100 text-green-800" : 
+                    displayStatus === "Rejected" ? "bg-red-100 text-red-800" : 
+                    "bg-yellow-100 text-yellow-800"
+                  } rounded-full text-sm font-medium`}>
+                    {displayStatus}
                   </span>
                 </div>
 
@@ -112,56 +213,27 @@ const ApplicationDetailClient = () => {
                     <div className="relative">
                       <div className="absolute left-[17px] top-0 h-full w-[2px] bg-neutral-200"></div>
                       <div className="space-y-8">
-                        <div className="relative flex gap-6">
-                          <div className="w-9 h-9 rounded-full bg-white border border-neutral-200 flex items-center justify-center z-10">
-                            <CheckCircle2 className="h-5 w-5 text-black" />
+                        {application.status_history.map((status, index) => (
+                          <div key={index} className="relative flex gap-6">
+                            <div className="w-9 h-9 rounded-full bg-white border border-neutral-200 flex items-center justify-center z-10">
+                              <CheckCircle2 className="h-5 w-5 text-black" />
+                            </div>
+                            <div>
+                              <p className="text-neutral-900 font-medium">
+                                {status.status.charAt(0).toUpperCase() + status.status.slice(1)}
+                              </p>
+                              <p className="text-neutral-500 text-sm">
+                                {format(parseISO(status.changed_at), "MMM dd, yyyy - h:mm a")}
+                              </p>
+                              <p className="text-neutral-600 text-sm mt-1">
+                                {status.remarks || 
+                                  (status.status === "applied" 
+                                    ? "Application was successfully submitted" 
+                                    : `Application status changed to ${status.status}`)}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-neutral-900 font-medium">
-                              Application Submitted
-                            </p>
-                            <p className="text-neutral-500 text-sm">
-                              Apr 18, 2025 - 10:30 AM
-                            </p>
-                            <p className="text-neutral-600 text-sm mt-1">
-                              Your application was successfully submitted
-                            </p>
-                          </div>
-                        </div>
-                        <div className="relative flex gap-6">
-                          <div className="w-9 h-9 rounded-full bg-white border border-neutral-200 flex items-center justify-center z-10">
-                            <CheckCircle2 className="h-5 w-5 text-black" />
-                          </div>
-                          <div>
-                            <p className="text-neutral-900 font-medium">
-                              Application Reviewed
-                            </p>
-                            <p className="text-neutral-500 text-sm">
-                              Apr 19, 2025 - 2:15 PM
-                            </p>
-                            <p className="text-neutral-600 text-sm mt-1">
-                              Your application has been reviewed by the hiring
-                              team
-                            </p>
-                          </div>
-                        </div>
-                        <div className="relative flex gap-6">
-                          <div className="w-9 h-9 rounded-full bg-white border border-neutral-200 flex items-center justify-center z-10">
-                            <CheckCircle2 className="h-5 w-5 text-black" />
-                          </div>
-                          <div>
-                            <p className="text-neutral-900 font-medium">
-                              Shortlisted
-                            </p>
-                            <p className="text-neutral-500 text-sm">
-                              Apr 20, 2025 - 11:45 AM
-                            </p>
-                            <p className="text-neutral-600 text-sm mt-1">
-                              Congratulations! You have been shortlisted for the
-                              next round
-                            </p>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -188,7 +260,7 @@ const ApplicationDetailClient = () => {
                           size="icon"
                           className="text-neutral-600 hover:text-neutral-900"
                         >
-                          <Download className="h-4 w-4" />
+                          <Download onClick={() => downloadFile(application?.id)} className="h-4 w-4" />
                         </Button>
                       </div>
                       <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
@@ -231,16 +303,16 @@ const ApplicationDetailClient = () => {
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <h4 className="text-base font-medium">{candidate.name}</h4>
+                    <h4 className="text-base font-medium">{application.applied_user}</h4>
                     <p className="text-sm text-neutral-600">
-                      {candidate.position}
+                      {application.job_title}
                     </p>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-600">Experience</span>
-                    <span className="text-sm">5 years</span>
+                    <span className="text-sm">{application.year_of_experience} years</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-600">Location</span>
@@ -250,7 +322,23 @@ const ApplicationDetailClient = () => {
                     <span className="text-sm text-neutral-600">
                       Notice Period
                     </span>
-                    <span className="text-sm">30 days</span>
+                    <span className="text-sm">{application.notice_period} days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-neutral-600">
+                      Expected Salary
+                    </span>
+                    <span className="text-sm">${application.expected_salary}</span>
+                  </div>
+                  <div className="mt-4">
+                    <span className="text-sm text-neutral-600 block mb-2">Skills</span>
+                    <div className="flex flex-wrap gap-2">
+                      {application.skills.map((skill, index) => (
+                        <span key={index} className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-full text-xs">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3 mt-6">

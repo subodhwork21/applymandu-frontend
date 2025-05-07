@@ -470,7 +470,7 @@ const DashboardPage = () => {
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="text-center mb-6">
                   <img
-                    src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=123"
+                    src={user?.image_path}
                     alt="Profile"
                     className="w-24 h-24 rounded-full mx-auto mb-4"
                   />

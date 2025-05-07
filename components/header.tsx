@@ -185,7 +185,7 @@ const Header = () => {
                         <AvatarFallback>{user?.first_name?.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium text-neutral-800">
-                        {user?.first_name} {user?.last_name}
+                        {user?.first_name ? user?.first_name + " " + user?.last_name : user?.company_name} 
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -220,12 +220,18 @@ const Header = () => {
                           </Link>
                         )
                       }
-                      
-                      <Link href="/dashboard/jobseeker/applications">
+                      {
+                        isEmployer ?   <Link href="/dashboard/employer/applications">
+                        <DropdownMenuItem>
+                          <span>My Applications</span>
+                        </DropdownMenuItem>
+                      </Link> :   <Link href="/dashboard/jobseeker/applications">
                         <DropdownMenuItem>
                           <span>My Applications</span>
                         </DropdownMenuItem>
                       </Link>
+                      }
+                    
                       <Link href="/dashboard/jobseeker/saved">
                         <DropdownMenuItem>
                           <span>Saved Jobs</span>

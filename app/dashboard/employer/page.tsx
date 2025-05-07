@@ -39,12 +39,12 @@ interface ActiveJob {
   posted: string;
   views_count: number;
   experience_level: string;
-  deadline: string;
+  application_deadline: string;
   skills: Record<string,any>[];
   requirements: string[];
   responsibilities: string[];
-  benifits: string[];
-
+  benefits: string[];
+  slug: string;
 }
 
 interface PaginationLink {
@@ -235,11 +235,12 @@ const EmployerDashboardPage = () => {
                                 salary_max: parseInt(job.salary_max),
                                 description: job.description,
                                 location_type: job.location_type,
-                                deadline: job?.deadline,
+                                application_deadline: job?.application_deadline,
                                 skills: job?.skills,
                                 requirements: job?.requirements,
                                 responsibilities: job?.responsibilities,
-                                benifits: job?.benifits,
+                                benefits: job?.benefits,
+                                slug: job?.slug,
                               })
                             }
                           >
