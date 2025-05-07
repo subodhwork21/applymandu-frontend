@@ -21,18 +21,17 @@ const RegisterModal = () => {
     isEmployer,
     isAuthenticated,
   } = useAuth();
-  const [accountType, setAccountType] = useState<"employer" | "jobseeker">(
-    isAuthenticated && isEmployer === false ? "jobseeker" : "employer"
-  );
+  const [accountType, setAccountType] = useState<"employer" | "jobseeker" | null>(null);
 
-  useEffect(()=>{
-    if (isAuthenticated && isEmployer === false) {
-      setAccountType("jobseeker");
+  useEffect(() => {
+    // Set initial account type based on authentication status
+    if (isAuthenticated) {
+      setAccountType(isEmployer ? "employer" : "jobseeker");
+    } else {
+      setAccountType(null);
     }
-    else{
-      setAccountType("employer");
-    }
-  }, [isAuthenticated, isEmployer])
+  }, [isAuthenticated, isEmployer]);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -60,50 +59,54 @@ const RegisterModal = () => {
       return;
     }
 
+    if (!accountType) {
+      setError("Please select an account type");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Implement registration logic here
       const { firstName, lastName, email, password, company_name, phone } = formData;
-      const {response, result} = await baseFetcher(accountType === "jobseeker" ? "api/register" : "api/employer/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const { response, result } = await baseFetcher(
+        accountType === "employer" ? "api/employer/register" : "api/register", 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: accountType === "jobseeker" ? JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            password,
+            password_confirmation: formData.password,
+            accountType,
+          }) : JSON.stringify({
+            company_name: company_name,
+            email,
+            password,
+            phone,
+            password_confirmation: formData.password,
+            accountType,
+          })
+        }
+      );
 
-        body: accountType === "jobseeker" ? JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          email,  
-          password,
-          password_confirmation: formData?.password,
-          accountType,
-        }) : JSON.stringify({
-          company_name: company_name,
-          email,  
-          password,
-          phone,
-          password_confirmation: formData?.password,
-          accountType,
-        }),
-      });
       if (!response?.ok) {
         if (result.errors && typeof result.errors === 'object') {
           getValidationErrors(result.errors);
           setError(result.message || "Validation failed");
         } else {
-          // Fallback to the general error message
           setError(result.message);
         }
-      }
-      else{
+      } else {
         toast({
           title: "Success!",
           description: result?.message,
-          variant: "default", // or "destructive" for error toasts
+          variant: "default",
         });
+        closeRegisterModal();
       }
-      closeRegisterModal();
-
     } catch (err: any) {
       setError(getValidationErrors(err.data?.errors as Record<string, string[]>));
     } finally {
@@ -125,28 +128,46 @@ const RegisterModal = () => {
 
         <div className="p-5">
           <div className="flex gap-4 mb-6">
-           
-            {isAuthenticated && !isEmployer ? (
-               <Button
-               variant={accountType === "employer" ? "default" : "outline"}
-               className={`flex-1 h-11 ${
-                 accountType === "employer" ? "bg-black text-white" : ""
-               }`}
-               onClick={() => setAccountType("jobseeker")}
-             >
-               <Briefcase className="h-5 w-5 mr-2" />
-               Employer
-             </Button>
+            {!isAuthenticated ? (
+              <>
+                <Button
+                  variant={accountType === "jobseeker" ? "default" : "outline"}
+                  className={`flex-1 h-11 ${
+                    accountType === "jobseeker" ? "bg-black text-white" : ""
+                  }`}
+                  onClick={() => setAccountType("jobseeker")}
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  Job Seeker
+                </Button>
+                <Button
+                  variant={accountType === "employer" ? "default" : "outline"}
+                  className={`flex-1 h-11 ${
+                    accountType === "employer" ? "bg-black text-white" : ""
+                  }`}
+                  onClick={() => setAccountType("employer")}
+                >
+                  <Briefcase className="h-5 w-5 mr-2" />
+                  Employer
+                </Button>
+              </>
+            ) : isEmployer ? (
+              <Button
+                variant="default"
+                className="flex-1 h-11 bg-black text-white"
+                disabled
+              >
+                <Briefcase className="h-5 w-5 mr-2" />
+                Employer Account
+              </Button>
             ) : (
               <Button
-                variant={accountType === "jobseeker" ? "default" : "outline"}
-                className={`flex-1 h-11 ${
-                  accountType === "jobseeker" ? "bg-black text-white" : ""
-                }`}
-                onClick={() => setAccountType("employer")}
+                variant="default"
+                className="flex-1 h-11 bg-black text-white"
+                disabled
               >
                 <User className="h-5 w-5 mr-2" />
-                Job Seeker
+                Job Seeker Account
               </Button>
             )}
           </div>
@@ -199,58 +220,62 @@ const RegisterModal = () => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-             { accountType === "employer" ?<> <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  placeholder="John"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  placeholder="Doe"
-                  required
-                />
-              </div></>:  <><div className="space-y-2 col-span-1">
-                <Label htmlFor="company_name">Company Name</Label>
-                <Input
-                  id="company_name"
-                  value={formData.company_name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company_name: e.target.value })
-                  }
-                  placeholder="xyz company"
-                  required
-                />
-                
-              </div>
-              <div className="space-y-2 col-span-1">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  type="number"
-                  placeholder=""
-                  required
-                />
-                
-              </div>
-              
-              </> }
+              {accountType === "jobseeker" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, firstName: e.target.value })
+                      }
+                      placeholder="John"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lastName: e.target.value })
+                      }
+                      placeholder="Doe"
+                      required
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2 col-span-1">
+                    <Label htmlFor="company_name">Company Name</Label>
+                    <Input
+                      id="company_name"
+                      value={formData.company_name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, company_name: e.target.value })
+                      }
+                      placeholder="XYZ Company"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-1">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      type="tel"
+                      placeholder="Phone number"
+                      required
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -311,13 +336,13 @@ const RegisterModal = () => {
             <Button
               type="submit"
               className="w-full h-11 bg-black text-white hover:bg-neutral-800"
-              disabled={isLoading}
+              disabled={isLoading || !accountType}
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
         </div>
-        {isAuthenticated && !isEmployer ? (
+        {isAuthenticated ? (
           <></>
         ) : (
           <div className="bg-neutral-50 p-5 text-center border-t border-neutral-200">

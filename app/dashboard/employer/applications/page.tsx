@@ -91,6 +91,7 @@ function ApplicationsContent() {
   const jobIdParam = searchParams.get("jobId");
 
   const [selectedCandidate, setSelectedCandidate] = useState<{
+    id: number;
     name: string;
     position: string;
     avatar: string;
@@ -108,6 +109,7 @@ function ApplicationsContent() {
     name: string;
     position: string;
     avatar: string;
+    id: number;
   }) => {
     setSelectedCandidate(candidate);
   };
@@ -154,6 +156,7 @@ function ApplicationsContent() {
           position: job.title,
           appliedDate: app.formatted_applied_at,
           skills,
+          user_id: app.user_id,
           status: app.status === 1 ? "Applied" : "Processing",
           avatar: avatarSeed,
         };
@@ -341,7 +344,8 @@ function ApplicationsContent() {
                                     onClick={() => handleOpenMessage({
                                       name: application.name,
                                       position: application.position,
-                                      avatar: application.avatar
+                                      avatar: application.avatar,
+                                      id: application?.user_id,
                                     })}
                                   >
                                     <MessageSquare className="h-4 w-4 mr-2" />

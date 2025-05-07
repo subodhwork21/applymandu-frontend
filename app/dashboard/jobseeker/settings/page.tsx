@@ -88,14 +88,14 @@ const SettingsPage = () => {
         email: userData.email || "",
         phone: userData.phone || "",
         image_path: userData.image_path,
-        visible_to_employers: userData.preferences.visible_to_employers || false,
-        appear_in_search_results: userData.preferences.appear_in_search_results || false,
-        show_contact_info: userData.preferences.show_contact_info || false,
-        show_online_status: userData.preferences.show_online_status || false,
-        allow_personalized_recommendations: userData.preferences.allow_personalized_recommendations || false,
-        email_job_matches: userData.preferences.email_job_matches || false,
-        sms_application_updates: userData.preferences.sms_application_updates || false,
-        subscribe_to_newsletter: userData.preferences.subscribe_to_newsletter || false
+        visible_to_employers: userData?.preferences?.visible_to_employers || false,
+        appear_in_search_results: userData?.preferences?.appear_in_search_results || false,
+        show_contact_info: userData?.preferences?.show_contact_info || false,
+        show_online_status: userData?.preferences?.show_online_status || false,
+        allow_personalized_recommendations: userData?.preferences?.allow_personalized_recommendations || false,
+        email_job_matches: userData?.preferences?.email_job_matches || false,
+        sms_application_updates: userData?.preferences?.sms_application_updates || false,
+        subscribe_to_newsletter: userData?.preferences?.subscribe_to_newsletter || false
       });
     }
   }, [data]);

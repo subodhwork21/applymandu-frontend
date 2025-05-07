@@ -38,7 +38,7 @@ interface AuthContextType {
   logout: () => void;
   openLoginModal: () => void;
   closeLoginModal: () => void;
-  isEmployer: boolean;
+  isEmployer: boolean | null;
   isLoginModalOpen: boolean;
   openRegisterModal: (isEmployer?: boolean) => void;
   isLoading: boolean;
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const {toast} = useToast();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [isEmployer, setIsEmployer] = useState<boolean>(false);
+  const [isEmployer, setIsEmployer] = useState<boolean | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =

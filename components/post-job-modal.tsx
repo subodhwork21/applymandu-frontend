@@ -54,7 +54,6 @@ interface PostJobModalProps {
 }
 
 const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
-  console.log(editJob);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form state with arrays for multi-option fields
@@ -239,25 +238,7 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
   
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-    if(!formData.slug.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a slug",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if(slugStatus === "unavailable") {
-      toast({
-        title: "Error",
-        description: "Slug is not available",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
+   
     
     try {
       // Format the data for API
@@ -280,6 +261,26 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
       };
 
       if (editJob) {
+        setIsSubmitting(true);
+        if(!formData.slug.trim()) {
+          toast({
+            title: "Error",
+            description: "Please enter a slug",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+    
+        if(slugStatus === "unavailable") {
+          toast({
+            title: "Error",
+            description: "Slug is not available",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
         const { response, result, errors } = await baseFetcher(`api/job/update/${editJob?.id}`, {
           method: "POST",
           body: JSON.stringify(apiData),
