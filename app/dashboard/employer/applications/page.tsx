@@ -91,7 +91,7 @@ function ApplicationsContent() {
   const jobIdParam = searchParams.get("jobId");
 
   const [selectedCandidate, setSelectedCandidate] = useState<{
-    id: number;
+    id: string;
     name: string;
     position: string;
     avatar: string;
@@ -109,7 +109,7 @@ function ApplicationsContent() {
     name: string;
     position: string;
     avatar: string;
-    id: number;
+    id: string;
   }) => {
     setSelectedCandidate(candidate);
   };
@@ -345,7 +345,7 @@ function ApplicationsContent() {
                                       name: application.name,
                                       position: application.position,
                                       avatar: application.avatar,
-                                      id: application?.user_id,
+                                      id: application?.user_id.toString()!,
                                     })}
                                   >
                                     <MessageSquare className="h-4 w-4 mr-2" />

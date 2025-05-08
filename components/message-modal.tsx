@@ -54,7 +54,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
     if (isOpen && candidate.id) {
       getOrCreateChat();
     }
-    
+
     return () => {
       // Clean up Echo listeners when component unmounts
       if (echoRef.current && chatId) {
@@ -76,23 +76,24 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   useEffect(() => {
     if (chatId && window.Echo) {
       echoRef.current = window.Echo;
-      
+
       // Listen for new messages
       echoRef.current.private(`chat.${chatId}`)
-        .listen('NewChatMessage', (e: { message: Message }) => {
-          if (e?.message?.sender_id?.toString() !== user?.id) {
-            setMessages(prev => [...prev, e.message]);
-            
+        .listen('NewChatMessage', (e: { chatMessage: Message }) => {
+          if (e?.chatMessage?.sender_id?.toString() !== user?.id.toString()) {
+
+            setMessages(prev => [...prev, e.chatMessage]);
+
             // Mark the new message as read immediately
-            if (!e?.message?.is_read) {   
-              markAsReadSafely([e?.message?.id]);
+            if (!e?.chatMessage?.is_read) {
+              markAsReadSafely([e?.chatMessage?.id]);
             }
           }
         })
         .listen('MessageRead', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
           if (e?.user_id?.toString() !== user?.id) {
-            setMessages(prev => 
-              prev.map(msg => 
+            setMessages(prev =>
+              prev.map(msg =>
                 e?.message_ids?.includes(msg.id) ? { ...msg, is_read: true } : msg
               )
             );
@@ -112,15 +113,15 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   useEffect(() => {
     if (chatId && messages.length > 0 && initialLoadRef.current) {
       initialLoadRef.current = false;
-      
+
       // Find unread messages from other users
       const unreadMessageIds = messages
-        .filter(msg => 
-          !msg.is_read && 
+        .filter(msg =>
+          !msg.is_read &&
           msg.sender_id.toString() !== user?.id
         )
         .map(msg => msg.id);
-      
+
       // Mark them as read if there are any
       if (unreadMessageIds.length > 0) {
         markAsReadSafely(unreadMessageIds);
@@ -132,12 +133,12 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   const markAsReadSafely = (messageIds: number[]) => {
     // Filter out already marked messages
     const newMessageIds = messageIds.filter(id => !markedMessagesRef.current.has(id));
-    
+
     if (newMessageIds.length === 0) return;
-    
+
     // Add to marked set before API call
     newMessageIds.forEach(id => markedMessagesRef.current.add(id));
-    
+
     // Call API to mark as read
     markMessagesAsRead(newMessageIds);
   };
@@ -156,7 +157,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
       });
 
       const data = await response.json();
-      
+
       if (data.success && data.data.chat_id) {
         setChatId(data.data.chat_id);
         await fetchMessages(data.data.chat_id);
@@ -180,10 +181,10 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         const newMessages = data.data.data; // Pagination data structure
-        
+
         if (pageNum === 1) {
           // First page, replace all messages
           setMessages(newMessages.reverse()); // Reverse to show oldest first
@@ -191,7 +192,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
           // Subsequent pages, prepend to existing messages
           setMessages(prev => [...newMessages.reverse(), ...prev]);
         }
-        
+
         // Check if there are more pages
         setHasMore(data.data.current_page < data.data.last_page);
         setPage(data.data.current_page);
@@ -211,7 +212,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !chatId) return;
-    
+
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${baseUrl}api/messages`, {
@@ -227,7 +228,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         // Add the new message to the list
         setMessages(prev => [...prev, data.data]);
@@ -239,8 +240,8 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   };
 
   const markMessagesAsRead = async (messageIds: number[]) => {
-    if (!chatId || messageIds.length === 0) return;
-    
+    if (!chatId || !messageIds || !Array.isArray(messageIds) || messageIds.length === 0) return;
+
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       await fetch(`${baseUrl}api/messages/read`, {
@@ -251,13 +252,13 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
         },
         body: JSON.stringify({
           chat_id: chatId,
-          message_ids: messageIds
+          message_ids: messageIds || []
         })
       });
-      
+
       // Update local message state to reflect read status
-      setMessages(prev => 
-        prev.map(msg => 
+      setMessages(prev =>
+        prev.map(msg =>
           messageIds?.includes(msg?.id) ? { ...msg, is_read: true } : msg
         )
       );
@@ -274,12 +275,27 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   };
 
   const formatMessageTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    try {
+      // Handle the specific format with microseconds by removing them
+      const normalizedDateString = dateString.replace(/\.\d+Z$/, 'Z');
+      const date = new Date(normalizedDateString);
+
+      // Check if date is valid before formatting
+      if (isNaN(date.getTime())) {
+        console.error("Invalid date:", dateString);
+        return "Unknown time";
+      }
+
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Unknown time";
+    }
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -308,9 +324,9 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
               <ScrollArea className="h-64 pr-4 mb-6" ref={scrollAreaRef}>
                 {hasMore && (
                   <div className="text-center mb-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={loadMoreMessages}
                       disabled={loading}
                     >
@@ -318,56 +334,66 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
                     </Button>
                   </div>
                 )}
-                
+
                 <div className="space-y-4">
                   {messages.map((message) => (
                     <div
                       key={message?.id}
-                      className={`flex gap-4 ${
-                        message?.sender_id?.toString() === user?.id ? "" : "justify-end"
-                      }`}
+                      className={`flex ${message?.sender_id?.toString() === user?.id.toString()
+                          ? "justify-end"
+                          : "justify-start"
+                        } mb-4`}
                     >
-                      {message?.sender_id?.toString() === user?.id && (
-                        <img
-                          src={user.image_path || "https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=company"}
-                          alt="You"
-                          className="w-8 h-8 rounded-full"
-                        />
-                      )}
-                      <div
-                        className={`rounded-lg p-3 max-w-[80%] ${
-                          message?.sender_id?.toString() === user?.id
-                            ? "bg-neutral-100"
-                            : "bg-black text-white"
-                        }`}
-                      >
-                        <p className="text-sm">{message?.content}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span
-                            className={`text-xs ${
-                              message?.sender_id?.toString() === user?.id
-                                ? "text-neutral-500"
-                                : "text-neutral-300"
+                      <div className={`flex gap-4 max-w-[80%] ${message?.sender_id?.toString() === user?.id.toString()
+                          ? "flex-row-reverse"
+                          : "flex-row"
+                        }`}>
+                        {/* Avatar for current user */}
+                        {message?.sender_id?.toString() === user?.id.toString() && (
+                          <img
+                            src={user.image_path || "https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=company"}
+                            alt="You"
+                            className="w-8 h-8 rounded-full flex-shrink-0"
+                          />
+                        )}
+
+                        {/* Message bubble */}
+                        <div
+                          className={`rounded-lg p-3 ${message?.sender_id?.toString() === user?.id.toString()
+                              ? "bg-black text-white"
+                              : "bg-neutral-100 text-black"
                             }`}
-                          >
-                            {formatMessageTime(message?.created_at)}
-                          </span>
-                          {message?.sender_id?.toString() === user?.id && (
-                            <span className="text-xs text-neutral-500 ml-2">
-                              {message?.is_read ? "Read" : "Sent"}
+                        >
+                          <p className="text-sm">{message?.content}</p>
+                          <div className="flex items-center justify-between mt-1">
+                            <span
+                              className={`text-xs ${message?.sender_id?.toString() === user?.id.toString()
+                                  ? "text-neutral-300"
+                                  : "text-neutral-500"
+                                }`}
+                            >
+                              {formatMessageTime(message?.created_at)}
                             </span>
-                          )}
+                            {message?.sender_id?.toString() === user?.id.toString() && (
+                              <span className="text-xs text-neutral-300 ml-2">
+                                {message?.is_read ? "Read" : "Sent"}
+                              </span>
+                            )}
+                          </div>
                         </div>
+
+                        {/* Avatar for other user */}
+                        {message?.sender_id?.toString() !== user?.id.toString() && (
+                          <img
+                            src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
+                            alt={candidate.name}
+                            className="w-8 h-8 rounded-full flex-shrink-0"
+                          />
+                        )}
                       </div>
-                      {message?.sender_id?.toString() !== user?.id && (
-                        <img
-                          src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
-                          alt={candidate.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      )}
                     </div>
                   ))}
+
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
