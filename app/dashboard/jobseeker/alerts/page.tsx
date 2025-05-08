@@ -107,7 +107,7 @@ const AlertsPage = () => {
     return formattedAlerts
       .filter(alert => {
         if (filter === "all") return true;
-        return alert.status.toLowerCase() === filter.toLowerCase();
+        return alert?.status?.toLowerCase() === filter.toLowerCase();
       })
       .filter(alert => {
         if (!search) return true;
@@ -408,7 +408,7 @@ const AlertsPage = () => {
                           <DropdownMenuItem onClick={() => handleEditAlert(alert)}>
                             Edit Alert
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleAlertStatus(alert.id, alert.status)}>
+                          <DropdownMenuItem onClick={() => handleToggleAlertStatus(alert.id, alert?.status!)}>
                             {alert.status === 'active' ? 'Pause Alert' : 'Resume Alert'}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -440,7 +440,7 @@ const AlertsPage = () => {
                         <span className="text-sm text-neutral-600">
                           {alert.frequency} updates
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyles(alert.status)}`}>
+                        <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyles(alert?.status!)}`}>
                           {alert.status}
                         </span>
                       </div>

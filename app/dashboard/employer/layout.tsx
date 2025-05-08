@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { initializeEcho } from "@/lib/echo-setup";
 
 export default function EmployerDashboardLayout({
   children,
@@ -29,6 +30,16 @@ export default function EmployerDashboardLayout({
     return pathname.startsWith(path);
   };
 
+  const [echoInitialized, setEchoInitialized] = useState(false);
+  
+  useEffect(() => {
+    try {
+      initializeEcho();
+      setEchoInitialized(true);
+    } catch (error) {
+      console.error("Failed to initialize Echo:", error);
+    }
+  }, []);
   return (
     <div className="min-h-screen flex flex-col">
       <Header />

@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/lib/auth-context";
+import { employerToken, jobSeekerToken } from "@/lib/tokens";
 
 interface Message {
   id: number;
   chat_id: number;
   sender_id: number;
-  message: string;
+  content: string;
   is_read: boolean;
   created_at: string;
   updated_at: string;
@@ -79,20 +80,20 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
       // Listen for new messages
       echoRef.current.private(`chat.${chatId}`)
         .listen('NewChatMessage', (e: { message: Message }) => {
-          if (e.message.sender_id.toString() !== user?.id) {
+          if (e?.message?.sender_id?.toString() !== user?.id) {
             setMessages(prev => [...prev, e.message]);
             
             // Mark the new message as read immediately
-            if (!e.message.is_read) {
-              markAsReadSafely([e.message.id]);
+            if (!e?.message?.is_read) {   
+              markAsReadSafely([e?.message?.id]);
             }
           }
         })
         .listen('MessageRead', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
-          if (e.user_id.toString() !== user?.id) {
+          if (e?.user_id?.toString() !== user?.id) {
             setMessages(prev => 
               prev.map(msg => 
-                e.message_ids.includes(msg.id) ? { ...msg, is_read: true } : msg
+                e?.message_ids?.includes(msg.id) ? { ...msg, is_read: true } : msg
               )
             );
           }
@@ -145,11 +146,11 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
     try {
       setLoading(true);
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${baseUrl}/api/chats`, {
+      const response = await fetch(`${baseUrl}api/chats`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${jobSeekerToken() || employerToken()}`
         },
         body: JSON.stringify({ user_id: candidate.id })
       });
@@ -171,10 +172,10 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
     try {
       setLoading(true);
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${baseUrl}/api/chats/${chatId}/messages?page=${pageNum}`, {
+      const response = await fetch(`${baseUrl}api/chats/${chatId}/messages?page=${pageNum}`, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${jobSeekerToken() || employerToken()}`
         }
       });
 
@@ -213,11 +214,11 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
     
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${baseUrl}/api/messages`, {
+      const response = await fetch(`${baseUrl}api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${jobSeekerToken() || employerToken()}`
         },
         body: JSON.stringify({
           chat_id: chatId,
@@ -242,11 +243,11 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
     
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      await fetch(`${baseUrl}/api/messages/read`, {
+      await fetch(`${baseUrl}api/messages/read`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${jobSeekerToken() || employerToken()}`
         },
         body: JSON.stringify({
           chat_id: chatId,
@@ -257,7 +258,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
       // Update local message state to reflect read status
       setMessages(prev => 
         prev.map(msg => 
-          messageIds.includes(msg.id) ? { ...msg, is_read: true } : msg
+          messageIds?.includes(msg?.id) ? { ...msg, is_read: true } : msg
         )
       );
     } catch (error) {
@@ -321,12 +322,12 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
                 <div className="space-y-4">
                   {messages.map((message) => (
                     <div
-                      key={message.id}
+                      key={message?.id}
                       className={`flex gap-4 ${
-                        message.sender_id.toString() === user?.id ? "" : "justify-end"
+                        message?.sender_id?.toString() === user?.id ? "" : "justify-end"
                       }`}
                     >
-                      {message.sender_id.toString() === user?.id && (
+                      {message?.sender_id?.toString() === user?.id && (
                         <img
                           src={user.image_path || "https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=company"}
                           alt="You"
@@ -335,30 +336,30 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
                       )}
                       <div
                         className={`rounded-lg p-3 max-w-[80%] ${
-                          message.sender_id.toString() === user?.id
+                          message?.sender_id?.toString() === user?.id
                             ? "bg-neutral-100"
                             : "bg-black text-white"
                         }`}
                       >
-                        <p className="text-sm">{message.message}</p>
+                        <p className="text-sm">{message?.content}</p>
                         <div className="flex items-center justify-between mt-1">
                           <span
                             className={`text-xs ${
-                              message.sender_id.toString() === user?.id
+                              message?.sender_id?.toString() === user?.id
                                 ? "text-neutral-500"
                                 : "text-neutral-300"
                             }`}
                           >
-                            {formatMessageTime(message.created_at)}
+                            {formatMessageTime(message?.created_at)}
                           </span>
-                          {message.sender_id.toString() === user?.id && (
+                          {message?.sender_id?.toString() === user?.id && (
                             <span className="text-xs text-neutral-500 ml-2">
-                              {message.is_read ? "Read" : "Sent"}
+                              {message?.is_read ? "Read" : "Sent"}
                             </span>
                           )}
                         </div>
                       </div>
-                      {message.sender_id.toString() !== user?.id && (
+                      {message?.sender_id?.toString() !== user?.id && (
                         <img
                           src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
                           alt={candidate.name}
