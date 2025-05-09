@@ -47,6 +47,7 @@ interface Application {
   company_name: string;
   applied_user: string;
   skills?: string[];
+  user_image: string;
 }
 
 interface Job {
@@ -143,7 +144,7 @@ function ApplicationsContent() {
       // Process applications to add missing fields
       const processedApplications = job.applications.map(app => {
         // Generate a random avatar seed based on user ID
-        const avatarSeed = `user-${app.user_id}`;
+        // const avatarSeed = `user-${app.user_id}`;
         
         // Extract skills from requirements (first 3 for display)
         const skills = app.skills || job.requirements.slice(0, 3).map(req => {
@@ -158,7 +159,7 @@ function ApplicationsContent() {
           skills,
           user_id: app.user_id,
           status: app.status === 1 ? "Applied" : "Processing",
-          avatar: avatarSeed,
+          avatar: app?.user_image,
         };
       });
       
@@ -296,7 +297,7 @@ function ApplicationsContent() {
                                 <div className="flex items-start justify-between">
                                   <div className="flex gap-4">
                                     <img
-                                      src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${application.avatar}`}
+                                      src={application?.avatar}
                                       alt="Candidate"
                                       className="w-12 h-12 rounded-full"
                                     />

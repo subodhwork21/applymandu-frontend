@@ -8,12 +8,7 @@ import {
   setCookie,
   deleteCookie,
   hasCookie,
-  useGetCookies,
-  useSetCookie,
-  useHasCookie,
-  useDeleteCookie,
-  useGetCookie,
-} from 'cookies-next/client';
+} from 'cookies-next';
 import { toast } from "react-toastify";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";

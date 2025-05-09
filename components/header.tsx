@@ -33,6 +33,8 @@ import AuthSkeleton from "./ui/auth-skeleton";
 import MessageModal from "./message-modal";
 import { employerToken, jobSeekerToken } from "@/lib/tokens";
 import { toast } from "react-toastify";
+import { initializeEcho } from "@/lib/echo-setup";
+import { useRouter } from "next/navigation";
 
 interface ChatPreview {
   id: number;
@@ -71,6 +73,8 @@ const Header = () => {
     avatar: string;
   } | null>(null);
 
+ 
+
 
   const fetchChatPreviews = useCallback(async () => {
     try {
@@ -98,23 +102,19 @@ const Header = () => {
   // Fetch chat previews
   useEffect(() => {
     if (isAuthenticated && user?.id) {
-      console.log(`Setting up Echo listener for user ${user?.id}`);
       
       // Initial data fetch
       fetchChatPreviews();
-      
       // Set up Echo listener for new messages
       if (window.Echo) {
         const channel = window.Echo.private(`user.${user?.id}.messages`);
-        console.log(channel);
-        channel.listen('NewChatMessage', (e) => {
-          console.log('Received new message event:', e);
+        channel.listen('NewChatMessage', ( ) => {
+
           fetchChatPreviews();
         });
         
         // Add error handling
-        channel.error((error) => {
-          console.error('Error with channel subscription:', error);
+        channel.error(() => {
         });
       }
       
@@ -126,7 +126,7 @@ const Header = () => {
         }
       };
     }
-  }, [isAuthenticated, user?.id, fetchChatPreviews]);
+  }, [isAuthenticated, user?.id]);
 
  
 
@@ -155,6 +155,8 @@ const Header = () => {
       return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
     }
   };
+
+  const pathname = usePathname();
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
@@ -191,10 +193,10 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {
             isLoading ? <AuthSkeleton/>: 
-            isAuthenticated ? (
+            isAuthenticated  ? (
               <>
                 {/* Messages Dropdown */}
-                <DropdownMenu>
+          { pathName.includes("dashboard") &&     <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="relative">
                       <MessageCircle className="h-5 w-5 text-neutral-600" />
@@ -259,7 +261,7 @@ const Header = () => {
                       )}
                     </div>
                   </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu>}
 
                 {/* Notifications */}
                 <DropdownMenu>

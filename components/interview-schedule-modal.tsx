@@ -22,6 +22,10 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DropdownWithAddOption } from "./ui/dropdown-with-add-option";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { toast } from "@/hooks/use-toast";
+import useSWR from "swr";
 
 interface InterviewScheduleModalProps {
   isOpen: boolean;
@@ -30,13 +34,16 @@ interface InterviewScheduleModalProps {
     name: string;
     position: string;
     avatar: string;
+    
   };
+  application_id: string;
 }
 
 const InterviewScheduleModal = ({
   isOpen,
   onClose,
   candidate,
+  application_id
 }: InterviewScheduleModalProps) => {
   const [formData, setFormData] = useState({
     interviewType: "",
@@ -46,6 +53,23 @@ const InterviewScheduleModal = ({
     interviewer: "",
     notes: "",
   });
+
+  const {
+    data: interviewType,
+    isLoading,
+    mutate: mutateInterviewType,
+  } = useSWR<{ data: { name: string }[] }>(
+    "api/application-interview/interview-types",
+    defaultFetcher
+  );
+  const {
+    data: interviewer,
+    isLoading: interviewerLoading,
+    mutate: mutateInterviewer,
+  } = useSWR<{ data: { name: string }[] }>(
+    "api/application-interview/interviewers",
+    defaultFetcher
+  );
 
   // Generate time slots from 9 AM to 6 PM
   const timeSlots = Array.from({ length: 19 }, (_, i) => {
@@ -59,9 +83,28 @@ const InterviewScheduleModal = ({
     };
   });
 
-  const handleSubmit = () => {
-    console.log("Schedule interview:", formData);
+  const handleSubmit = async() => {
+    let formDataFinal = {interview_type_id: formData?.interviewType, interviewer_id: formData?.interviewer, mode: formData?.mode, status: "scheduled", application_id: application_id, date: formData?.date, time: formData?.time};
+    console.log(formDataFinal);
+    const {response, result, errors} = await baseFetcher("api/application-interview/schedule-interview",{
+      method: "POST",
+      body: JSON.stringify(formDataFinal),
+    })
+
+    if(response?.ok){
+      toast({
+        title: "Interview scheduled successfully",
+        description: result?.message
+      })
     onClose();
+
+    }
+    else{
+toast({
+        title: "Error",
+        description: errors || "Something went wrong",
+      })
+    }
   };
 
   return (
@@ -91,22 +134,61 @@ const InterviewScheduleModal = ({
           <div className="space-y-4">
             <div>
               <Label>Interview Type</Label>
-              <Select
+            
+              <DropdownWithAddOption
+                options={
+                  interviewType?.data
+                    ? interviewType?.data.map((item: any) => ({
+                        value: item.name,
+                        label: item.name,
+                        id: item.id
+                      }))
+                    : []
+                }
                 value={formData.interviewType}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setFormData({ ...formData, interviewType: value })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select interview type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="technical">Technical Interview</SelectItem>
-                  <SelectItem value="hr">HR Interview</SelectItem>
-                  <SelectItem value="culture">Culture Fit</SelectItem>
-                  <SelectItem value="final">Final Interview</SelectItem>
-                </SelectContent>
-              </Select>
+                placeholder="Select interview type"
+                className="w-full"
+                addOptionText="Add interview type"
+                addNewPlaceholder="Enter interview type"
+                onAddNewOption={async (newType) => {
+                  try {
+                    const { response, result } = await baseFetcher(
+                      "api/application-interview/add-interview-type",
+                      {
+                        method: "POST",
+                        body: JSON.stringify({ name: newType }),
+                      }
+                    );
+
+                    if (response?.ok) {
+                      toast({
+                        title: "Success",
+                        description: "Interview type added successfully",
+                      });
+                      mutateInterviewType();
+                      return true;
+                    } else {
+                      toast({
+                        title: "Error",
+                        description: "Failed to add interview type",
+                        variant: "destructive",
+                      });
+                      return false;
+                    }
+                  } catch (error) {
+                    console.error("Error adding interview type:", error);
+                    toast({
+                      title: "Error",
+                      description: "An unexpected error occurred",
+                      variant: "destructive",
+                    });
+                    return false;
+                  }
+                }}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -175,11 +257,11 @@ const InterviewScheduleModal = ({
                   <Label htmlFor="in-person">In-person</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="video" id="video" />
+                  <RadioGroupItem value="video-call" id="video" />
                   <Label htmlFor="video">Video Call</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="phone" id="phone" />
+                  <RadioGroupItem value="phone-call" id="phone" />
                   <Label htmlFor="phone">Phone Call</Label>
                 </div>
               </RadioGroup>
@@ -187,25 +269,62 @@ const InterviewScheduleModal = ({
 
             <div>
               <Label>Interviewer</Label>
-              <Select
+              
+
+              <DropdownWithAddOption
                 value={formData.interviewer}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, interviewer: value })
+                placeholder="Select interviewer"
+                options={
+                  interviewer?.data
+                    ? interviewer?.data.map((item: any) => ({
+                        value: item.name,
+                        label: item.name,
+                        id: item.id ,
+                      }))
+                    : []
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select interviewer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sarah">
-                    Sarah Johnson (Tech Lead)
-                  </SelectItem>
-                  <SelectItem value="mike">
-                    Mike Peters (Senior Developer)
-                  </SelectItem>
-                  <SelectItem value="anna">Anna Smith (HR Manager)</SelectItem>
-                </SelectContent>
-              </Select>
+                onChange={(option) =>
+                  setFormData({ ...formData, interviewer: option })
+                }
+                onAddNewOption={async (option) => {
+                  try {
+                    const { response, result } = await baseFetcher(
+                      "api/application-interview/add-interviewers",
+                      {
+                        method: "POST",
+                        body: JSON.stringify({
+                          name: option,
+                          department: "Interview",
+                        }),
+                      }
+                    );
+
+                    if (response?.ok) {
+                      toast({
+                        title: "Success",
+                        description: "Interviewer added successfully",
+                      });
+                      mutateInterviewer();
+                      return true;
+                    } else {
+                      toast({
+                        title: "Error",
+                        description: "Failed to add interviewer",
+                        variant: "destructive",
+                      });
+                      return false;
+                    }
+                  } catch (error) {
+                    console.error("Error adding interviewer:", error);
+                    toast({
+                      title: "Error",
+                      description: "An unexpected error occurred",
+                      variant: "destructive",
+                    });
+                    return false;
+                  }
+                }}
+              />
             </div>
 
             <div>

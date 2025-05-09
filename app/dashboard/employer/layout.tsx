@@ -30,6 +30,16 @@ export default function EmployerDashboardLayout({
     return pathname.startsWith(path);
   };
 
+  const [echoInitialized, setEchoInitialized] = useState(false);
+      
+  useEffect(() => {
+    try {
+      initializeEcho();
+      setEchoInitialized(true);
+    } catch (error) {
+      console.error("Failed to initialize Echo:", error);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">

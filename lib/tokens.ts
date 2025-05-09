@@ -1,4 +1,4 @@
-import { getCookie } from "cookies-next/client";
+import { getCookie } from "cookies-next";
 
 export function jobSeekerToken(): string{
     return getCookie('JOBSEEKER_TOKEN') as string;

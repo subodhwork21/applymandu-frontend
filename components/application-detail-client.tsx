@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -11,15 +11,17 @@ import {
   Clock,
   CheckCircle2,
   Send,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import MessageModal from "@/components/message-modal";
 import InterviewScheduleModal from "@/components/interview-schedule-modal";
 import useSWR from "swr";
-import { defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { format, parseISO } from "date-fns";
 import { employerToken } from "@/lib/tokens";
+import { toast } from "@/hooks/use-toast";
 
 interface ApplicationStatus {
   id: number;
@@ -48,6 +50,7 @@ interface ApplicationData {
   applied_user: string;
   skills: string[];
   status_history: ApplicationStatus[];
+  user_image: string;
 }
 
 interface ApiResponse {
@@ -55,57 +58,100 @@ interface ApiResponse {
   data: ApplicationData[];
 }
 
-const ApplicationDetailClient = ({id}: {id: string}) => {
+const ApplicationDetailClient = ({ id }: { id: string }) => {
   const [isMessageModalOpen, setIsMessageModalOpen] = React.useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
   const [newNote, setNewNote] = React.useState("");
-  const [notes, setNotes] = React.useState([
-    {
-      text: "Strong technical background with relevant experience in frontend development. Good communication skills demonstrated in cover letter.",
-      author: "HR Manager",
-      date: "Apr 19, 2025",
-    },
-  ]);
+  const [notes, setNotes] = React.useState<
+    { note: string; created_at: string; user: { company_name: string } }[]
+  >([]);
 
-  const {data: applicationData, isLoading, error, mutate} = useSWR<ApiResponse>(`api/employer/job/application/${id}`, defaultFetcher);
+  const {
+    data: notesList,
+    isLoading: isNotesLoading,
+    error: notesError,
+    mutate: mutateNote,
+  } = useSWR<Record<string, any>>("api/application-note/" + id, defaultFetcher);
+
+  const {
+    data: applicationData,
+    isLoading,
+    error,
+    mutate,
+  } = useSWR<ApiResponse>(`api/employer/job/application/${id}`, defaultFetcher);
+
+  useEffect(() => {
+    if (notesList) {
+      setNotes(notesList.data);
+    }
+  }, [applicationData, notesList]);
 
   const application = applicationData?.data[0];
 
-  const handleAddNote = () => {
-    if (newNote.trim()) {
-      setNotes([
-        {
-          text: newNote.trim(),
-          author: "You",
-          date: new Date().toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-        },
-        ...notes,
-      ]);
-      setNewNote("");
+  const handleAddNote = async () => {
+    const { response, result, errors } = await baseFetcher(
+      "api/application-note/" + application?.id,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          note: newNote.trim(),
+        }),
+      }
+    );
+
+    if (response?.ok) {
+      mutateNote();
+    } else {
+      toast({
+        title: "Error",
+        description: errors,
+      });
     }
   };
 
-  // Create a candidate object from the application data
-  const candidate = application ? {
-    name: application.applied_user,
-    position: application.job_title,
-    avatar: "789", // Using a default avatar seed
-  } : {
-    name: "John Doe",
-    position: "Frontend Developer",
-    avatar: "789",
+  const handleDeleteNote = async (id: number) => {
+    const { response, result, errors } = await baseFetcher(
+      "api/application-note/" + id,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (response?.ok) {
+      mutateNote();
+    } else {
+      toast({
+        title: "Error",
+        description: errors,
+      });
+    }
   };
 
+  const candidate = application
+    ? {
+        id: application.user_id.toString(),
+        name: application?.applied_user,
+        position: application.job_title,
+        avatar: application?.user_image,
+      }
+    : {
+        name: "John Doe",
+        position: "Frontend Developer",
+        avatar: "789",
+      };
+
   if (isLoading) {
-    return <div className="py-8 text-center">Loading application details...</div>;
+    return (
+      <div className="py-8 text-center">Loading application details...</div>
+    );
   }
 
   if (error) {
-    return <div className="py-8 text-center text-red-500">Error loading application: {error.message}</div>;
+    return (
+      <div className="py-8 text-center text-red-500">
+        Error loading application: {error.message}
+      </div>
+    );
   }
 
   if (!application) {
@@ -113,41 +159,42 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
   }
 
   // Format the application date
-  const appliedDate = application.formatted_applied_at || 
+  const appliedDate =
+    application.formatted_applied_at ||
     format(parseISO(application.applied_at), "MMM dd, yyyy");
 
   // Get the current status from status history
-  const currentStatus = application.status_history && application.status_history.length > 0 
-    ? application.status_history[0].status 
-    : "Applied";
+  const currentStatus =
+    application.status_history && application.status_history.length > 0
+      ? application.status_history[0].status
+      : "Applied";
 
   // Capitalize the status for display
-  const displayStatus = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+  const displayStatus =
+    currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
 
-  const downloadFile = async(id: number) =>{
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    
-    
-      const res = await fetch(`${baseUrl}api/employer/download-document/`+id, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${employerToken()}`,
-          "Content-Type": "application/json",
-        },
-      });
-    
-      if (!res.ok) {
-        console.error("Failed to fetch PDF");
-        return;
-      }
-    
-      const blob = await res.blob();
-      const fileUrl = URL.createObjectURL(blob);
-    
-      // Option: Open PDF in new tab
-      window.open(fileUrl);
-  }
+  const downloadFile = async (id: number) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
+    const res = await fetch(`${baseUrl}api/employer/download-document/` + id, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${employerToken()}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch PDF");
+      return;
+    }
+
+    const blob = await res.blob();
+    const fileUrl = URL.createObjectURL(blob);
+
+    // Option: Open PDF in new tab
+    window.open(fileUrl);
+  };
 
   return (
     <section className="py-8">
@@ -176,13 +223,17 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex gap-4">
                     <div className="w-16 h-16 bg-neutral-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <div className="text-white text-2xl">{application.applied_user.charAt(0)}</div>
+                      <div className="text-white text-2xl">
+                        {application.applied_user.charAt(0)}
+                      </div>
                     </div>
                     <div>
                       <h3 className="text-lg font-medium mb-2">
                         {application.job_title}
                       </h3>
-                      <p className="text-neutral-600 mb-2">{application.company_name}</p>
+                      <p className="text-neutral-600 mb-2">
+                        {application.company_name}
+                      </p>
                       <div className="flex space-x-4 text-sm text-neutral-500">
                         <span className="flex items-center">
                           <Calendar className="h-4 w-4 mr-2" />
@@ -196,11 +247,15 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                       </div>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 ${
-                    displayStatus === "Shortlisted" ? "bg-green-100 text-green-800" : 
-                    displayStatus === "Rejected" ? "bg-red-100 text-red-800" : 
-                    "bg-yellow-100 text-yellow-800"
-                  } rounded-full text-sm font-medium`}>
+                  <span
+                    className={`px-3 py-1 ${
+                      displayStatus === "Shortlisted"
+                        ? "bg-green-100 text-green-800"
+                        : displayStatus === "Rejected"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    } rounded-full text-sm font-medium`}
+                  >
                     {displayStatus}
                   </span>
                 </div>
@@ -220,15 +275,19 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                             </div>
                             <div>
                               <p className="text-neutral-900 font-medium">
-                                {status.status.charAt(0).toUpperCase() + status.status.slice(1)}
+                                {status.status.charAt(0).toUpperCase() +
+                                  status.status.slice(1)}
                               </p>
                               <p className="text-neutral-500 text-sm">
-                                {format(parseISO(status.changed_at), "MMM dd, yyyy - h:mm a")}
+                                {format(
+                                  parseISO(status.changed_at),
+                                  "MMM dd, yyyy - h:mm a"
+                                )}
                               </p>
                               <p className="text-neutral-600 text-sm mt-1">
-                                {status.remarks || 
-                                  (status.status === "applied" 
-                                    ? "Application was successfully submitted" 
+                                {status.remarks ||
+                                  (status.status === "applied"
+                                    ? "Application was successfully submitted"
                                     : `Application status changed to ${status.status}`)}
                               </p>
                             </div>
@@ -260,7 +319,10 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                           size="icon"
                           className="text-neutral-600 hover:text-neutral-900"
                         >
-                          <Download onClick={() => downloadFile(application?.id)} className="h-4 w-4" />
+                          <Download
+                            onClick={() => downloadFile(application?.id)}
+                            className="h-4 w-4"
+                          />
                         </Button>
                       </div>
                       <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
@@ -298,12 +360,14 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                 <h3 className="text-lg font-medium mb-4">Candidate Details</h3>
                 <div className="flex items-center gap-4 mb-6">
                   <img
-                    src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.avatar}`}
-                    alt={candidate.name}
+                    src={application?.user_image}
+                    alt={application.applied_user}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <h4 className="text-base font-medium">{application.applied_user}</h4>
+                    <h4 className="text-base font-medium">
+                      {application.applied_user}
+                    </h4>
                     <p className="text-sm text-neutral-600">
                       {application.job_title}
                     </p>
@@ -312,7 +376,9 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-600">Experience</span>
-                    <span className="text-sm">{application.year_of_experience} years</span>
+                    <span className="text-sm">
+                      {application.year_of_experience} years
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-600">Location</span>
@@ -322,19 +388,28 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                     <span className="text-sm text-neutral-600">
                       Notice Period
                     </span>
-                    <span className="text-sm">{application.notice_period} days</span>
+                    <span className="text-sm">
+                      {application.notice_period} days
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-600">
                       Expected Salary
                     </span>
-                    <span className="text-sm">${application.expected_salary}</span>
+                    <span className="text-sm">
+                      ${application.expected_salary}
+                    </span>
                   </div>
                   <div className="mt-4">
-                    <span className="text-sm text-neutral-600 block mb-2">Skills</span>
+                    <span className="text-sm text-neutral-600 block mb-2">
+                      Skills
+                    </span>
                     <div className="flex flex-wrap gap-2">
                       {application.skills.map((skill, index) => (
-                        <span key={index} className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-full text-xs">
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-full text-xs"
+                        >
                           {skill}
                         </span>
                       ))}
@@ -379,14 +454,31 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
                     </Button>
                   </div>
                   <div className="space-y-3">
-                    {notes.map((note, index) => (
-                      <div key={index} className="p-4 bg-neutral-50 rounded-lg">
-                        <p className="text-sm text-neutral-600">{note.text}</p>
-                        <p className="text-xs text-neutral-500 mt-2">
-                          Added by {note.author} • {note.date}
-                        </p>
-                      </div>
-                    ))}
+                    {notes?.length > 0 &&
+                      notes.map((note, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-neutral-50 rounded-lg relative"
+                        >
+                          <div className="flex justify-between">
+                            <p className="text-sm text-neutral-600">
+                              {note.note}
+                            </p>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-neutral-500 hover:text-red-500"
+                              onClick={() => handleDeleteNote(note.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-2">
+                            Added by {note.user?.company_name} •{" "}
+                            {note.created_at}
+                          </p>
+                        </div>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -405,6 +497,7 @@ const ApplicationDetailClient = ({id}: {id: string}) => {
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
         candidate={candidate}
+        application_id={id}
       />
     </section>
   );

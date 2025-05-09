@@ -30,6 +30,17 @@ export default function DashboardLayout({
     return pathname.startsWith(path);
   };
 
+  const [echoInitialized, setEchoInitialized] = useState(false);
+      
+  useEffect(() => {
+    try {
+      initializeEcho();
+      setEchoInitialized(true);
+    } catch (error) {
+      console.error("Failed to initialize Echo:", error);
+    }
+  }, []);
+
 
 
   return (
