@@ -34,7 +34,7 @@ interface InterviewScheduleModalProps {
     name: string;
     position: string;
     avatar: string;
-    
+
   };
   application_id: string;
 }
@@ -52,7 +52,10 @@ const InterviewScheduleModal = ({
     mode: "in-person",
     interviewer: "",
     notes: "",
+    formattedDate: "",
   });
+
+  console.log(candidate, application_id);
 
   const {
     data: interviewType,
@@ -83,24 +86,24 @@ const InterviewScheduleModal = ({
     };
   });
 
-  const handleSubmit = async() => {
-    let formDataFinal = {interview_type_id: formData?.interviewType, interviewer_id: formData?.interviewer, mode: formData?.mode, status: "scheduled", application_id: application_id, date: formData?.date, time: formData?.time};
-    console.log(formDataFinal);
-    const {response, result, errors} = await baseFetcher("api/application-interview/schedule-interview",{
+  const handleSubmit = async () => {
+    let formDataFinal = { interview_type_id: formData?.interviewType, interviewer_id: formData?.interviewer, mode: formData?.mode, status: "scheduled", application_id: application_id, date: formData?.formattedDate, time: formData?.time };
+    // console.log(formDataFinal);
+    const { response, result, errors } = await baseFetcher("api/application-interview/schedule-interview", {
       method: "POST",
       body: JSON.stringify(formDataFinal),
     })
 
-    if(response?.ok){
+    if (response?.ok) {
       toast({
         title: "Interview scheduled successfully",
         description: result?.message
       })
-    onClose();
+      onClose();
 
     }
-    else{
-toast({
+    else {
+      toast({
         title: "Error",
         description: errors || "Something went wrong",
       })
@@ -134,15 +137,15 @@ toast({
           <div className="space-y-4">
             <div>
               <Label>Interview Type</Label>
-            
+
               <DropdownWithAddOption
                 options={
                   interviewType?.data
                     ? interviewType?.data.map((item: any) => ({
-                        value: item.name,
-                        label: item.name,
-                        id: item.id
-                      }))
+                      value: item.name,
+                      label: item.name,
+                      id: item.id
+                    }))
                     : []
                 }
                 value={formData.interviewType}
@@ -214,7 +217,17 @@ toast({
                     <Calendar
                       mode="single"
                       selected={formData.date}
-                      onSelect={(date) => setFormData({ ...formData, date })}
+                      onSelect={(date) => {
+                        // Format the date for Laravel (YYYY-MM-DD format)
+                         const formattedDate = date ? format(date, 'yyyy-MM-dd') : null;
+
+                        // Store both the Date object (for the UI) and the formatted string (for API)
+                        setFormData({
+                          ...formData,
+                          date: date,
+                          formattedDate: formattedDate! as string 
+                        });
+                      }}
                       disabled={(date) => date < new Date()}
                       initialFocus
                     />
@@ -269,7 +282,7 @@ toast({
 
             <div>
               <Label>Interviewer</Label>
-              
+
 
               <DropdownWithAddOption
                 value={formData.interviewer}
@@ -277,10 +290,10 @@ toast({
                 options={
                   interviewer?.data
                     ? interviewer?.data.map((item: any) => ({
-                        value: item.name,
-                        label: item.name,
-                        id: item.id ,
-                      }))
+                      value: item.name,
+                      label: item.name,
+                      id: item.id,
+                    }))
                     : []
                 }
                 onChange={(option) =>

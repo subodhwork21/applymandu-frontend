@@ -31,14 +31,14 @@ import { AlertCircle } from "lucide-react";
 
 const ApplicationPanel = () => {
   const { isApplyOpen, selectedJob, closeApplicationPanel } = useApplication();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isEmployer } = useAuth();
   const [apiError, setApiError] = useState<{
     message: string;
     errors?: Record<string, string[]>;
   } | null>(null);
 
   const { data: jobseekerData, isLoading, mutate, error } = useSWR<UserProfile>(
-    isAuthenticated ? "api/jobseeker/user-profile" : null,
+    isAuthenticated && isEmployer === false ? "api/jobseeker/user-profile" : null,
     defaultFetcher
   );
 

@@ -92,13 +92,14 @@ function ApplicationsContent() {
   const jobIdParam = searchParams.get("jobId");
 
   const [selectedCandidate, setSelectedCandidate] = useState<{
-    id: string;
+    id: string;     
     name: string;
     position: string;
     avatar: string;
   } | null>(null);
 
   const [interviewCandidate, setInterviewCandidate] = useState<{
+    id: string;     
     name: string;
     position: string;
     avatar: string;
@@ -116,6 +117,7 @@ function ApplicationsContent() {
   };
 
   const handleOpenInterview = (candidate: {
+    id: string;
     name: string;
     position: string;
     avatar: string;
@@ -356,6 +358,7 @@ function ApplicationsContent() {
                                     size="sm"
                                     className="bg-black text-white hover:bg-neutral-800"
                                     onClick={() => handleOpenInterview({
+                                      id: application.id.toString()!,
                                       name: application.name,
                                       position: application.position,
                                       avatar: application.avatar
@@ -495,6 +498,7 @@ function ApplicationsContent() {
           isOpen={!!interviewCandidate}
           onClose={() => setInterviewCandidate(null)}
           candidate={interviewCandidate}
+          application_id={interviewCandidate?.id}
         />
       )}
     </section>

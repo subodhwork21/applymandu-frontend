@@ -13,13 +13,19 @@ interface Message {
   id: number;
   chat_id: number;
   sender_id: number;
+  receiver_id: number;
   content: string;
   is_read: boolean;
   created_at: string;
   updated_at: string;
   sender?: {
     id: number;
-    name: string;
+    // name: string;
+    image?: string;
+  };
+  receiver?: {
+    id: number;
+    // name: string;
     image?: string;
   };
 }
@@ -72,6 +78,8 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
     };
   }, [isOpen, candidate.id]);
 
+  const [isMessageReceived, setIsMessageReceived] = useState<boolean>(false);
+
   // Set up Echo listeners when chatId is available
   useEffect(() => {
     if (chatId && window.Echo) {
@@ -80,18 +88,21 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
       // Listen for new messages
       echoRef.current.private(`chat.${chatId}`)
         .listen('NewChatMessage', (e: { chatMessage: Message }) => {
-          if (e?.chatMessage?.sender_id?.toString() !== user?.id.toString()) {
-
+          if (e?.chatMessage?.sender_id?.toString() != user?.id.toString() || e?.chatMessage?.sender_id?.toString() === candidate?.id) {
+            new Audio('/notification.wav').play();
             setMessages(prev => [...prev, e.chatMessage]);
-
-            // Mark the new message as read immediately
+            setIsMessageReceived(true); 
+            setTimeout(() => {
+              setIsMessageReceived(false);
+            }, 3000);
             if (!e?.chatMessage?.is_read) {
               markAsReadSafely([e?.chatMessage?.id]);
             }
           }
         })
         .listen('MessageRead', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
-          if (e?.user_id?.toString() !== user?.id) {
+          console.log(e);
+          if (e?.user_id?.toString() !== user?.id?.toString()) {
             setMessages(prev =>
               prev.map(msg =>
                 e?.message_ids?.includes(msg.id) ? { ...msg, is_read: true } : msg
@@ -298,6 +309,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
 
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl p-0">
         <div className="border-b border-neutral-200 p-4 flex justify-between items-center">
@@ -374,7 +386,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
                             >
                               {formatMessageTime(message?.created_at)}
                             </span>
-                            {message?.sender_id?.toString() === user?.id.toString() && (
+                            {(message?.sender_id?.toString() === user?.id.toString() || message?.sender_id?.toString() === candidate?.id.toString()) && (
                               <span className="text-xs text-neutral-300 ml-2">
                                 {message?.is_read ? "Read" : "Sent"}
                               </span>
@@ -427,7 +439,33 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
           )}
         </div>
       </DialogContent>
+     
+
     </Dialog>
+    <Dialog>
+       <DialogContent className="sm:max-w-2xl p-0">
+  <div className="border-b border-neutral-200 p-4 flex justify-between items-center">
+    <div className="flex items-center space-x-3">
+      <div className="relative">
+        <img
+          src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
+          alt={candidate.name}
+          className="w-10 h-10 rounded-full"
+        />
+        {isMessageReceived && (
+          <span className="absolute -top-1 -right-1 bg-green-500 rounded-full w-3 h-3 animate-pulse"></span>
+        )}
+      </div>
+      <div>
+        <h3 className="text-lg">Message to {candidate.name}</h3>
+        <p className="text-sm text-neutral-600">{candidate.position}</p>
+      </div>
+    </div>
+  </div>
+  {/* Rest of your component */}
+</DialogContent>
+    </Dialog>
+    </>
   );
 };
 

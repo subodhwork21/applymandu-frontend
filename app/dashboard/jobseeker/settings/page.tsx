@@ -22,6 +22,8 @@ import { toast, useToast } from '@/hooks/use-toast';
 import { deleteCookie } from 'cookies-next/client';
 import { useAuth } from '@/lib/auth-context';
 import { jobSeekerToken } from '@/lib/tokens';
+import { Router } from 'lucide-react';
+import { useRouter } from 'next/router';
 
 interface UserProfile {
   id: number;
@@ -45,6 +47,7 @@ const SettingsPage = () => {
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const router = useRouter();
   // Form state
   const [formData, setFormData] = useState<UserProfile>({
     id: 0,
@@ -333,7 +336,7 @@ const SettingsPage = () => {
         // Redirect to logout or home page
         deleteCookie('JOBSEEKER_TOKEN');
         logout();
-        window.location.href = "/";
+        router.push('/');
       } else {
         toast({
           title: "Error",
@@ -365,7 +368,8 @@ const SettingsPage = () => {
           variant: "default",
         });
         // Redirect to home page
-        window.location.href = "/";
+        router.push('/');
+
       } else {
         toast({
           title: "Error",

@@ -7,6 +7,38 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import CandidatesFilterModal from "@/components/candidates-filter-modal";
 import ContactModal from "@/components/contact-modal";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+
+interface Skill {
+  name: string;
+  pivot: {
+    user_id: number;
+    skill_id: number;
+  };
+}
+
+interface JobSeekerProfile {
+  id: number;
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  looking_for: string;
+}
+
+interface Candidate {
+  id: number;
+  first_name: string;
+  last_name: string;
+  image_path: string;
+  profile: JobSeekerProfile | null;
+  skills: Skill[];
+}
+
+interface CandidatesResponse {
+  data: Candidate[];
+  message: string;
+}
 
 const CandidatesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +58,29 @@ const CandidatesPage = () => {
     setSelectedCandidate(candidate);
     setIsContactModalOpen(true);
   };
+
+  const { data: candidatesResponse, isLoading, error } = useSWR<CandidatesResponse>(
+    "api/candidate/all-candidates", 
+    defaultFetcher
+  );
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading candidates: {error.message}</div>;
+  }
+
+  // Filter candidates based on search query
+  const filteredCandidates = candidatesResponse?.data.filter(candidate => {
+    const fullName = `${candidate.first_name} ${candidate.last_name}`.toLowerCase();
+    const position = candidate.profile?.looking_for?.toLowerCase() || "";
+    const skills = candidate.skills.map(skill => skill.name.toLowerCase()).join(" ");
+    
+    const query = searchQuery.toLowerCase();
+    return fullName.includes(query) || position.includes(query) || skills.includes(query);
+  });
 
   return (
     <section className="py-8">
@@ -59,69 +114,68 @@ const CandidatesPage = () => {
               </div>
 
               <div className="space-y-4">
-                {[
-                  {
-                    name: "Sarah Johnson",
-                    position: "Senior Frontend Developer",
-                    skills: ["React", "TypeScript", "Node.js"],
-                    status: "Available",
-                    avatar: "456",
-                  },
-                  {
-                    name: "Michael Chen",
-                    position: "UI/UX Designer",
-                    skills: ["Figma", "Adobe XD", "Sketch"],
-                    status: "Open to Work",
-                    avatar: "789",
-                  },
-                ].map((candidate, index) => (
-                  <div
-                    key={index}
-                    className="border border-neutral-200 rounded-lg p-4"
-                  >
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.avatar}`}
-                        alt={candidate.name}
-                        className="w-12 h-12 rounded-full"
-                      />
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h3 className="text-lg">{candidate.name}</h3>
-                          <span className="px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm">
-                            {candidate.status}
-                          </span>
-                        </div>
-                        <p className="text-neutral-600 text-sm">
-                          {candidate.position}
-                        </p>
-                        <div className="flex space-x-2 mt-2">
-                          {candidate.skills.map((skill, skillIndex) => (
-                            <span
-                              key={skillIndex}
-                              className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs"
-                            >
-                              {skill}
+                {filteredCandidates && filteredCandidates.length > 0 ? (
+                  filteredCandidates.map((candidate) => (
+                    <div
+                      key={candidate.id}
+                      className="border border-neutral-200 rounded-lg p-4"
+                    >
+                      <div className="flex items-start gap-4">
+                        <img
+                          src={`${candidate?.image_path}`}
+                          alt={`${candidate.first_name} ${candidate.last_name}`}
+                          className="w-12 h-12 rounded-full"
+                        />
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h3 className="text-lg">{`${candidate.first_name} ${candidate.last_name}`}</h3>
+                            <span className="px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm">
+                              {candidate.profile ? "Available" : "Profile Incomplete"}
                             </span>
-                          ))}
-                        </div>
-                        <div className="flex justify-end space-x-2 mt-4">
-                          <Link
-                            href={`/dashboard/employer/candidates/${index + 1}`}
-                          >
-                            <Button variant="outline">View Profile</Button>
-                          </Link>
-                          <Button
-                            className="bg-black text-white hover:bg-neutral-800"
-                            onClick={() => handleContact(candidate)}
-                          >
-                            Contact
-                          </Button>
+                          </div>
+                          <p className="text-neutral-600 text-sm">
+                            {candidate.profile?.looking_for || "No position specified"}
+                          </p>
+                          <div className="flex flex-wrap space-x-2 mt-2">
+                            {candidate.skills.length > 0 ? (
+                              candidate.skills.map((skill, skillIndex) => (
+                                <span
+                                  key={skillIndex}
+                                  className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs mr-2 mb-2"
+                                >
+                                  {skill.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-neutral-500 text-xs">No skills listed</span>
+                            )}
+                          </div>
+                          <div className="flex justify-end space-x-2 mt-4">
+                            <Link href={`/dashboard/employer/candidates/${candidate.id}`}>
+                              <Button variant="outline">View Profile</Button>
+                            </Link>
+                            <Button
+                              className="bg-black text-white hover:bg-neutral-800"
+                              onClick={() => 
+                                handleContact({
+                                  name: `${candidate.first_name} ${candidate.last_name}`,
+                                  position: candidate.profile?.looking_for || "No position specified",
+                                  avatar: candidate.id.toString()
+                                })
+                              }
+                            >
+                              Contact
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-neutral-500">
+                    No candidates found matching your search criteria.
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -134,21 +188,27 @@ const CandidatesPage = () => {
                   <span className="text-sm text-neutral-600">
                     Total Candidates
                   </span>
-                  <span className="text-sm">156</span>
+                  <span className="text-sm">{candidatesResponse?.data.length || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Active</span>
-                  <span className="text-sm">89</span>
+                  <span className="text-sm">
+                    {candidatesResponse?.data.filter(c => c.profile !== null).length || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Hired</span>
-                  <span className="text-sm">45</span>
+                  <span className="text-sm text-neutral-600">With Skills</span>
+                  <span className="text-sm">
+                    {candidatesResponse?.data.filter(c => c.skills.length > 0).length || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">
-                    New This Week
+                    Incomplete Profiles
                   </span>
-                  <span className="text-sm">12</span>
+                  <span className="text-sm">
+                    {candidatesResponse?.data.filter(c => c.profile === null).length || 0}
+                  </span>
                 </div>
               </div>
             </div>
