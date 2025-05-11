@@ -19,7 +19,7 @@ import {
 import useSWR from "swr";
 import { defaultFetcher, baseFetcher } from "@/lib/fetcher";
 import { toast, useToast } from '@/hooks/use-toast';
-import { deleteCookie } from 'cookies-next/client';
+import { deleteCookie } from 'cookies-next';
 import { useAuth } from '@/lib/auth-context';
 import { jobSeekerToken } from '@/lib/tokens';
 import { Router } from 'lucide-react';
