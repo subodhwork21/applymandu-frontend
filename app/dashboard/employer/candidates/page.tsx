@@ -9,6 +9,7 @@ import CandidatesFilterModal from "@/components/candidates-filter-modal";
 import ContactModal from "@/components/contact-modal";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Skill {
   name: string;
@@ -59,8 +60,16 @@ const CandidatesPage = () => {
     setIsContactModalOpen(true);
   };
 
-  const { data: candidatesResponse, isLoading, error } = useSWR<CandidatesResponse>(
-    "api/candidate/all-candidates", 
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+  // const search = searchParams.get("search") || "";
+
+  const urlParams = new URLSearchParams(searchParams);
+
+
+  const { data: candidatesResponse, isLoading, error, mutate } = useSWR<CandidatesResponse>(
+    `api/candidate/all-candidates?search=${urlParams.get("search") || ""}&filter=${urlParams.get("filter") || ""}`, 
     defaultFetcher
   );
 
@@ -99,6 +108,14 @@ const CandidatesPage = () => {
                     type="text"
                     placeholder="Search candidates..."
                     value={searchQuery}
+                    onKeyDown={(e)=>{
+                      if(e.key === "Enter" && e.target instanceof HTMLInputElement) {
+                        e.preventDefault();
+                        urlParams.set("search", e.target.value);
+                        router.push(`/dashboard/employer/candidates?${urlParams.toString()}`);
+                        mutate();
+                      }
+                    }}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-12 h-12 text-lg"
                   />

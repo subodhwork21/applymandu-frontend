@@ -8,10 +8,11 @@ import {
   setCookie,
   deleteCookie,
   hasCookie,
-} from 'cookies-next';
+} from "cookies-next";
 import { toast } from "react-toastify";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Loader2Icon } from "lucide-react";
 
 interface User {
   id: string;
@@ -21,9 +22,8 @@ interface User {
   company_name?: string;
   phone?: string;
   image_path?: string;
-  experiences?: [],
+  experiences?: [];
   position_title?: string;
-
 }
 
 interface AuthContextType {
@@ -63,7 +63,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const {toast} = useToast();
+  const { toast } = useToast();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isEmployer, setIsEmployer] = useState<boolean | null>(null);
@@ -72,16 +72,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
 
-    const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const login = async (email: string, password: string) => {
-
-    const {response, result, error, message} = await baseFetcher('api/login', {
-      method: "POST",
-      body: JSON.stringify({
-        email: email,
-        password: password
-      })
-    });
+    const { response, result, error, message } = await baseFetcher(
+      "api/login",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      }
+    );
 
     // console.log(response?.ok,result);
 
@@ -89,9 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     //   throw new Error("Invalid credentials");
     // }
 
-    if(response?.ok){
-
-      setCookie('JOBSEEKER_TOKEN', result?.token);
+    if (response?.ok) {
+      setCookie("JOBSEEKER_TOKEN", result?.token);
       setUser({
         id: result?.user?.id,
         email: result?.user?.email,
@@ -99,80 +100,78 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         last_name: result?.user?.last_name,
         image_path: result?.user?.image_path,
         // position_title: result?.user?.experiences[0]?.position_title
-      })
+      });
       setIsEmployer(result?.is_employer);
       toast({
         title: "Success",
         description: result?.message,
       });
       closeLoginModal();
-    }
-    else{
+    } else {
       throw new Error(result?.message || "Login failed");
     }
   };
 
-  const fetchUserByToken = async(token: string) =>{
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/login-with-token`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+  const fetchUserByToken = async (token: string) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}api/login-with-token`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
+    );
 
     const result = await response?.json();
-    if(response?.status === 200){
-      if(result?.is_employer === true){
+    if (response?.status === 200) {
+      if (result?.is_employer === true) {
         deleteCookie("JOBSEEKER_TOKEN");
-        setCookie('EMPLOYER_TOKEN', result?.token);
+        setCookie("EMPLOYER_TOKEN", result?.token);
         setUser({
           id: result?.data?.id,
           email: result?.data?.email,
           image_path: result?.data?.image_path,
-          company_name: result?.data?.company_name
-        })
+          company_name: result?.data?.company_name,
+        });
         setIsEmployer(result?.is_employer);
         setIsLoading(false);
-      }
-      else{
-        setCookie('JOBSEEKER_TOKEN', result?.token);
+      } else {
+        setCookie("JOBSEEKER_TOKEN", result?.token);
         setUser({
           id: result?.data?.id,
           email: result?.data?.email,
           first_name: result?.data?.first_name,
           last_name: result?.data?.last_name,
           image_path: result?.data?.image_path,
-          position_title: result?.data?.experiences[0]?.position_title
-        })
+          position_title: result?.data?.experiences[0]?.position_title,
+        });
         setIsEmployer(result?.is_employer);
         setIsLoading(false);
+        router.push("/");
       }
-      
-    }
-    else{
-      deleteCookie('JOBSEEKER_TOKEN');
+    } else {
+      deleteCookie("JOBSEEKER_TOKEN");
       setUser(null);
       setIsLoading(false);
-      router.push("/")
+      router.push("/");
       // throw new Error("Invalid token");
-
     }
-  }
+  };
 
   const logout = () => {
     setUser(null);
-    deleteCookie('JOBSEEKER_TOKEN');
-    deleteCookie('EMPLOYER_TOKEN');
+    deleteCookie("JOBSEEKER_TOKEN");
+    deleteCookie("EMPLOYER_TOKEN");
     toast({
       title: "Success!",
       description: "Logout successful",
-      variant: "default", 
-      className: "bg-blue"
+      variant: "default",
+      className: "bg-blue",
     });
-    router.push("/")
-  closeLoginModal();
+    router.push("/");
+    closeLoginModal();
   };
 
   const openLoginModal = () => {
@@ -183,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
-  const openRegisterModal = (employer=false) => {
+  const openRegisterModal = (employer = false) => {
     setIsLoginModalOpen(false);
     setIsForgotPasswordModalOpen(false);
     setIsRegisterModalOpen(true);
@@ -199,17 +198,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeForgotPasswordModal = () => setIsForgotPasswordModalOpen(false);
 
-  const token = getCookie('JOBSEEKER_TOKEN') || getCookie('EMPLOYER_TOKEN');
+  const token = getCookie("JOBSEEKER_TOKEN") || getCookie("EMPLOYER_TOKEN");
 
-  useEffect(()=>{
-    if(token){
+  useEffect(() => {
+    if (token) {
       fetchUserByToken(token);
     }
-  }, [token])
+  }, [token]);
 
-  useEffect(()=>{
+  useEffect(() => {
     setIsLoading(false);
-  },[])
+  }, []);
+
+  
 
   return (
     <AuthContext.Provider
@@ -241,5 +242,6 @@ export function useAuth() {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
+   
   return context;
 }

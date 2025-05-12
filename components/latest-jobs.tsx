@@ -46,6 +46,8 @@ const LatestJobs = () => {
               salary={job.salary_range?.formatted}
               postedTime={job.posted_date_formatted}
               isAuthenticated={isAuthenticated}
+              job={job}
+
             />
           ))}
         </div>

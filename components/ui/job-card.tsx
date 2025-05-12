@@ -25,6 +25,7 @@ const JobCard = ({
   salary,
   postedTime,
   isAuthenticated,
+  job,
 }: JobCardProps) => {
   const { openApplicationPanel } = useApplication();
   const { openLoginModal } = useAuth();
@@ -32,6 +33,9 @@ const JobCard = ({
   const handleApply = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isAuthenticated) {
+      openApplicationPanel(
+        job,
+      ); 
       // openApplicationPanel({
       //   id,
       //   title,
