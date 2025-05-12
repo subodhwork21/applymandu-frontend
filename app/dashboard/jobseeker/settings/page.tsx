@@ -23,7 +23,7 @@ import { deleteCookie } from 'cookies-next';
 import { useAuth } from '@/lib/auth-context';
 import { jobSeekerToken } from '@/lib/tokens';
 import { Router } from 'lucide-react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface UserProfile {
   id: number;
