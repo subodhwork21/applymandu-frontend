@@ -29,6 +29,8 @@ export const initializeEcho = () => {
         key: reverbKey,
         wsHost: reverbHost,
         wsPort: process.env.NEXT_PUBLIC_REVERB_PORT || '8080',
+        wssPort: 443,
+        encrypted: true,
         forceTLS: process.env.NEXT_PUBLIC_REVERB_TLS === 'true',
         enabledTransports: ['ws', 'wss'], // Use WebSockets only
         disableStats: true,
