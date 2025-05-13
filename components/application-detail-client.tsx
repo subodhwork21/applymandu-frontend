@@ -63,7 +63,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
   const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
   const [newNote, setNewNote] = React.useState("");
   const [notes, setNotes] = React.useState<
-    { note: string; created_at: string; user: { company_name: string } }[]
+    { id: number; note: string; created_at: string; user: { company_name: string } }[]
   >([]);
 
   const {
@@ -128,17 +128,13 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
   };
 
   const candidate = application
-    ? {
+    && {
         id: application.user_id.toString(),
         name: application?.applied_user,
         position: application.job_title,
         avatar: application?.user_image,
       }
-    : {
-        name: "John Doe",
-        position: "Frontend Developer",
-        avatar: "789",
-      };
+   
 
   if (isLoading) {
     return (
@@ -192,7 +188,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
     const blob = await res.blob();
     const fileUrl = URL.createObjectURL(blob);
 
-    // Option: Open PDF in new tab
+
     window.open(fileUrl);
   };
 
@@ -468,7 +464,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-neutral-500 hover:text-red-500"
-                              onClick={() => handleDeleteNote(note.id)}
+                              onClick={() => handleDeleteNote(note?.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -490,13 +486,13 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
       <MessageModal
         isOpen={isMessageModalOpen}
         onClose={() => setIsMessageModalOpen(false)}
-        candidate={candidate}
+        candidate={candidate!}
       />
 
       <InterviewScheduleModal
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
-        candidate={candidate}
+        candidate={candidate!}
         application_id={id}
       />
     </section>

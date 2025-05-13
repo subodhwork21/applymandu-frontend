@@ -93,6 +93,8 @@ const JobsPage = () => {
 
   // const featuredJobs = getFeaturedJobs();
 
+  
+
   const router = useRouter();
 
   let urlSearchParams = new URLSearchParams(searchParams);

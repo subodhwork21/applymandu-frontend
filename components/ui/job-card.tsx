@@ -14,6 +14,7 @@ interface JobCardProps {
   salary: string;
   postedTime: string;
   isAuthenticated: boolean;
+  job: any;
 }
 
 const JobCard = ({
