@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Upload, Building2 } from "lucide-react";
+import { Upload, Building2, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,19 +16,61 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import UpgradePlanModal from "@/components/upgrade-plan-modal";
+import useSWR from "swr";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { toast } from "@/hooks/use-toast";
+import { employerToken } from "@/lib/tokens";
+
+// Define the types for our API response
+interface EmployerProfile {
+  id: number;
+  user_id: number;
+  address: string;
+  website: string;
+  logo: string;
+  description: string;
+  industry: string;
+  size: string;
+  founded_year: string;
+  two_fa: number;
+  notification: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface EmployerSettings {
+  id: number;
+  first_name: string | null;
+  last_name: string | null;
+  company_name: string;
+  email: string;
+  phone: string;
+  image_path: string;
+  profile: EmployerProfile;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: EmployerSettings;
+}
 
 const SettingsPage = () => {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
+  const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
+  const [logoFile, setLogoFile] = React.useState<File | null>(null);
+  
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { isDirty },
+    reset,
   } = useForm({
     defaultValues: {
-      companyName: "TechCorp Solutions",
-      industry: "technology",
-      companySize: "51-200",
-      foundedYear: "2020",
+      companyName: "",
+      industry: "",
+      companySize: "",
+      foundedYear: "",
       description: "",
       address: "",
       email: "",
@@ -37,9 +79,127 @@ const SettingsPage = () => {
     },
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Handle form submission
+  // Fetch employer settings data
+  const {
+    data: settingsData,
+    error,
+    isLoading,
+    mutate
+  } = useSWR<ApiResponse>("api/employer/settings/all", defaultFetcher);
+
+  useEffect(() => {
+    if (settingsData?.data) {
+      const { company_name, email, phone, profile, image_path } = settingsData.data;
+      
+      // Set logo preview from existing data
+      if (image_path) {
+        setLogoPreview(image_path);
+      }
+
+      setValue("companyName", company_name || "");
+      setValue("email", email || "");
+      setValue("phone", phone || "");
+
+      if (profile) {
+        setValue("industry", profile.industry || "");
+        setValue("companySize", profile.size || "");
+        setValue("foundedYear", profile.founded_year || "");
+        setValue("description", profile.description || "");
+        setValue("address", profile.address || "");
+        setValue("website", profile.website || "");
+      }
+
+      reset({
+        companyName: company_name || "",
+        email: email || "",
+        phone: phone || "",
+        industry: profile?.industry || "",
+        companySize: profile?.size || "",
+        foundedYear: profile?.founded_year || "",
+        description: profile?.description || "",
+        address: profile?.address || "",
+        website: profile?.website || "",
+      });
+    }
+  }, [settingsData, setValue, reset]);
+
+  const onSubmit = async (data: any) => {
+    const formData = new FormData();
+
+    formData.append("company_name", data.companyName);
+    formData.append("size", data.companySize);
+    formData.append("industry", data.industry);
+    formData.append("address", data.address);
+    formData.append("website", data.website);
+    formData.append("founded_year", data.foundedYear.toString()); 
+    formData.append("description", data.description);
+    formData.append("email", data.email);
+    formData.append("phone", data.phone);
+
+    if (logoFile) {
+      formData.append("logo", logoFile);
+    }
+    else if(logoPreview){
+      formData.append("logo", logoPreview);
+    }
+
+    console.log(formData.get("company_name"));
+
+    try {
+      const {response, errors, result} = await baseFetcher("api/employer/update-settings", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Authorization": `Bearer ${employerToken()}`
+        },
+      });
+
+      if (response?.ok) {
+        toast({
+          title: "Settings updated successfully",
+          description: "Your settings have been updated successfully.",
+        });
+        mutate();
+        reset(data);
+      } else {
+        toast({
+          title: "Error updating settings",
+          description:errors || result?.message
+        });
+      }
+    } catch (error) {
+      console.error("Error updating settings:", error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">
+          Error loading settings. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -57,7 +217,12 @@ const SettingsPage = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="industry">Industry</Label>
-                    <Select defaultValue="technology">
+                    <Select
+                      defaultValue={
+                        settingsData?.data?.profile?.industry || "technology"
+                      }
+                      onValueChange={(value) => setValue("industry", value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select industry" />
                       </SelectTrigger>
@@ -73,7 +238,12 @@ const SettingsPage = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="companySize">Company Size</Label>
-                    <Select defaultValue="51-200">
+                    <Select
+                      defaultValue={
+                        settingsData?.data?.profile?.size || "51-200"
+                      }
+                      onValueChange={(value) => setValue("companySize", value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select company size" />
                       </SelectTrigger>
@@ -131,22 +301,51 @@ const SettingsPage = () => {
                   <Label>Company Logo</Label>
                   <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center">
-                      <Building2 className="w-8 h-8 text-neutral-400" />
+                      {logoPreview ? (
+                        <img
+                          src={logoPreview ? logoPreview : settingsData?.data?.image_path }
+                          alt="Company Logo"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <Building2 className="w-8 h-8 text-neutral-400" />
+                      )}
                     </div>
-                    <Button type="button" variant="outline" className="h-10">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Change Logo
-                    </Button>
+                    <div className="relative">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-10 w-full"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Logo
+                      </Button>
+                      <Input
+                        type="file"
+                        onChange={handleLogoChange}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        accept="image/*"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex justify-end space-x-4">
-                  <Button type="button" variant="outline" disabled={!isDirty}>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    disabled={!isDirty && !logoFile}
+                    onClick={() => {
+                      reset();
+                      setLogoFile(null);
+                      setLogoPreview(settingsData?.data?.image_path || settingsData?.data?.profile?.logo || null);
+                    }}
+                  >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    disabled={!isDirty}
+                    disabled={!isDirty && !logoFile}
                     className="bg-black text-white hover:bg-neutral-800"
                   >
                     Save Changes
@@ -164,13 +363,19 @@ const SettingsPage = () => {
                   <Label htmlFor="2fa" className="cursor-pointer">
                     Two-Factor Authentication
                   </Label>
-                  <Switch id="2fa" />
+                  <Switch
+                    id="2fa"
+                    checked={!!settingsData?.data?.profile?.two_fa}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="notifications" className="cursor-pointer">
                     Email Notifications
                   </Label>
-                  <Switch id="notifications" defaultChecked />
+                  <Switch
+                    id="notifications"
+                    defaultChecked={!!settingsData?.data?.profile?.notification}
+                  />
                 </div>
               </div>
             </div>

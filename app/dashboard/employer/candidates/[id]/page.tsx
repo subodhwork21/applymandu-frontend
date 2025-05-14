@@ -1,15 +1,12 @@
+'use client'
 import React from "react";
 import CandidateProfileClient from "@/components/candidate-profile-client";
+import { useParams } from "next/navigation";
 
-export async function generateStaticParams() {
-  // Generate for first 10 candidates as an example
-  return Array.from({ length: 10 }, (_, i) => ({
-    id: (i + 1).toString(),
-  }));
-}
 
 const CandidateProfilePage = () => {
-  return <CandidateProfileClient />;
+  const {id} = useParams();
+  return <CandidateProfileClient id={id as string} />;
 };
 
 export default CandidateProfilePage;

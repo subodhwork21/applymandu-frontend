@@ -72,9 +72,9 @@ const Header = () => {
     position: string;
     avatar: string;
   } | null>(null);
-
- 
-
+  
+  // Add state for active tab in notifications dropdown
+  const [activeTab, setActiveTab] = useState<'notifications' | 'messages'>('notifications');
 
   const fetchChatPreviews = useCallback(async () => {
     try {
@@ -99,6 +99,7 @@ const Header = () => {
       console.error("Error fetching chat previews:", error);
     }
   }, []);
+  
   // Fetch chat previews
   useEffect(() => {
     if (isAuthenticated && user?.id) {
@@ -109,7 +110,6 @@ const Header = () => {
       if (window.Echo) {
         const channel = window.Echo.private(`user.${user?.id}.messages`);
         channel.listen('NewChatMessage', ( ) => {
-
           fetchChatPreviews();
         });
         
@@ -127,8 +127,6 @@ const Header = () => {
       };
     }
   }, [isAuthenticated, user?.id]);
-
- 
 
   const handleOpenMessageModal = (chat: ChatPreview) => {
     setSelectedChat({
@@ -192,161 +190,188 @@ const Header = () => {
 
           <div className="flex items-center space-x-4">
             {
-            isLoading ? <AuthSkeleton/>: 
-            isAuthenticated  ? (
+            isLoading ? <AuthSkeleton/> : 
+            isAuthenticated ? (
               <>
-                {/* Messages Dropdown */}
-          { pathName.includes("dashboard") &&     <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative">
-                      <MessageCircle className="h-5 w-5 text-neutral-600" />
-                      {totalUnread > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                          {totalUnread > 9 ? '9+' : totalUnread}
-                        </span>
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-80" align="end">
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex justify-between items-center">
-                        <p className="text-sm font-semibold">Messages</p>
-                        <Link href="/dashboard/messages">
-                          <Button
-                            variant="ghost"
-                            className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
-                          >
-                            View all
-                          </Button>
-                        </Link>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <div className="max-h-96 overflow-auto">
-                      {chats.length === 0 ? (
-                        <div className="p-4 text-center text-sm text-neutral-500">
-                          No messages yet
-                        </div>
-                      ) : (
-                        chats.map((chat) => (
-                          <DropdownMenuItem 
-                            key={chat.id} 
-                            className="flex items-start p-4 cursor-pointer"
-                            onClick={() => handleOpenMessageModal(chat)}
-                          >
-                            <div className="relative">
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage src={chat.avatar} alt={chat.name} />
-                                <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              {chat.unread_count > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                  {chat.unread_count}
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex-1 ml-3">
-                              <div className="flex justify-between">
-                                <p className="text-sm font-medium">{chat.name}</p>
-                                <p className="text-xs text-neutral-500">
-                                  {formatMessageTime(chat.updated_at)}
-                                </p>
-                              </div>
-                              <p className="text-xs text-neutral-500 mt-1 truncate">
-                                {chat.last_message}
-                              </p>
-                            </div>
-                          </DropdownMenuItem>
-                        ))
-                      )}
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>}
-
-                {/* Notifications */}
+                {/* Notifications Dropdown with Messages Tab */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="relative">
                       <Bell className="h-5 w-5 text-neutral-600" />
                       <span className="absolute -top-2 -right-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        3
+                        {totalUnread > 0 ? totalUnread + 3 : 3}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-80" align="end">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex justify-between items-center">
-                        <p className="text-sm font-semibold">Notifications</p>
-                        <Button
-                          variant="ghost"
-                          className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
-                        >
-                          Mark all as read
-                        </Button>
+                        <p className="text-sm font-semibold">
+                          {activeTab === 'notifications' ? 'Notifications' : 'Messages'}
+                        </p>
+                        {activeTab === 'notifications' ? (
+                          <Button
+                            variant="ghost"
+                            className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
+                          >
+                            Mark all as read
+                          </Button>
+                        ) : (
+                          <Link href="/dashboard/messages">
+                            <Button
+                              variant="ghost"
+                              className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
+                            >
+                              View all
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <div className="max-h-96 overflow-auto">
-                      <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
-                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                          <Briefcase className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            New job match found
-                          </p>
-                          <p className="text-xs text-neutral-500 mt-1">
-                            Senior Developer position at TechCorp matches your
-                            profile
-                          </p>
-                          <p className="text-xs text-neutral-400 mt-2">
-                            2 hours ago
-                          </p>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
-                        <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                          <BookMarked className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            Application viewed
-                          </p>
-                          <p className="text-xs text-neutral-500 mt-1">
-                            Your application for Product Designer at DesignCo
-                            was viewed 8
-                          </p>
-                          <p className="text-xs text-neutral-400 mt-2">
-                            1 day ago
-                          </p>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
-                        <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                          <CreditCard className="h-4 w-4 text-purple-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            Subscription renewed
-                          </p>
-                          <p className="text-xs text-neutral-500 mt-1">
-                            Your premium subscription has been renewed
-                            successfully
-                          </p>
-                          <p className="text-xs text-neutral-400 mt-2">
-                            2 days ago
-                          </p>
-                        </div>
-                      </DropdownMenuItem>
+                    
+                    {/* Tabs for Notifications and Messages */}
+                    <div className="flex border-b border-neutral-200">
+                      <button 
+                        className={`flex-1 py-2 px-4 text-sm font-medium ${
+                          activeTab === 'notifications' 
+                            ? 'border-b-2 border-neutral-900' 
+                            : 'text-neutral-600 hover:text-neutral-900'
+                        }`}
+                        onClick={() => setActiveTab('notifications')}
+                      >
+                        Notifications
+                      </button>
+                      <button 
+                        className={`flex-1 py-2 px-4 text-sm ${
+                          activeTab === 'messages' 
+                            ? 'font-medium border-b-2 border-neutral-900' 
+                            : 'text-neutral-600 hover:text-neutral-900'
+                        }`}
+                        onClick={() => setActiveTab('messages')}
+                      >
+                        Messages {totalUnread > 0 && `(${totalUnread})`}
+                      </button>
                     </div>
+                    
+                    <div className="max-h-96 overflow-auto">
+                      {/* Notifications Section */}
+                      {activeTab === 'notifications' && (
+                        <div>
+                          <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
+                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                              <Briefcase className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                New job match found
+                              </p>
+                              <p className="text-xs text-neutral-500 mt-1">
+                                Senior Developer position at TechCorp matches your
+                                profile
+                              </p>
+                              <p className="text-xs text-neutral-400 mt-2">
+                                2 hours ago
+                              </p>
+                            </div>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
+                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                              <BookMarked className="h-4 w-4 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                Application viewed
+                              </p>
+                              <p className="text-xs text-neutral-500 mt-1">
+                                Your application for Product Designer at DesignCo
+                                was viewed 8
+                              </p>
+                              <p className="text-xs text-neutral-400 mt-2">
+                                1 day ago
+                              </p>
+                            </div>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
+                            <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                              <CreditCard className="h-4 w-4 text-purple-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                Subscription renewed
+                              </p>
+                              <p className="text-xs text-neutral-500 mt-1">
+                                Your premium subscription has been renewed
+                                successfully
+                              </p>
+                              <p className="text-xs text-neutral-400 mt-2">
+                                2 days ago
+                              </p>
+                            </div>
+                          </DropdownMenuItem>
+                        </div>
+                      )}
+                      
+                      {/* Messages Section */}
+                      {activeTab === 'messages' && (
+                        <div>
+                          {chats.length === 0 ? (
+                            <div className="p-4 text-center text-sm text-neutral-500">
+                              No messages yet
+                            </div>
+                          ) : (
+                            chats.map((chat) => (
+                              <DropdownMenuItem 
+                                key={chat.id} 
+                                className="flex items-start p-4 cursor-pointer"
+                                onClick={() => handleOpenMessageModal(chat)}
+                              >
+                                <div className="relative">
+                                  <Avatar className="h-10 w-10">
+                                    <AvatarImage src={chat.avatar} alt={chat.name} />
+                                    <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
+                                  </Avatar>
+                                  {chat.unread_count > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                      {chat.unread_count}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 ml-3">
+                                  <div className="flex justify-between">
+                                    <p className="text-sm font-medium">{chat.name}</p>
+                                    <p className="text-xs text-neutral-500">
+                                      {formatMessageTime(chat.updated_at)}
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-neutral-500 mt-1 truncate">
+                                    {chat.last_message}
+                                  </p>
+                                </div>
+                              </DropdownMenuItem>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="p-4 cursor-pointer">
-                      <Link
-                        href="/notifications"
-                        className="text-sm text-center w-full text-neutral-600 hover:text-neutral-900"
-                      >
-                        View all notifications
-                      </Link>
+                      {activeTab === 'notifications' ? (
+                        <Link
+                          href="/notifications"
+                          className="text-sm text-center w-full text-neutral-600 hover:text-neutral-900"
+                        >
+                          View all notifications
+                        </Link>
+                      ) : (
+                        <Link
+                          href="/dashboard/messages"
+                          className="text-sm text-center w-full text-neutral-600 hover:text-neutral-900"
+                        >
+                          View all messages
+                        </Link>
+                      )}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

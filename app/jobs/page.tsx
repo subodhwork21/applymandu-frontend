@@ -81,7 +81,7 @@ export default function Page() {
 }
 
 const JobsPage = () => {
-  const { isAuthenticated, openLoginModal } = useAuth();
+  const { isAuthenticated, openLoginModal, isEmployer } = useAuth();
 
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -92,6 +92,8 @@ const JobsPage = () => {
   );
 
   // const featuredJobs = getFeaturedJobs();
+
+  
 
   const router = useRouter();
 
@@ -115,7 +117,7 @@ const JobsPage = () => {
 
   const handleApply = (e: React.MouseEvent, job: any) => {
     e.preventDefault();
-    if (isAuthenticated ) {
+    if (isAuthenticated && !isEmployer) {
       if (job?.is_applied) {
         toast({
           title: "Already Applied",
@@ -301,6 +303,7 @@ const JobsPage = () => {
     }
 
     jobMutate();
+    featuredMutate();
   }
 
   return (
@@ -626,20 +629,40 @@ const JobsPage = () => {
                                   {job.salary_range?.formatted}
                                 </span>
                               </div>
+                            {
+                              job?.saved === true ?  <Button
+                              onClick={(e) => {
+                                e.preventDefault(); 
+                                e.stopPropagation(); 
+                                handleSaveJob(job?.id, job?.saved!);
+                              }}
+                                variant="ghost"
+                                size="icon"
+                                className="text-neutral-400 hover:text-neutral-600"
+                              > 
+                                <Heart   className={`text-blue-500 h-5 w-5`} />
+                              </Button> :
+                              job?.saved === false ? 
                               <Button
+                              onClick={(e) => {
+                                e.preventDefault(); 
+                                e.stopPropagation();
+                                handleSaveJob(job?.id, job?.saved!);
+                              }}
                                 variant="ghost"
                                 size="icon"
                                 className="text-neutral-400 hover:text-neutral-600"
                               >
                                 <Heart className="h-5 w-5" />
-                              </Button>
+                              </Button> : null
+                            }
                             </div>
                             <div className="mt-4">
                               <Button
                                 className="px-4 py-2 bg-black text-white rounded-lg hover:bg-neutral-800"
                                 onClick={(e) => handleApply(e, job)}
                               >
-                                {isAuthenticated
+                                {isAuthenticated && !isEmployer
                                   ? job?.is_applied ? "Applied": "Apply Now":
                                   "Sign in to Apply"} 
                               </Button>
@@ -784,7 +807,7 @@ const JobsPage = () => {
                             className="px-4 py-2 bg-black text-white rounded-lg hover:bg-neutral-800"
                             onClick={(e) => handleApply(e, job)}
                           >
-                             {isAuthenticated
+                             {isAuthenticated && !isEmployer
                                   ? job?.is_applied ? "Applied": "Apply Now":
                                   "Sign in to Apply"} 
                           </Button>

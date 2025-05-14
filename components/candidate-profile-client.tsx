@@ -18,16 +18,208 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import MessageModal from "@/components/message-modal";
 import InterviewScheduleModal from "@/components/interview-schedule-modal";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
+import { format } from "date-fns";
+import { employerToken } from "@/lib/tokens";
 
-const CandidateProfileClient = () => {
+interface Skill {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  pivot: {
+    user_id: number;
+    skill_id: number;
+  };
+}
+
+interface Experience {
+  id: number;
+  user_id: number;
+  position_title: string;
+  company_name: string;
+  industry: string;
+  job_level: string;
+  roles_and_responsibilities: string;
+  start_date: string;
+  end_date: string | null;
+  currently_work_here: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Education {
+  id: number;
+  user_id: number;
+  subject_major: string;
+  institution: string;
+  university_board: string;
+  grading_type: string;
+  joined_year: string;
+  passed_year: string;
+  currently_studying: boolean;
+  created_at: string;
+  updated_at: string;
+  degree: string;
+}
+
+interface Language {
+  id: number;
+  user_id: number;
+  language: string;
+  proficiency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Profile {
+  id: number;
+  user_id: number;
+  first_name: string;
+  middle_name: string | null;
+  last_name: string;
+  district: string;
+  municipality: string;
+  city_tole: string;
+  date_of_birth: string;
+  mobile: string;
+  preferred_job_type: string;
+  gender: string;
+  has_driving_license: boolean;
+  has_vehicle: boolean;
+  career_objectives: string;
+  created_at: string;
+  updated_at: string;
+  looking_for: string;
+  salary_expectations: string;
+  industry: string;
+}
+
+interface Application {
+  id: number;
+  user_id: number;
+  job_id: number;
+  year_of_experience: number;
+  expected_salary: number;
+  notice_period: number;
+  status: number;
+  applied_at: string;
+  cover_letter: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: null | string;
+  restore_until: null | string;
+}
+
+interface Candidate {
+  id: number;
+  first_name: string;
+  last_name: string;
+  company_name: string | null;
+  email: string;
+  phone: string;
+  image_path: string;
+  profile: Profile;
+  experiences: Experience[];
+  educations: Education[];
+  languages: Language[];
+  skills: Skill[];
+  preferences: any;
+  immediate_availability: any;
+  availability_date: any;
+  applications: Application[];
+}
+
+const CandidateProfileClient = ({ id }: { id: string }) => {
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
 
-  const candidate = {
-    name: "Sarah Johnson",
-    position: "Senior Frontend Developer",
-    avatar: "456",
+  // Fetch candidate data
+  const { data, error, isLoading } = useSWR<Candidate>(
+    `api/candidate/${id}`,
+    defaultFetcher
+  );
+
+  // Format date function
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Present";
+    return format(new Date(dateString), "MMM yyyy");
   };
+
+  const handleDownloadResume = async(e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+   
+       const res = await fetch(`${baseUrl}api/employer/download-document/` + id, {
+         method: "GET",
+         headers: {
+           Authorization: `Bearer ${employerToken()}`,
+           "Content-Type": "application/json",
+         },
+       });
+   
+       if (!res.ok) {
+         console.error("Failed to fetch PDF");
+         return;
+       }
+   
+       const blob = await res.blob();
+       const fileUrl = URL.createObjectURL(blob);
+   
+   
+       window.open(fileUrl);
+  };
+
+  const {data: calculateProfileCompletion, mutate} = useSWR<Record<string,any>>(`api/dashboard/jobseeker-profile-completion/${id}`, defaultFetcher)
+
+  if (isLoading) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p>Loading candidate profile...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p className="text-red-500">Error loading candidate profile. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const candidate = data;
+  if (!candidate) {
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p>Candidate not found.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const profileCompletionPercentage = calculateProfileCompletion?.data?.profile_completion?.overall_percentage;
+
+  // Check availability status
+  const isImmediatelyAvailable = candidate.immediate_availability && 
+    typeof candidate.immediate_availability === 'object' && 
+    Object.keys(candidate.immediate_availability).length > 0;
+  
+  const hasAvailabilityDate = candidate.availability_date && 
+    typeof candidate.availability_date === 'object' && 
+    Object.keys(candidate.availability_date).length > 0;
 
   return (
     <section className="py-8">
@@ -44,9 +236,9 @@ const CandidateProfileClient = () => {
           <div className="relative h-48 bg-neutral-100 rounded-t-lg">
             <div className="absolute -bottom-16 left-8">
               <img
-                src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.avatar}`}
-                alt={candidate.name}
-                className="w-32 h-32 rounded-full border-4 border-white"
+                src={candidate.image_path || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
+                alt={`${candidate.first_name} ${candidate.last_name}`}
+                className="w-32 h-32 rounded-full border-4 border-white object-cover"
               />
             </div>
           </div>
@@ -54,11 +246,11 @@ const CandidateProfileClient = () => {
           <div className="pt-20 px-8 pb-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl">{candidate.name}</h1>
-                <p className="text-neutral-600">{candidate.position}</p>
+                <h1 className="text-2xl">{`${candidate.first_name} ${candidate.last_name}`}</h1>
+                <p className="text-neutral-600">{candidate.profile?.looking_for || "No position specified"}</p>
                 <div className="flex items-center mt-2 text-sm text-neutral-600">
                   <MapPin className="h-4 w-4 mr-2" />
-                  <span>Kathmandu, Nepal</span>
+                  <span>{`${candidate.profile?.city_tole || ""}, ${candidate.profile?.district || "Nepal"}`}</span>
                 </div>
               </div>
               <div className="flex space-x-3">
@@ -84,71 +276,63 @@ const CandidateProfileClient = () => {
                 <div>
                   <h2 className="text-xl mb-4">About</h2>
                   <p className="text-neutral-600">
-                    Experienced Frontend Developer with 5+ years of expertise in
-                    building responsive web applications. Passionate about
-                    creating user-friendly interfaces and implementing modern
-                    web technologies.
+                    {candidate.profile?.career_objectives || 
+                     "No career objectives provided."}
                   </p>
                 </div>
 
                 <div>
                   <h2 className="text-xl mb-4">Experience</h2>
                   <div className="space-y-4">
-                    <div className="border-l-2 border-neutral-200 pl-4">
-                      <h3 className="text-lg">Senior Frontend Developer</h3>
-                      <p className="text-neutral-600">
-                        TechCorp Nepal • 2023 - Present
-                      </p>
-                      <p className="text-sm text-neutral-600 mt-2">
-                        Led frontend development team in building enterprise
-                        applications using React and TypeScript.
-                      </p>
-                    </div>
-                    <div className="border-l-2 border-neutral-200 pl-4">
-                      <h3 className="text-lg">Frontend Developer</h3>
-                      <p className="text-neutral-600">
-                        WebSolutions • 2020 - 2023
-                      </p>
-                      <p className="text-sm text-neutral-600 mt-2">
-                        Developed and maintained client websites using modern
-                        JavaScript frameworks.
-                      </p>
-                    </div>
+                    {candidate.experiences && candidate.experiences.length > 0 ? (
+                      candidate.experiences.map((exp) => (
+                        <div key={exp.id} className="border-l-2 border-neutral-200 pl-4">
+                          <h3 className="text-lg">{exp.position_title}</h3>
+                          <p className="text-neutral-600">
+                            {exp.company_name} • {formatDate(exp.start_date)} - {formatDate(exp.end_date)}
+                          </p>
+                          <p className="text-sm text-neutral-600 mt-2">
+                            {exp.roles_and_responsibilities}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-neutral-600">No experience listed.</p>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <h2 className="text-xl mb-4">Skills</h2>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                      React
-                    </span>
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                      TypeScript
-                    </span>
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                      Node.js
-                    </span>
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                      Next.js
-                    </span>
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                      Tailwind CSS
-                    </span>
-                    <span className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                      Git
-                    </span>
+                    {candidate.skills && candidate.skills.length > 0 ? (
+                      candidate.skills.map((skill) => (
+                        <span key={skill.id} className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
+                          {skill.name}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-neutral-600">No skills listed.</p>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <h2 className="text-xl mb-4">Education</h2>
-                  <div className="border-l-2 border-neutral-200 pl-4">
-                    <h3 className="text-lg">Bachelor in Computer Science</h3>
-                    <p className="text-neutral-600">
-                      Tribhuvan University • 2016 - 2020
-                    </p>
-                  </div>
+                  {candidate.educations && candidate.educations.length > 0 ? (
+                    candidate.educations.map((edu) => (
+                      <div key={edu.id} className="border-l-2 border-neutral-200 pl-4 mb-4">
+                        <h3 className="text-lg">
+                          {edu.degree.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} in {edu.subject_major}
+                        </h3>
+                        <p className="text-neutral-600">
+                          {edu.institution} • {formatDate(edu.joined_year)} - {formatDate(edu.passed_year)}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-neutral-600">No education listed.</p>
+                  )}
                 </div>
               </div>
 
@@ -158,19 +342,29 @@ const CandidateProfileClient = () => {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm text-neutral-600">Email</p>
-                      <p className="text-sm">sarah.j@example.com</p>
+                      <p className="text-sm">{candidate.email}</p>
                     </div>
                     <div>
                       <p className="text-sm text-neutral-600">Phone</p>
-                      <p className="text-sm">+977 98XXXXXXXX</p>
+                      <p className="text-sm">{candidate.phone}</p>
                     </div>
                     <div>
                       <p className="text-sm text-neutral-600">Experience</p>
-                      <p className="text-sm">5+ years</p>
+                      <p className="text-sm">
+                        {candidate.experiences && candidate.experiences.length > 0
+                          ? `${candidate.experiences.length} ${candidate.experiences.length === 1 ? 'position' : 'positions'}`
+                          : "No experience"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-neutral-600">Availability</p>
-                      <p className="text-sm">Available for hire</p>
+                      <p className="text-sm">
+                        {candidate?.immediate_availability   
+                          ? "Immediately available" 
+                          : candidate?.availability_date 
+                            ? `Available after ${candidate?.availability_date} days` 
+                            : "N/A"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -182,42 +376,31 @@ const CandidateProfileClient = () => {
                       <span className="text-sm text-neutral-600">
                         Completion Status
                       </span>
-                      <span className="text-sm font-medium">85%</span>
+                      <span className="text-sm font-medium">{profileCompletionPercentage}%</span>
                     </div>
-                    <Progress value={85} className="h-2" />
+                    <Progress value={profileCompletionPercentage} className="h-2" />
                   </div>
                 </div>
 
                 <div className="bg-neutral-50 p-6 rounded-lg">
-                  <h2 className="text-xl mb-4">Social Links</h2>
+                  <h2 className="text-xl mb-4">Languages</h2>
                   <div className="space-y-3">
-                    <a
-                      href="#"
-                      className="flex items-center text-sm hover:bg-neutral-100 p-2 rounded cursor-pointer"
-                    >
-                      <Linkedin className="h-4 w-4 text-neutral-600 mr-3" />
-                      LinkedIn
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center text-sm hover:bg-neutral-100 p-2 rounded cursor-pointer"
-                    >
-                      <Github className="h-4 w-4 text-neutral-600 mr-3" />
-                      GitHub
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center text-sm hover:bg-neutral-100 p-2 rounded cursor-pointer"
-                    >
-                      <Globe className="h-4 w-4 text-neutral-600 mr-3" />
-                      Portfolio
-                    </a>
+                    {candidate.languages && candidate.languages.length > 0 ? (
+                      candidate.languages.map((lang) => (
+                        <div key={lang.id} className="flex justify-between">
+                          <span className="text-sm">{lang.language}</span>
+                          <span className="text-sm text-neutral-600">{lang.proficiency}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-neutral-600">No languages listed.</p>
+                    )}
                   </div>
                 </div>
 
                 <div className="bg-neutral-50 p-6 rounded-lg">
                   <h2 className="text-xl mb-4">Documents</h2>
-                  <Button variant="default" className="w-full">
+                  <Button onClick={handleDownloadResume} variant="default" className="w-full">
                     <Download className="h-4 w-4 mr-2" />
                     Download Resume
                   </Button>
@@ -231,13 +414,24 @@ const CandidateProfileClient = () => {
       <MessageModal
         isOpen={isMessageModalOpen}
         onClose={() => setIsMessageModalOpen(false)}
-        candidate={candidate}
+        candidate={{
+          id: candidate.id.toString(),
+          name: `${candidate.first_name} ${candidate.last_name}`,
+          position: candidate.profile?.looking_for || "No position specified",
+          avatar: candidate?.image_path
+        }}
       />
+
 
       <InterviewScheduleModal
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
-        candidate={candidate}
+        candidate={{
+          name: `${candidate.first_name} ${candidate.last_name}`,
+          position: candidate.profile?.looking_for || "No position specified",
+          avatar: candidate?.image_path || ""
+        }}
+        application_id={candidate?.applications[0]?.id.toString()}
       />
     </section>
   );

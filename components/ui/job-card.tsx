@@ -4,6 +4,8 @@ import { MapPin, Clock, DollarSign, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
+import { toast } from "@/hooks/use-toast";
+import { baseFetcher } from "@/lib/fetcher";
 
 interface JobCardProps {
   id: number;
@@ -14,6 +16,8 @@ interface JobCardProps {
   salary: string;
   postedTime: string;
   isAuthenticated: boolean;
+  job: any;
+  mutate: () => void;
 }
 
 const JobCard = ({
@@ -26,39 +30,49 @@ const JobCard = ({
   postedTime,
   isAuthenticated,
   job,
+  mutate,
 }: JobCardProps) => {
   const { openApplicationPanel } = useApplication();
-  const { openLoginModal } = useAuth();
+  const { openLoginModal, isEmployer } = useAuth();
 
   const handleApply = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isAuthenticated) {
-      openApplicationPanel(
-        job,
-      ); 
-      // openApplicationPanel({
-      //   id,
-      //   title,
-      //   company,
-      //   location,
-      //   type: jobType,
-      //   salary,
-      //   postedTime,
-      //   shortDescription: "",
-      //   fullDescription: "",
-      //   skills: [],
-      //   featured: false,
-      //   closingDate: "",
-      //   views: 0,
-      //   applications: 0,
-      //   requirements: [],
-      //   responsibilities: [],
-      //   benefits: [],
-      // });
+    if (isAuthenticated && !isEmployer) {
+      if (job?.is_applied) {
+        toast({
+          title: "Already Applied",
+          description: "You have already applied to this job.",
+        });
+        return;
+      }
+      openApplicationPanel(job);
     } else {
       openLoginModal();
     }
   };
+
+   const handleSaveJob = async (id: number, saved: boolean) =>{
+      const {response, result} = await baseFetcher(saved ? "api/activity/unsave-job/"+id  : "api/activity/save-job/"+id, {
+        method: "GET",
+      })
+  
+      if(response?.ok){
+        toast({
+          title: "Success",
+          description: result?.message,
+          variant: "default", 
+        });
+      }
+        else{
+        toast({
+          title: "Error",
+          description: result?.message,
+          variant: "destructive", 
+        });
+      }
+      mutate();
+  
+    }
 
   return (
     <Link href={`/jobs/${id}`}>
@@ -73,13 +87,33 @@ const JobCard = ({
                 <h3 className="text-lg font-medium">{title}</h3>
                 <p className="text-neutral-600 text-sm">{company}</p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-neutral-400 hover:text-neutral-600"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
+              {job?.saved === true ? (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveJob(job?.id, job?.saved!);
+                  }}
+                  variant="ghost"
+                  size="icon"
+                  className="text-neutral-400 hover:text-neutral-600"
+                >
+                  <Heart className={`text-blue-500 h-5 w-5`} />
+                </Button>
+              ) : job?.saved === false ? (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveJob(job?.id, job?.saved!);
+                  }}
+                  variant="ghost"
+                  size="icon"
+                  className="text-neutral-400 hover:text-neutral-600"
+                >
+                  <Heart className="h-5 w-5" />
+                </Button>
+              ) : null}
             </div>
             <div className="flex items-center gap-4 text-sm text-neutral-600 mb-4">
               <span className="flex items-center gap-1">
@@ -100,7 +134,11 @@ const JobCard = ({
                 className="w-full bg-black text-white hover:bg-neutral-800"
                 onClick={handleApply}
               >
-                {isAuthenticated ? "Apply Now" : "Sign in to Apply"}
+                {isAuthenticated && !isEmployer
+                  ? job?.is_applied
+                    ? "Applied"
+                    : "Apply Now"
+                  : "Sign in to Apply"}
               </Button>
             </div>
           </div>

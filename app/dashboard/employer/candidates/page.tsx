@@ -25,6 +25,8 @@ interface JobSeekerProfile {
   first_name: string;
   last_name: string;
   looking_for: string;
+immediate_availability: boolean;
+availability_date: string;
 }
 
 interface Candidate {
@@ -34,6 +36,8 @@ interface Candidate {
   image_path: string;
   profile: JobSeekerProfile | null;
   skills: Skill[];
+  immediate_availability: boolean;
+availability_date: string;
 }
 
 interface CandidatesResponse {
@@ -69,7 +73,7 @@ const CandidatesPage = () => {
 
 
   const { data: candidatesResponse, isLoading, error, mutate } = useSWR<CandidatesResponse>(
-    `api/candidate/all-candidates?search=${urlParams.get("search") || ""}&filter=${urlParams.get("filter") || ""}`, 
+    `api/candidate/all-candidates?${urlParams.toString()}`, 
     defaultFetcher
   );
 
@@ -111,8 +115,8 @@ const CandidatesPage = () => {
                     onKeyDown={(e)=>{
                       if(e.key === "Enter" && e.target instanceof HTMLInputElement) {
                         e.preventDefault();
-                        urlParams.set("search", e.target.value);
-                        router.push(`/dashboard/employer/candidates?${urlParams.toString()}`);
+                        // urlParams.set("search", e.target.value); 
+                        router.push(`?search=${e.target.value}`);
                         mutate();
                       }
                     }}
@@ -147,7 +151,7 @@ const CandidatesPage = () => {
                           <div className="flex justify-between">
                             <h3 className="text-lg">{`${candidate.first_name} ${candidate.last_name}`}</h3>
                             <span className="px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm">
-                              {candidate.profile ? "Available" : "Profile Incomplete"}
+                              {candidate?.immediate_availability ? "Available" : candidate?.availability_date ? "Available after " + candidate?.availability_date+ " days" : "Not Available"}
                             </span>
                           </div>
                           <p className="text-neutral-600 text-sm">
@@ -262,6 +266,7 @@ const CandidatesPage = () => {
 
       <CandidatesFilterModal
         isOpen={isFilterModalOpen}
+        mutate={mutate}
         onClose={() => setIsFilterModalOpen(false)}
       />
 

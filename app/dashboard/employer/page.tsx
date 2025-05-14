@@ -10,6 +10,7 @@ import {
   Eye,
   Clock,
   Users,
+  Loader,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PostJobModal from "@/components/post-job-modal";
@@ -108,6 +109,10 @@ const EmployerDashboardPage = () => {
       return "Recently";
     }
   };
+
+
+
+
 
   return (
     <section className="py-8">

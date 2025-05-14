@@ -19,7 +19,12 @@ const LatestJobs = () => {
   //   )
   //   .slice(0, 3);
 
-  const {data: latestJobs, error, isLoading} = useSWR<JobResponse>("api/job/latest", defaultFetcher);
+  const {
+    data: latestJobs,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<JobResponse>("api/job/latest", defaultFetcher);
 
   return (
     <section className="py-12 bg-white 2xl:px-0 px-12">
@@ -47,7 +52,7 @@ const LatestJobs = () => {
               postedTime={job.posted_date_formatted}
               isAuthenticated={isAuthenticated}
               job={job}
-
+              mutate={mutate}
             />
           ))}
         </div>

@@ -55,7 +55,6 @@ const InterviewScheduleModal = ({
     formattedDate: "",
   });
 
-  console.log(candidate, application_id);
 
   const {
     data: interviewType,
@@ -122,7 +121,7 @@ const InterviewScheduleModal = ({
         <div className="p-6">
           <div className="flex items-center space-x-4 mb-6">
             <img
-              src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.avatar}`}
+              src={`${candidate.avatar}`}
               alt={candidate.name}
               className="w-12 h-12 rounded-full"
             />
