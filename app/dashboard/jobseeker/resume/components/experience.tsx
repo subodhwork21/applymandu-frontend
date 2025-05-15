@@ -88,10 +88,12 @@ const Experience: React.FC<ExperienceProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                {/* <Label className="text-sm font-medium pb-2 block">
                   Position Title
-                </Label>
+                </Label> */}
                 <FormInput
+                  label="Position Title"
+                  required={true}
                   value={exp.position_title}
                   onChange={(e) =>
                     updateExperience(exp.id, "position_title", e.target.value)
@@ -101,10 +103,12 @@ const Experience: React.FC<ExperienceProps> = ({
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                {/* <Label className="text-sm font-medium pb-2 block">
                   Company Name
-                </Label>
+                </Label> */}
                 <FormInput
+                  label="Company Name"
+                  required={true}
                   value={exp.company_name}
                   onChange={(e) =>
                     updateExperience(exp.id, "company_name", e.target.value)
@@ -118,7 +122,7 @@ const Experience: React.FC<ExperienceProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
-                  Industry
+                  Industry <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={exp.industry.toLowerCase()}
@@ -172,7 +176,7 @@ const Experience: React.FC<ExperienceProps> = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
-                  Job Level
+                  Job Level <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={exp.job_level.toLowerCase()}
@@ -200,7 +204,7 @@ const Experience: React.FC<ExperienceProps> = ({
 
             <div className="mt-4 space-y-2">
               <Label className="text-sm font-medium pb-2 block">
-                Roles and Responsibilities
+                Roles and Responsibilities 
               </Label>
               <Textarea
                 value={exp.roles_and_responsibilities}
@@ -227,7 +231,7 @@ const Experience: React.FC<ExperienceProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
-                  Start Date
+                  Start Date <span className="text-red-500">*</span>
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>

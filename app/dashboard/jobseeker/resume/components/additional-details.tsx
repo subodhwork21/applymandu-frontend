@@ -232,7 +232,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
       <div className="space-y-8">
         {/* Skills */}
         <div>
-          <h3 className="text-lg font-medium mb-4">Skills</h3>
+          <h3 className="text-lg font-medium mb-4">Skills </h3>
           <div className="space-y-4">
             <div className="flex gap-2">
               <FormInput
@@ -278,7 +278,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         {/* Languages */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Languages</h3>
+            <h3 className="text-lg font-medium">Languages <span className="text-red-500">*</span></h3>
             <Button onClick={addLanguage} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Language
@@ -289,6 +289,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               <div key={lang.id} className="flex gap-4 items-start">
                 <div className="flex-1 grid grid-cols-2 gap-4">
                   <FormInput
+                  required={true}
                     placeholder="Language"
                     value={lang.language}
                     error={getError(`languages.${lang.id}.language`)}
@@ -329,7 +330,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         {/* Training */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Training & Courses</h3>
+            <h3 className="text-lg font-medium">Training & Courses </h3>
             <Button onClick={addTraining} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Training
@@ -341,6 +342,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1 space-y-4">
                     <FormInput
+                    required={true}
                       placeholder="Training Title"
                       value={train.title}
                       error={getError(`trainings.${train.id}.title`)}
@@ -380,7 +382,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         {/* Certificates */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Certificates</h3>
+            <h3 className="text-lg font-medium">Certificates </h3>
             <Button onClick={addCertificate} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Certificate
@@ -462,7 +464,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         {/* References */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">References</h3>
+            <h3 className="text-lg font-medium">References </h3>
             <Button onClick={addReference} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Reference
@@ -483,6 +485,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <FormInput
+                    required={true}
                     placeholder="Full Name"
                     value={ref.name}
                     error={getError(`references.${ref.id}.name`)}

@@ -26,17 +26,18 @@ import { mockUserProfile } from "@/lib/constants";
 import { jobs } from "@/lib/constants";
 import { useApplication } from "@/lib/application-context";
 import useSWR from "swr";
-import { defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { ApplicationResponse } from "@/types/application-type";
 import { Activity } from "@/types/activity-type";
 import { Job } from "@/types/job-type";
 import { useAuth } from "@/lib/auth-context";
+import { toast } from "@/hooks/use-toast";
 
 const DashboardPage = () => {
   const { openApplicationPanel } = useApplication();
   const pathname = usePathname();
-  const profile = mockUserProfile;
-  const {user} = useAuth();
+  // const profile = mockUserProfile;
+  const { user, isAuthenticated, isEmployer, openLoginModal } = useAuth();
 
   // const recentApplications = [
   //   {
@@ -52,6 +53,11 @@ const DashboardPage = () => {
   //     appliedDate: "Apr 12, 2025",
   //   },
   // ];
+
+  const {data: profile, isLoading: profileLoading} = useSWR<Record<string,any>>(
+    "api/jobseeker/user-profile",
+    defaultFetcher
+  );
 
   const { data: recentApplications } = useSWR<ApplicationResponse>(
     "api/dashboard/jobseeker/recent-applications",
@@ -123,9 +129,19 @@ const DashboardPage = () => {
   //     .slice(0, 2);
   // }, []);
 
-  const handleApply = (e: React.MouseEvent, job: any) => {
-    e.preventDefault();
-    openApplicationPanel(job);
+  const handleApply = (e: React.MouseEvent<HTMLButtonElement>, job: any) => {
+     if (isAuthenticated && !isEmployer) {
+          if (job?.is_applied) {
+            toast({
+              title: "Already Applied",
+              description: "You have already applied to this job.",
+            });
+            return;
+          }
+          openApplicationPanel(job);
+        } else {
+          openLoginModal();
+        }
   };
 
   // const calculateCompletion = () => {
@@ -200,7 +216,11 @@ const DashboardPage = () => {
   //   return Math.round((completed / total) * 100);
   // };
 
-  const {data: completionPercentage, isLoading: completionLoading, mutate:completionMutate} = useSWR<Record<string,any>>(
+  const {
+    data: completionPercentage,
+    isLoading: completionLoading,
+    mutate: completionMutate,
+  } = useSWR<Record<string, any>>(
     "api/dashboard/profile-completion",
     defaultFetcher
   );
@@ -223,9 +243,40 @@ const DashboardPage = () => {
     defaultFetcher
   );
 
-  const { data: recommendedJobs, isLoading: recommendedJobsLoading } = useSWR<
-    Record<string, any>
-  >("api/dashboard/recommended-jobs", defaultFetcher);
+  const {
+    data: recommendedJobs,
+    isLoading: recommendedJobsLoading,
+    mutate: recommendedJobsMutate,
+  } = useSWR<Record<string, any>>(
+    "api/dashboard/recommended-jobs",
+    defaultFetcher
+  );
+
+  const handleSaveJob = async (id: number, saved: boolean) => {
+    const { response, result } = await baseFetcher(
+      saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id,
+      {
+        method: "GET",
+      }
+    );
+
+    if (response?.ok) {
+      toast({
+        title: "Success",
+        description: result?.message,
+        variant: "default",
+      });
+      recommendedJobsMutate();
+    } else {
+      toast({
+        title: "Error",
+        description: result?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+   console.log()
 
   return (
     <main className="min-h-screen bg-neutral-50">
@@ -278,7 +329,7 @@ const DashboardPage = () => {
                   {recentApplications?.data?.map((application) => (
                     <Link
                       key={application.id}
-                      href={`/dashboard/applications/${application.id}`}
+                      href={`/dashboard/jobseeker/applications/${application.id}`}
                     >
                       <div className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer">
                         <div>
@@ -420,13 +471,33 @@ const DashboardPage = () => {
                                 {job.employer_name}
                               </p>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-neutral-400 hover:text-neutral-600"
-                            >
-                              <Heart className="h-4 w-4" />
-                            </Button>
+                            {job?.saved === true ? (
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleSaveJob(job?.id, job?.saved!);
+                                }}
+                                variant="ghost"
+                                size="icon"
+                                className="text-neutral-400 hover:text-neutral-600"
+                              >
+                                <Heart className={`text-blue-500 h-5 w-5`} />
+                              </Button>
+                            ) : job?.saved === false ? (
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleSaveJob(job?.id, job?.saved!);
+                                }}
+                                variant="ghost"
+                                size="icon"
+                                className="text-neutral-400 hover:text-neutral-600"
+                              >
+                                <Heart className="h-5 w-5" />
+                              </Button>
+                            ) : null}
                           </div>
                           <div className="flex flex-wrap gap-2 my-3">
                             {job.skills.slice(0, 3).map((skill, id) => (
@@ -453,10 +524,14 @@ const DashboardPage = () => {
                             </span>
                           </div>
                           <Button
-                            className="w-full bg-black text-white hover:bg-neutral-800"
+                            className={`w-full bg-black text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-neutral-300 text-neutral-600 hover:bg-neutral-400 cursor-not-allowed" : ""}`}
                             onClick={(e) => handleApply(e, job)}
                           >
-                            Apply Now
+                            {isAuthenticated && !isEmployer
+                              ? job?.is_applied
+                                ? "Applied"
+                                : "Apply Now"
+                              : "Sign in to Apply"}
                           </Button>
                         </div>
                       </div>
@@ -475,16 +550,16 @@ const DashboardPage = () => {
                     className="w-24 h-24 rounded-full mx-auto mb-4"
                   />
                   <h2 className="text-xl font-medium">
-                    {user?.first_name}{" "}
-                    {user?.last_name}
+                    {user?.first_name} {user?.last_name}
                   </h2>
                   <p className="text-neutral-600 mt-1">
                     {user?.position_title}
                   </p>
                   <div className="flex justify-center gap-4 mt-4">
-                    {profile.additionalDetails.socialLinks.linkedin && (
+                    
+                    {profile?.data?.social_links?.some((item: {platform: string, link: string})=> item?.platform === "linkedin") && (
                       <a
-                        href={profile.additionalDetails.socialLinks.linkedin}
+                        href={profile?.data?.social_links?.find((item: {platform: string, link: string})=> item?.platform === "linkedin").url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-neutral-600 hover:text-neutral-900"
@@ -492,9 +567,9 @@ const DashboardPage = () => {
                         <Linkedin className="w-5 h-5" />
                       </a>
                     )}
-                    {profile.additionalDetails.socialLinks.github && (
+                    {profile?.data?.social_links?.some((item: {platform: string, link: string})=> item?.platform === "github") && (
                       <a
-                        href={profile.additionalDetails.socialLinks.github}
+                        href={profile?.data?.social_links?.find((item: {platform: string, link: string})=> item?.platform === "github").url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-neutral-600 hover:text-neutral-900"
@@ -514,16 +589,23 @@ const DashboardPage = () => {
                       Completion Status
                     </span>
                     <span className="text-sm font-medium">
-                      {completionPercentage?.data?.profile_completion?.overall_percentage}%
+                      {
+                        completionPercentage?.data?.profile_completion
+                          ?.overall_percentage
+                      }
+                      %
                     </span>
                   </div>
                   <div className="w-full bg-neutral-200 rounded-full h-2">
                     <div
                       className="h-2 rounded-full bg-black"
-                      style={{ width: `${completionPercentage?.data?.profile_completion?.overall_percentage}%` }}
+                      style={{
+                        width: `${completionPercentage?.data?.profile_completion?.overall_percentage}%`,
+                      }}
                     />
                   </div>
-                  {completionPercentage?.data?.profile_completion?.overall_percentage === 100 ? (
+                  {completionPercentage?.data?.profile_completion
+                    ?.overall_percentage === 100 ? (
                     <p className="text-sm text-green-600">
                       Your profile is complete!
                     </p>

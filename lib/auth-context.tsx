@@ -149,13 +149,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         setIsEmployer(result?.is_employer);
         setIsLoading(false);
-        router.push("/");
       }
     } else {
       deleteCookie("JOBSEEKER_TOKEN");
       setUser(null);
       setIsLoading(false);
-      router.push("/");
+      // router.push("/");
       // throw new Error("Invalid token");
     }
   };

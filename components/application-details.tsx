@@ -173,7 +173,7 @@ const ApplicationDetails = ({id}: {id: string}) => {
   
   // Get current application status
   const currentStatus = statusHistory.length > 0 
-    ? statusHistory[0].status 
+    ? statusHistory[0].status?.split("_").join(" ")
     : "applied";
 
   // Get other applications (excluding the current one)
@@ -191,7 +191,7 @@ const ApplicationDetails = ({id}: {id: string}) => {
         company: jobItem.employer.company_name,
         location: jobItem.location,
         appliedDate: app.applied_at,
-        status: app.latest_status || app.application_status_history[0]?.status || "applied",
+        status: app.latest_status || (app.application_status_history[0]?.status === "Interview_scheduled" ? "Shortlisted" : app.application_status_history[0]?.status) || "applied",
         companyInitial: jobItem.employer.company_name.charAt(0)
       }));
     })
@@ -256,7 +256,7 @@ const ApplicationDetails = ({id}: {id: string}) => {
                               <CheckCircle2 className="h-5 w-5 text-black" />
                             </div>
                             <div>
-                              <p className="text-neutral-900 font-medium">{getStatusText(status.status)}</p>
+                              <p className="text-neutral-900 font-medium">{getStatusText(status.status.split("_").join(" "))}</p>
                               <p className="text-neutral-500 text-sm">{formatDateTime(status.changed_at)}</p>
                               {status.remarks && (
                                 <p className="text-neutral-600 text-sm mt-1">{status.remarks}</p>
@@ -267,7 +267,7 @@ const ApplicationDetails = ({id}: {id: string}) => {
                               {!status.remarks && status.status === "shortlisted" && (
                                 <p className="text-neutral-600 text-sm mt-1">Congratulations! You've been shortlisted for the next round</p>
                               )}
-                              {!status.remarks && status.status === "interview" && (
+                              {!status.remarks && status.status === "interview_scheduled" && (
                                 <p className="text-neutral-600 text-sm mt-1">You've been selected for an interview</p>
                               )}
                               {!status.remarks && status.status === "rejected" && (

@@ -87,7 +87,7 @@ const InterviewScheduleModal = ({
 
   const handleSubmit = async () => {
     let formDataFinal = { interview_type_id: formData?.interviewType, interviewer_id: formData?.interviewer, mode: formData?.mode, status: "scheduled", application_id: application_id, date: formData?.formattedDate, time: formData?.time };
-    // console.log(formDataFinal);
+    console.log(formDataFinal);
     const { response, result, errors } = await baseFetcher("api/application-interview/schedule-interview", {
       method: "POST",
       body: JSON.stringify(formDataFinal),

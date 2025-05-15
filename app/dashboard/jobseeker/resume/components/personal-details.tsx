@@ -69,8 +69,10 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">First Name</Label>
+            {/* <Label className="text-sm font-medium pb-2 block">First Name</Label> */}
             <FormInput
+            label="First Name"
+            required={true}
               value={personalDetails.first_name}
               onChange={(e) =>
                 updatePersonalDetails("first_name", e.target.value)
@@ -80,10 +82,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">
+            {/* <Label className="text-sm font-medium pb-2 block">
               Middle Name
-            </Label>
+            </Label> */}
             <FormInput
+            label="Middle Name"
               value={personalDetails.middle_name}
               onChange={(e) =>
                 updatePersonalDetails("middle_name", e.target.value)
@@ -93,8 +96,10 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">Last Name</Label>
+            {/* <Label className="text-sm font-medium pb-2 block">Last Name</Label> */}
             <FormInput
+            label="Last Name"
+            required={true}
               value={personalDetails.last_name}
               onChange={(e) =>
                 updatePersonalDetails("last_name", e.target.value)
@@ -107,8 +112,10 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">District</Label>
+            {/* <Label className="text-sm font-medium pb-2 block">District</Label> */}
             <FormInput
+            label="District"
+            required={true}
               value={personalDetails.district}
               onChange={(e) =>
                 updatePersonalDetails("district", e.target.value)
@@ -118,10 +125,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">
+            {/* <Label className="text-sm font-medium pb-2 block">
               Municipality
-            </Label>
+            </Label> */}
             <FormInput
+            label="Municipality"
+            required={true}
               value={personalDetails.municipality}
               onChange={(e) =>
                 updatePersonalDetails("municipality", e.target.value)
@@ -131,8 +140,10 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">City/Tole</Label>
+            {/* <Label className="text-sm font-medium pb-2 block">City/Tole</Label> */}
             <FormInput
+            label="City/Tole"
+            required={true}
               value={personalDetails.city_tole}
               onChange={(e) =>
                 updatePersonalDetails("city_tole", e.target.value)
@@ -145,9 +156,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">
-              Date of Birth
-            </Label>
+              <Label className="text-sm font-medium pb-2 block">
+                Date of Birth <span className="text-red-500">*</span>
+              </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -193,8 +204,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">Mobile</Label>
+            {/* <Label className="text-sm font-medium pb-2 block">Mobile</Label> */}
             <FormInput
+              label="Mobile"
               value={personalDetails.mobile}
               onChange={(e) => updatePersonalDetails("mobile", e.target.value)}
               placeholder="Enter mobile number"
@@ -205,8 +217,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium pb-2 block">Industry</Label>
+            <Label className="text-sm font-medium pb-2 block">Industry <span className="text-red-500">*</span></Label>
             <Select
+              // required={true}
               value={personalDetails.industry?.toLowerCase()}
               onValueChange={(value) =>
                 updatePersonalDetails("industry", value)
@@ -254,7 +267,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           </div>
           <div className="space-y-2">
             <Label className="text-sm font-medium pb-2 block">
-              Preferred Job Type
+              Preferred Job Type <span className="text-red-500">*</span>
             </Label>
             <Select
               value={personalDetails.preferred_job_type?.toLowerCase()}
@@ -281,7 +294,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium pb-2 block">Gender</Label>
+          <Label className="text-sm font-medium pb-2 block">Gender <span className="text-red-500">*</span></Label>
           <RadioGroup
             value={personalDetails.gender}
             onValueChange={(value) => updatePersonalDetails("gender", value)}
@@ -364,10 +377,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         </div>
         
         <div className="space-y-2">
-          <Label className="text-sm font-medium pb-2 block">
+          {/* <Label className="text-sm font-medium pb-2 block">
             Looking For
-          </Label>
+          </Label> */}
           <FormInput
+            label="Looking For"
             value={personalDetails.looking_for}
             onChange={(e) =>
               updatePersonalDetails("looking_for", e.target.value)
@@ -378,10 +392,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         </div>
         
         <div className="space-y-2">
-          <Label className="text-sm font-medium pb-2 block">
+          {/* <Label className="text-sm font-medium pb-2 block">
             Salary Expectations
-          </Label>
+          </Label> */}
           <FormInput
+            label="Salary Expectations"
             value={personalDetails.salary_expectations}
             onChange={(e) =>
               updatePersonalDetails("salary_expectations", e.target.value)

@@ -80,14 +80,12 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
 
   const [isMessageReceived, setIsMessageReceived] = useState<boolean>(false);
 
-  // Set up Echo listeners when chatId is available
   useEffect(() => {
     if (chatId && window.Echo) {
       echoRef.current = window.Echo;
-
       // Listen for new messages
       echoRef.current.private(`chat.${chatId}`)
-        .listen('NewChatMessage', (e: { chatMessage: Message }) => {
+        .listen('.new-chat-message', (e: { chatMessage: Message }) => {
           if (e?.chatMessage?.sender_id?.toString() != user?.id.toString() || e?.chatMessage?.sender_id?.toString() === candidate?.id) {
             new Audio('/notification.wav').play();
             setMessages(prev => [...prev, e.chatMessage]);
@@ -100,7 +98,7 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
             }
           }
         })
-        .listen('MessageRead', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
+        .listen('.message-read', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
           console.log(e);
           if (e?.user_id?.toString() !== user?.id?.toString()) {
             setMessages(prev =>
