@@ -6,6 +6,7 @@ import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/hooks/use-toast";
 import { baseFetcher } from "@/lib/fetcher";
+import Image from "next/image";
 
 interface JobCardProps {
   id: number;
@@ -51,35 +52,42 @@ const JobCard = ({
     }
   };
 
-   const handleSaveJob = async (id: number, saved: boolean) =>{
-      const {response, result} = await baseFetcher(saved ? "api/activity/unsave-job/"+id  : "api/activity/save-job/"+id, {
-        method: "GET",
-      })
-  
-      if(response?.ok){
-        toast({
-          title: "Success",
-          description: result?.message,
-          variant: "default", 
-        });
-      }
-        else{
-        toast({
-          title: "Error",
-          description: result?.message,
-          variant: "destructive", 
-        });
-      }
-      mutate();
-  
+  const handleSaveJob = async (id: number, saved: boolean) => {
+    const { response, result } = await baseFetcher(saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id, {
+      method: "GET",
+    })
+
+    if (response?.ok) {
+      toast({
+        title: "Success",
+        description: result?.message,
+        variant: "default",
+      });
     }
+    else {
+      toast({
+        title: "Error",
+        description: result?.message,
+        variant: "destructive",
+      });
+    }
+    mutate();
+
+  }
 
   return (
     <Link href={`/jobs/${id}`}>
       <div className="bg-white rounded-lg p-6 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center flex-shrink-0">
-            <div className="text-white text-xl">{company[0]}</div>
+          <div className="w-12 h-12 p-2 bg-white rounded-lg border-b-2 shadow-lg justify-center flex-shrink-0">
+            <div className="text-white text-xl">
+              <Image
+                src={job?.image}
+                alt="Company Logo"
+                width={48}
+                height={48}
+              />
+            </div>
           </div>
           <div className="flex-1">
             <div className="flex justify-between items-start mb-2">

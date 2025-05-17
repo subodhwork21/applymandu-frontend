@@ -32,6 +32,13 @@ import { Activity } from "@/types/activity-type";
 import { Job } from "@/types/job-type";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/hooks/use-toast";
+import JobSeekerDashboardSkeleton from "@/components/ui/jobseeker-dashboard-skeleton";
+
+
+
+const isServer = () => typeof window === 'undefined';
+
+
 
 const DashboardPage = () => {
   const { openApplicationPanel } = useApplication();
@@ -76,6 +83,7 @@ const DashboardPage = () => {
   const {
     data: recentActivity,
     error,
+    isLoading: activityLoading,
     mutate: activityMutate,
   } = useSWR<Record<string, any>>(
     "api/activity/recent-activity",
@@ -143,6 +151,8 @@ const DashboardPage = () => {
           openLoginModal();
         }
   };
+
+
 
   // const calculateCompletion = () => {
   //   let total = 0;
@@ -276,7 +286,9 @@ const DashboardPage = () => {
     }
   };
 
-   console.log()
+  if(activityLoading || isServer()){
+    return <JobSeekerDashboardSkeleton/>
+  }
 
   return (
     <main className="min-h-screen bg-neutral-50">

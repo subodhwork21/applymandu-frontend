@@ -1,5 +1,14 @@
-import { redirect } from 'next/navigation';
+'use client';
+import { useAuth } from '@/lib/auth-context';
+import { redirect, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
-  redirect('/dashboard/jobseeker');
+  const router = useRouter();
+  const { user } = useAuth();
+  useEffect(()=>{
+    if(user){
+      router.push('/dashboard/jobseeker');
+    }
+  }, [user])
 }

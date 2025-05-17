@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { initializeEcho } from "@/lib/echo-setup";
+import { jobSeekerToken } from "@/lib/tokens";
+import { Loader2Icon } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -42,10 +44,19 @@ export default function DashboardLayout({
   }, []);
 
 
+    if ( (!jobSeekerToken() && typeof window != 'undefined')) {
+    return (
+      <section className="w-screen h-screen flex justify-center items-center relative">
+        <Loader2Icon className="animate-spin h-10 w-10 absolute" />
+      </section>
+    );
+  }
+
+
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <section  className="min-h-screen flex flex-col">
+      <Header/>
       <div className="bg-white border-b border-neutral-200">
         <div className="container mx-auto px-4">
           <nav className="flex justify-center space-x-6 overflow-x-auto py-4 mb-5">
@@ -67,6 +78,6 @@ export default function DashboardLayout({
       </div>
       {children}
       <Footer />
-    </div>
+    </section>
   );
 }

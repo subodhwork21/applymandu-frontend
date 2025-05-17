@@ -320,7 +320,7 @@ const ApplicationsPage = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <span
-                          className={`px-3 py-1 rounded-full text-sm ${getStatusStyles(
+                          className={`px-3 py-1 rounded-full text-sm capitalize ${getStatusStyles(
                             application.status
                           )}`}
                         >

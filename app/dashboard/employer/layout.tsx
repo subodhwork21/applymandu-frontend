@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { initializeEcho } from "@/lib/echo-setup";
+import { employerToken } from "@/lib/tokens";
+import { Loader2Icon } from "lucide-react";
 
 export default function EmployerDashboardLayout({
   children,
@@ -40,6 +42,14 @@ export default function EmployerDashboardLayout({
       console.error("Failed to initialize Echo:", error);
     }
   }, []);
+
+     if ( (!employerToken() && typeof window != 'undefined')) {
+      return (
+        <section className="w-screen h-screen flex justify-center items-center relative">
+          <Loader2Icon className="animate-spin h-10 w-10 absolute" />
+        </section>
+      );
+    }
 
   return (
     <div className="min-h-screen flex flex-col">
