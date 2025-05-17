@@ -326,7 +326,7 @@ const DashboardPage = () => {
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <h2 className="text-xl mb-4">Recent Applications</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentApplications?.data?.map((application) => (
+                  {recentApplications && recentApplications?.data?.length > 0 ? recentApplications?.data?.map((application) => (
                     <Link
                       key={application.id}
                       href={`/dashboard/jobseeker/applications/${application.id}`}
@@ -346,7 +346,7 @@ const DashboardPage = () => {
                         <ChevronRight className="h-4 w-4 text-neutral-400" />
                       </div>
                     </Link>
-                  ))}
+                  )): <p>No recent applications</p>}
                 </div>
               </div>
 
@@ -397,14 +397,14 @@ const DashboardPage = () => {
                           Success Rate
                         </span>
                         <span className="text-sm font-medium">
-                          {applicationStats?.data?.success_rate}%
+                          {applicationStats?.data?.success_rate || 0}%
                         </span>
                       </div>
                       <div className="w-full bg-neutral-100 rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
-                            width: `${applicationStats?.data?.success_rate}%`,
+                            width: `${applicationStats?.data?.success_rate || 0}%`,
                           }}
                         />
                       </div>
@@ -415,14 +415,14 @@ const DashboardPage = () => {
                           Response Rate
                         </span>
                         <span className="text-sm font-medium">
-                          {applicationStats?.data?.response_rate}%
+                          {applicationStats?.data?.response_rate || 0}%
                         </span>
                       </div>
                       <div className="w-full bg-neutral-100 rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
-                            width: `${applicationStats?.data?.response_rate}%`,
+                            width: `${applicationStats?.data?.response_rate || 0}%`,
                           }}
                         />
                       </div>
@@ -433,14 +433,14 @@ const DashboardPage = () => {
                           Interview Rate
                         </span>
                         <span className="text-sm font-medium">
-                          {applicationStats?.data?.interview_rate}%
+                          {applicationStats?.data?.interview_rate || 0}%
                         </span>
                       </div>
                       <div className="w-full bg-neutral-100 rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
-                            width: `${applicationStats?.data?.interview_rate}%`,
+                            width: `${applicationStats?.data?.interview_rate || 0}%`,
                           }}
                         />
                       </div>
