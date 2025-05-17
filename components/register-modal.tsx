@@ -28,7 +28,7 @@ const RegisterModal = () => {
     if (isAuthenticated) {
       setAccountType(isEmployer ? "employer" : "jobseeker");
     } else {
-      setAccountType(null);
+      setAccountType("jobseeker");
     }
   }, [isAuthenticated, isEmployer]);
 
