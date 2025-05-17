@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Header from "@/components/header";
@@ -52,6 +52,9 @@ export default function EmployerDashboardLayout({
     }
 
   return (
+    <Suspense fallback={ <section className="w-screen h-screen flex justify-center items-center relative">
+          <Loader2Icon className="animate-spin h-10 w-10 absolute" />
+        </section>}>
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="bg-white border-b border-neutral-200">
@@ -76,5 +79,6 @@ export default function EmployerDashboardLayout({
       {children}
       <Footer />
     </div>
+    </Suspense>
   );
 }
