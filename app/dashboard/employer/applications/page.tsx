@@ -134,7 +134,7 @@ function ApplicationsContent() {
   };
 
   const { data, error, isLoading, mutate } = useSWR<JobApplicationsResponse>(
-    "api/employer/job/applications/",
+    "api/employer/job/applications",
     defaultFetcher
   );
 
