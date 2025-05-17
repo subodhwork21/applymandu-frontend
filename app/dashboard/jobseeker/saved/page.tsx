@@ -71,7 +71,7 @@ const SavedJobsPage = () => {
   const { openApplicationPanel } = useApplication();
   
   const { data: savedJobsResponse, isLoading, error, mutate } = useSWR<SavedJobsResponse>(
-    "api/activity/all-saved-job/", 
+    "api/activity/all-saved-job", 
     defaultFetcher
   );
 
@@ -102,11 +102,11 @@ const SavedJobsPage = () => {
         method: 'GET',
       });
       
-      if (response.ok) {
+      if (response?.ok) {
         // Refresh the data after successful removal
         mutate();
       } else {
-        console.error("Failed to remove job:", await response.json());
+        console.error("Failed to remove job:");
       }
     } catch (error) {
       console.error("Error removing job:", error);

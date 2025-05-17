@@ -56,7 +56,6 @@ export const initializeEcho = () => {
         },
         authEndpoint: `${baseUrl}api/broadcasting/auth`
       });
-      alert("fdjfdf");
       
       window.Echo = echo;
       console.log('Echo initialized successfully with Pusher');
