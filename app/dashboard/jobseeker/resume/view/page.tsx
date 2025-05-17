@@ -228,7 +228,7 @@ const ResumeView = () => {
                         {exp.currently_work_here && " (Current)"}
                       </p>
                       <ul className="list-disc list-inside text-neutral-600 space-y-2">
-                        {exp.roles_and_responsibilities.split("\n").map((resp, i) => (
+                        {exp?.roles_and_responsibilities?.split("\n").map((resp, i) => (
                           <li key={i}>{resp}</li>
                         ))}
                       </ul>

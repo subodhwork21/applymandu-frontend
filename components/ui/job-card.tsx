@@ -131,7 +131,7 @@ const JobCard = ({
             </div>
             <div className="mt-auto">
               <Button
-                className="w-full bg-black text-white hover:bg-neutral-800"
+                className={`w-full bg-black text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-neutral-300 text-neutral-600 cursor-not-allowed" : ""}`}
                 onClick={handleApply}
               >
                 {isAuthenticated && !isEmployer

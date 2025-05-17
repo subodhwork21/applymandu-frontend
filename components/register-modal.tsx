@@ -67,7 +67,7 @@ const RegisterModal = () => {
     setIsLoading(true);
     try {
       const { firstName, lastName, email, password, company_name, phone } = formData;
-      const { response, result } = await baseFetcher(
+      const { response, result, errors } = await baseFetcher(
         accountType === "employer" ? "api/employer/register" : "api/register", 
         {
           method: "POST",
@@ -95,9 +95,9 @@ const RegisterModal = () => {
       if (!response?.ok) {
         if (result.errors && typeof result.errors === 'object') {
           getValidationErrors(result.errors);
-          setError(result.message || "Validation failed");
+          setError(errors || "Validation failed");
         } else {
-          setError(result.message);
+          setError(errors);
         }
       } else {
         toast({

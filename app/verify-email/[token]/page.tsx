@@ -36,8 +36,8 @@ const Page = () =>{
     verifyEmail();
     }, [token])
 
-    return <div>
-        <h1>Verify Your Email</h1>
+    return <div className="h-screen w-full flex justify-center items-center">
+        <h1>Verifying Your Email...</h1>
     </div>
 }
 

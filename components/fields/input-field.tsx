@@ -1,6 +1,3 @@
-
-
-
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const Input = ({ className, type, ...props }: InputProps) => {
@@ -22,18 +19,20 @@ interface InputFieldProps extends InputProps {
 const FormInput = ({ 
   label, 
   error, 
-  className, 
+  className,
+  required,
   ...props 
 }: InputFieldProps) => {
   return (
     <div className="w-full space-y-1">
       {label && (
-        <label className="text-sm font-medium text-gray-700">
-          {label}
+        <label className="text-sm font-medium pb-3 block">
+          {label}{required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <Input 
         className={`${error ? 'border-red-500' : ''} ${className}`}
+        required={required}
         {...props} 
       />
       {error && (
@@ -44,6 +43,5 @@ const FormInput = ({
     </div>
   );
 };
-
 
 export default FormInput;

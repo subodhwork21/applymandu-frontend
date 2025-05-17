@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/lib/auth-context";
 import { employerToken, jobSeekerToken } from "@/lib/tokens";
+import { echo } from "@/lib/echo-setup";
 
 interface Message {
   id: number;
@@ -79,39 +80,50 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   }, [isOpen, candidate.id]);
 
   const [isMessageReceived, setIsMessageReceived] = useState<boolean>(false);
+// In your component:
+useEffect(() => {
+  // Only proceed if both echo and chatId are available
+  console.log("echo", echo)
+  if (!echo || !chatId) return;
 
-  // Set up Echo listeners when chatId is available
-  useEffect(() => {
-    if (chatId && window.Echo) {
-      echoRef.current = window.Echo;
-
-      // Listen for new messages
-      echoRef.current.private(`chat.${chatId}`)
-        .listen('NewChatMessage', (e: { chatMessage: Message }) => {
-          if (e?.chatMessage?.sender_id?.toString() != user?.id.toString() || e?.chatMessage?.sender_id?.toString() === candidate?.id) {
-            new Audio('/notification.wav').play();
-            setMessages(prev => [...prev, e.chatMessage]);
-            setIsMessageReceived(true); 
-            setTimeout(() => {
-              setIsMessageReceived(false);
-            }, 3000);
-            if (!e?.chatMessage?.is_read) {
-              markAsReadSafely([e?.chatMessage?.id]);
-            }
-          }
-        })
-        .listen('MessageRead', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
-          console.log(e);
-          if (e?.user_id?.toString() !== user?.id?.toString()) {
-            setMessages(prev =>
-              prev.map(msg =>
-                e?.message_ids?.includes(msg.id) ? { ...msg, is_read: true } : msg
-              )
-            );
-          }
-        });
+  console.log(`Subscribing to private-chat.${chatId} channel`);
+  
+  // Create a reference to the channel for cleanup
+  const channel = echo.private(`chat.${chatId}`);
+  
+  // Listen for the new-chat-message event (without the dot)
+  channel.listen('NewChatMessage', (e: { chat_message: Message }) => {
+  if (e?.chat_message?.sender_id?.toString() !== user?.id?.toString()) {
+    new Audio('/notification.wav').play();
+    setMessages(prev => [...prev, e.chat_message]);
+    setIsMessageReceived(true); 
+    setTimeout(() => {
+      setIsMessageReceived(false);
+    }, 3000);
+    if (!e?.chat_message?.is_read) {
+      markAsReadSafely([e?.chat_message?.id]);
     }
-  }, [chatId]);
+  }
+})
+  
+  // Listen for the message-read event (without the dot)
+  channel.listen('MessageRead', (e: { chat_id: number, message_ids: number[], user_id: number }) => {
+    console.log('Message read event received:', e);
+    if (e?.user_id?.toString() !== user?.id?.toString()) {
+      setMessages(prev =>
+        prev.map(msg =>
+          e?.message_ids?.includes(msg.id) ? { ...msg, is_read: true } : msg
+        )
+      );
+    }
+  });
+
+  // Clean up function
+  return () => {
+    console.log(`Unsubscribing from private-chat.${chatId} channel`);
+    echo.leave(`chat.${chatId}`);
+  };
+}, [chatId, user?.id]);
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -286,26 +298,53 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
   };
 
   const formatMessageTime = (dateString: string) => {
-    try {
-      // Handle the specific format with microseconds by removing them
-      const normalizedDateString = dateString.replace(/\.\d+Z$/, 'Z');
-      const date = new Date(normalizedDateString);
-
-      // Check if date is valid before formatting
-      if (isNaN(date.getTime())) {
-        console.error("Invalid date:", dateString);
-        return "Unknown time";
-      }
-
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      console.error("Error formatting date:", error);
+  try {
+    if (!dateString) {
+      console.error("Empty date string");
       return "Unknown time";
     }
-  };
+
+    // Handle different date formats
+    let normalizedDateString = dateString;
+    
+    // Remove microseconds if present
+    if (dateString.includes('.')) {
+      normalizedDateString = dateString.replace(/\.\d+Z?$/, dateString.endsWith('Z') ? 'Z' : '');
+    }
+    
+    // Add Z if missing (for UTC)
+    if (!normalizedDateString.endsWith('Z') && !normalizedDateString.includes('+')) {
+      normalizedDateString += 'Z';
+    }
+    
+    const date = new Date(normalizedDateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date after normalization:", dateString, "->", normalizedDateString);
+      
+      // Fallback: try parsing without any normalization
+      const fallbackDate = new Date(dateString);
+      if (!isNaN(fallbackDate.getTime())) {
+        return fallbackDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+      
+      return "Unknown time";
+    }
+
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (error) {
+    console.error("Error formatting date:", dateString, error);
+    return "Unknown time";
+  }
+};
+
 
 
   return (

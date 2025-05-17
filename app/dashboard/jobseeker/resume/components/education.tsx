@@ -86,7 +86,7 @@ const Education: React.FC<EducationProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">Degree</Label>
+                <Label className="text-sm font-medium pb-2 block">Degree <span className="text-red-500">*</span></Label>
                 <Select
                   value={edu.degree.toLowerCase()}
                   onValueChange={(value) =>
@@ -115,10 +115,12 @@ const Education: React.FC<EducationProps> = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                {/* <Label className="text-sm font-medium pb-2 block">
                   Subject/Major
-                </Label>
+                </Label> */}
                 <FormInput
+                  label="Subject/Major"
+                  required={true}
                   value={edu.subject_major}
                   onChange={(e) =>
                     updateEducation(edu.id, "subject_major", e.target.value)
@@ -131,10 +133,12 @@ const Education: React.FC<EducationProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                {/* <Label className="text-sm font-medium pb-2 block">
                   Institution
-                </Label>
+                </Label> */}
                 <FormInput
+                  label="Institution"
+                  required={true}
                   value={edu.institution}
                   onChange={(e) =>
                     updateEducation(edu.id, "institution", e.target.value)
@@ -144,10 +148,12 @@ const Education: React.FC<EducationProps> = ({
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                {/* <Label className="text-sm font-medium pb-2 block">
                   University/Board
-                </Label>
+                </Label> */}
                 <FormInput
+                  label="University/Board"
+                  required={true}
                   value={edu.university_board}
                   onChange={(e) =>
                     updateEducation(edu.id, "university_board", e.target.value)
@@ -160,7 +166,7 @@ const Education: React.FC<EducationProps> = ({
 
             <div className="mt-4 space-y-2">
               <Label className="text-sm font-medium pb-2 block">
-                Grading Type
+                Grading Type 
               </Label>
               <Select
                 value={edu.grading_type}
@@ -187,7 +193,7 @@ const Education: React.FC<EducationProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">
-                  Joined Year
+                  Joined Year <span className="text-red-500">*</span>
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>

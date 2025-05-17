@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const login = async (email: string, password: string) => {
-    const { response, result, error, message } = await baseFetcher(
+    const { response, result, errors, message } = await baseFetcher(
       "api/login",
       {
         method: "POST",
@@ -84,6 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }),
       }
     );
+
+    console.log(errors, result?.message);
 
     // console.log(response?.ok,result);
 
@@ -108,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       closeLoginModal();
     } else {
-      throw new Error(result?.message || "Login failed");
+      throw new Error(errors || result?.message);
     }
   };
 
@@ -149,13 +151,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         setIsEmployer(result?.is_employer);
         setIsLoading(false);
-        router.push("/");
       }
     } else {
       deleteCookie("JOBSEEKER_TOKEN");
       setUser(null);
       setIsLoading(false);
-      router.push("/");
+      // router.push("/");
       // throw new Error("Invalid token");
     }
   };

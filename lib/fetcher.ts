@@ -58,7 +58,7 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     }
 
   // Handle client errors (400, 404, 422) - return error with message
-  if (response.status === 400 || response.status === 404 || response.status === 422) {
+  if (response.status === 400 || response?.status === 401 || response.status === 404 || response.status === 422) {
     
   
     return {

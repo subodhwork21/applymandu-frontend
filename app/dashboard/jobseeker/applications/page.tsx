@@ -37,6 +37,10 @@ interface Application {
   cover_letter: string | null;
   created_at: string;
   updated_at: string;
+  application_status_history: {
+    status: string;
+    created_at: string;
+  }[];
 }
 
 interface Employer {
@@ -109,14 +113,6 @@ const ApplicationsPage = () => {
     data.data.forEach((job) => {
       if (job.applications && Array.isArray(job.applications)) {
         job.applications.forEach((app) => {
-          // Map status codes to readable strings
-          const statusMap: Record<number, string> = {
-            0: "Pending",
-            1: "Shortlisted",
-            2: "Rejected",
-            // Add more status mappings as needed
-          };
-
           // Add additional fields needed for display
           allApplications.push({
             id: app.id,
@@ -126,7 +122,7 @@ const ApplicationsPage = () => {
             location:
               job.location || (job.is_remote ? "Remote" : "Not specified"),
             appliedDate: format(new Date(app.applied_at), "MMM dd, yyyy"),
-            status: statusMap[app.status] || "Unknown",
+            status: (app.application_status_history[0]?.status === "interview_scheduled" ? "Shortlisted": app.application_status_history[0]?.status) || "Applied",
             employmentType: job.employment_type,
             salaryRange: `${job.salary_min} - ${job.salary_max}`,
             year_of_experience: app.year_of_experience,
@@ -181,7 +177,7 @@ const ApplicationsPage = () => {
       }
     );
 
-    if (response.status === 200) {
+    if (response?.status === 200) {
       toast({
         title: "Success",
         description: "Application withdrawn successfully",
@@ -213,8 +209,8 @@ const ApplicationsPage = () => {
       // salary_min: application.salaryRange.split(" - ")[0],
       // salary_max: application.salaryRange.split(" - ")[1],
       year_of_experience: application.year_of_experience.toString(),
-      expected_salary: application.expected_salary,
-      notice_period: application.notice_period,
+      expected_salary: application.expected_salary.toString(),
+      notice_period: application.notice_period.toString(),
       cover_letter: application.cover_letter,
     });
   };

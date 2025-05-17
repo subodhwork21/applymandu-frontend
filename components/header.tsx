@@ -109,7 +109,8 @@ const Header = () => {
       // Set up Echo listener for new messages
       if (window.Echo) {
         const channel = window.Echo.private(`user.${user?.id}.messages`);
-        channel.listen('NewChatMessage', ( ) => {
+        channel.listen('.new-chat-message', ( ) => {
+
           fetchChatPreviews();
         });
         
@@ -158,7 +159,7 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
-      <div className="container mx-auto 2xl:px-4 px-16 py-3">
+      <div className="container mx-auto 2xl:px-4 lg:px-16 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center cursor-pointer">

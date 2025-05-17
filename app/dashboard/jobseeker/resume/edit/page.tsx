@@ -13,6 +13,7 @@ import AdditionalDetails from "../components/additional-details";
 import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { useAuth } from "@/lib/auth-context";
+import { toast } from "@/hooks/use-toast";
 
 // Updated interfaces to match the API response
 interface Skill {
@@ -449,7 +450,7 @@ const prepareFormData = () => {
       const profileData = prepareFormData();
       
       // Send the data to the API
-      const {response, result} = await baseFetcher(`api/jobseeker/resume`, {
+      const {response, result, errors} = await baseFetcher(`api/jobseeker/resume`, {
         method: 'POST',
         body: JSON.stringify(profileData),
       });
@@ -460,9 +461,14 @@ const prepareFormData = () => {
         // Navigate back to resume view
         router.push("/dashboard/jobseeker/resume");
       } else {
-        const errorData = await response?.json();
-        console.error("Failed to update profile:", errorData);
+        // const errorData = await response?.json();
+        // console.error("Failed to update profile:", errorData);
         // Here you could add toast or alert to notify the user
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: errors,
+        })
       }
     } catch (error) {
       console.error("Error submitting profile:", error);
