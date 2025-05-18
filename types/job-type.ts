@@ -93,5 +93,7 @@ export interface JobDescription {
     notice_period: string;
     coverLetter: string;
     cover_letter:string;
+    is_applied: boolean | null;
+    
   };
 }

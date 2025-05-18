@@ -48,6 +48,10 @@ interface Application {
   applied_user: string;
   skills?: string[];
   user_image: string;
+  status_history: {
+    status: string;
+    created_at: string;
+  }[];
 }
 
 interface Job {
@@ -160,7 +164,7 @@ function ApplicationsContent() {
           appliedDate: app.formatted_applied_at,
           skills,
           user_id: app.user_id,
-          status: app.status === 1 ? "Applied" : "Processing",
+          status: app?.status_history[0]?.status.split("_").join(" "),
           avatar: app?.user_image,
         };
       });
@@ -325,7 +329,7 @@ function ApplicationsContent() {
                                       </div>
                                     </div>
                                   </div>
-                                  <span className="px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm">
+                                  <span className="px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm capitalize">
                                     {application.status}
                                   </span>
                                 </div>

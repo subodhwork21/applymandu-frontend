@@ -133,7 +133,7 @@ const JobCard = ({
                 {jobType}
               </span>
               <span className="flex items-center gap-1">
-                <DollarSign className="h-4 w-4" />
+                {/* <DollarSign className="h-4 w-4" /> */}
                 {salary}
               </span>
             </div>

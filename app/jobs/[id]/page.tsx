@@ -32,7 +32,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   }
 
 
-  return <JobDetailPageClient job={jobDesc?.data!} />;
+  return <JobDetailPageClient job={jobDesc?.data!} mutate={mutate}/>;
 };
 
 export default Page;

@@ -20,15 +20,17 @@ import Footer from "@/components/footer";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
 import { JobDescription } from "@/types/job-type";
+import { baseFetcher } from "@/lib/fetcher";
+import { toast } from "@/hooks/use-toast";
 // import { Job } from "@/types/job-type";
 
 interface JobDetailPageClientProps {
   job: JobDescription["data"];
 }
 
-const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
+const JobDetailPageClient = ({ job, mutate }: JobDetailPageClientProps & { mutate: () => void }) => {
   const { openApplicationPanel } = useApplication();
-  const { isAuthenticated, openLoginModal } = useAuth();
+  const { isAuthenticated, openLoginModal, user, isEmployer } = useAuth();
 
   const handleApply = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,6 +44,29 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
   if (!job) {
     return null;
   }
+
+    const handleSaveJob = async (id: number, saved: boolean) => {
+      const { response, result } = await baseFetcher(saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id, {
+        method: "GET",
+      })
+  
+      if (response?.ok) {
+        toast({
+          title: "Success",
+          description: result?.message,
+          variant: "default",
+        });
+      }
+      else {
+        toast({
+          title: "Error",
+          description: result?.message,
+          variant: "destructive",
+        });
+      }
+      mutate();
+  
+    }
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -88,13 +113,33 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-neutral-600"
-                    >
-                      <Heart className="h-6 w-6" />
-                    </Button>
+                    {job?.saved === true ? (
+                                   <Button
+                                     onClick={(e) => {
+                                       e.preventDefault();
+                                       e.stopPropagation();
+                                       handleSaveJob(job?.id, job?.saved!);
+                                     }}
+                                     variant="ghost"
+                                     size="icon"
+                                     className="text-neutral-400 hover:text-neutral-600"
+                                   >
+                                     <Heart className={`text-blue-500 h-5 w-5`} />
+                                   </Button>
+                                 ) : job?.saved === false ? (
+                                   <Button
+                                     onClick={(e) => {
+                                       e.preventDefault();
+                                       e.stopPropagation();
+                                       handleSaveJob(job?.id, job?.saved!);
+                                     }}
+                                     variant="ghost"
+                                     size="icon"
+                                     className="text-neutral-400 hover:text-neutral-600"
+                                   >
+                                     <Heart className="h-5 w-5" />
+                                   </Button>
+                                 ) : null}
                   </div>
                 </div>
               </div>
@@ -104,9 +149,7 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
               <h2 className="text-xl mb-4">Job Description</h2>
               <p className="text-neutral-600 mb-6">{job.description}</p>
-              <div className="whitespace-pre-line text-neutral-600">
-                {job.description}
-              </div>
+             
             </div>
 
             {/* Responsibilities */}
@@ -178,18 +221,44 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
           {/* Sidebar */}
           <div className="w-full lg:w-80">
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
-              <Button
-                className="w-full bg-black text-white rounded-lg py-3 mb-4 hover:bg-neutral-800"
-                onClick={handleApply}
-              >
-                {isAuthenticated ? "Apply Now" : "Sign in to Apply"}
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full border border-neutral-200 rounded-lg py-3 text-neutral-700 hover:bg-neutral-50"
-              >
-                Save Job
-              </Button>
+                           <Button
+                             className={`w-full bg-black text-white hover:bg-neutral-800 mb-3 ${job?.is_applied ? "bg-neutral-300 text-neutral-600 cursor-not-allowed" : ""}`}
+                             onClick={handleApply}
+                           >
+                             {isAuthenticated && !isEmployer
+                               ? job?.is_applied
+                                 ? "Applied"
+                                 : "Apply Now"
+                               : "Sign in to Apply"}
+                           </Button>
+             
+              {job?.saved === true ? (
+                                   <Button
+                                     onClick={(e) => {
+                                       e.preventDefault();
+                                       e.stopPropagation();
+                                       handleSaveJob(job?.id, job?.saved!);
+                                     }}
+                                     variant="ghost"
+                                     size="icon"
+                                     className="w-full border border-neutral-200 rounded-lg py-3 text-neutral-700 hover:bg-neutral-50"
+                                   >
+                                     Job Saved
+                                   </Button>
+                                 ) : job?.saved === false ? (
+                                   <Button
+                                     onClick={(e) => {
+                                       e.preventDefault();
+                                       e.stopPropagation();
+                                       handleSaveJob(job?.id, job?.saved!);
+                                     }}
+                                     variant="ghost"
+                                     size="icon"
+                                     className="w-full border border-neutral-200 rounded-lg py-3 text-neutral-700 hover:bg-neutral-50"
+                                   >
+                                     Save Job
+                                   </Button>
+                                 ) : null}
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
@@ -217,7 +286,8 @@ const JobDetailPageClient = ({ job }: JobDetailPageClientProps) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <DollarSign className="text-neutral-500 w-5 h-5" />
+                  {/* <DollarSign className="text-neutral-500 w-5 h-5" /> */}
+                  <p>रू</p>
                   <div>
                     <p className="text-sm text-neutral-500">Salary Range</p>
                     <p className="text-neutral-700">{job.salary_range.formatted}</p>
