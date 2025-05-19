@@ -14,7 +14,7 @@ const PopularClosingJobs = () => {
   const closingJobs = getClosingJobs();
 
   return (
-    <section className="py-12 bg-white 2xl:px-0 px-12">
+    <section className="py-12 bg-white 2xl:px-0 px-4">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Most Popular */}

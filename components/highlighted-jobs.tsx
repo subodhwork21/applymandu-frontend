@@ -72,7 +72,7 @@ const HighlightedJobs = () => {
     }
 
   return (
-    <section className="py-12 bg-neutral-50 2xl:px-0 px-12">
+    <section className="py-12 bg-neutral-50 2xl:px-0 px-4">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-nasalization text-manduSecondary">Highlighted Jobs</h2>
@@ -172,7 +172,7 @@ const HighlightedJobs = () => {
                 <h3 className="text-lg font-semibold feat-text">{job?.title}
                 <span className="bg-manduSecondary/10  text-sm  font-medium ml-2 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
                     {
-                      "New"
+                      "Featured"
                     }
                 </span>
                 </h3>
