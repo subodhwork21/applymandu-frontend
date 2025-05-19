@@ -47,17 +47,17 @@ const Hero = () => {
           </div>
 
           <div className="mt-12 flex flex-wrap justify-center items-center gap-3">
-            <button onClick={(e)=> router.push("/jobs?employment_type="+"remote")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
+            <button onClick={(e)=> router.push("/jobs?employment_type[]="+"remote")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
         <Globe size={20} />
         <span className="text-lg">Remote</span>
       </button>
       
-      <button onClick={(e)=> router.push("/jobs?employment_type="+"Full-time")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
+      <button onClick={(e)=> router.push("/jobs?employment_type[]="+"Full-time")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
         <Briefcase size={20} />
         <span className="text-lg">Full-time</span>
       </button>
       
-      <button onClick={(e)=> router.push("/jobs?employment_type="+"Part-time")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
+      <button onClick={(e)=> router.push("/jobs?employment_type[]="+"Part-time")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
         <Clock size={20} />
         <span className="text-lg">Part-time</span>
       </button>
