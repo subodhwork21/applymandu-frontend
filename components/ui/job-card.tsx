@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { MapPin, Clock, DollarSign, Heart } from "lucide-react";
+import { MapPin, Clock, DollarSign, Heart, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
@@ -77,9 +77,9 @@ const JobCard = ({
 
   return (
     <Link href={`/jobs/${id}`}>
-      <div className="bg-white rounded-lg p-6 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 p-2 bg-white rounded-lg border-b-2 shadow-lg justify-center flex-shrink-0">
+          <div className="w-12 h-12 p-2 bg-white rounded-xl border-b-2 shadow-lg justify-center flex-shrink-0">
             <div className="text-white text-xl">
               <Image
                 src={job?.image}
@@ -92,7 +92,13 @@ const JobCard = ({
           <div className="flex-1">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <h3 className="text-lg font-medium">{title}</h3>
+                <h3 className="text-lg font-medium">{title}
+                <span className="bg-manduSecondary-opacity opacity-20 text-sm font-medium ml-2  text-white">
+                    {
+                      jobType
+                    }
+                </span>
+                </h3>
                 <p className="text-neutral-600 text-sm">{company}</p>
               </div>
               {job?.saved === true ? (

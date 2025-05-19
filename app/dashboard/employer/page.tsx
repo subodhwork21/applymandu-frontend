@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/auth-context";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { format, formatDistanceToNow } from "date-fns";
+import RecentApplications from "@/components/recent-applications";
 
 // Define interfaces for the API response
 interface ActiveJob {
@@ -153,7 +154,7 @@ const EmployerDashboardPage = () => {
                   Post New Job
                 </Button>
               </div>
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 border border-neutral-200 rounded-md">
                   <div className="flex items-center space-x-4">
                     <img
@@ -181,7 +182,8 @@ const EmployerDashboardPage = () => {
                     Start Review
                   </Button>
                 </div>
-              </div>
+              </div> */}
+              <RecentApplications/>
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">

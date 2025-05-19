@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { initializeEcho } from "@/lib/echo-setup";
 import { jobSeekerToken } from "@/lib/tokens";
 import { Loader2Icon } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const {user} = useAuth();
+  const router = useRouter();
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard/jobseeker/" },
@@ -45,11 +48,12 @@ export default function DashboardLayout({
 
 
     if ( (!jobSeekerToken() && typeof window != 'undefined')) {
-    return (
+   redirect("/")
+  }
+  if(!user){
       <section className="w-screen h-screen flex justify-center items-center relative">
         <Loader2Icon className="animate-spin h-10 w-10 absolute" />
       </section>
-    );
   }
 
 

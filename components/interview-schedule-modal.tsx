@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X } from "lucide-react";
+import { Loader, X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -37,13 +37,15 @@ interface InterviewScheduleModalProps {
 
   };
   application_id: string;
+  mutate: () => void;
 }
 
 const InterviewScheduleModal = ({
   isOpen,
   onClose,
   candidate,
-  application_id
+  application_id,
+  mutate
 }: InterviewScheduleModalProps) => {
   const [formData, setFormData] = useState({
     interviewType: "",
@@ -99,6 +101,7 @@ const InterviewScheduleModal = ({
         description: result?.message
       })
       onClose();
+      mutate();
 
     }
     else {
@@ -108,6 +111,10 @@ const InterviewScheduleModal = ({
       })
     }
   };
+
+  if(isLoading || interviewerLoading) return (<>
+    <Loader />
+  </>);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -29,8 +29,8 @@ const LatestJobs = () => {
   return (
     <section className="py-12 bg-white 2xl:px-0 px-12">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold">Latest Jobs</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-normal text-manduSecondary font-nasalization">Latest Jobs</h2>
           <Link
             href="/jobs"
             className="text-sm flex items-center hover:underline cursor-pointer group"

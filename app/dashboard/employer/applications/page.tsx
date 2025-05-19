@@ -24,6 +24,7 @@ import InterviewScheduleModal from "@/components/interview-schedule-modal";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { format } from "date-fns";
+import InterviewWithdrawModal from "@/components/interview-withdraw-modal";
 
 interface SalaryRange {
   min: string;
@@ -94,6 +95,8 @@ function ApplicationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobIdParam = searchParams.get("jobId");
+  const [interviewModalOpen, setInterviewModalOpen] = useState(false);
+  const [interviewWithdrawCandidate, setInterviewWithdrawCandidate] = useState<Record<string, any> | null>(null);
 
   const [selectedCandidate, setSelectedCandidate] = useState<{
     id: string;     
@@ -120,14 +123,7 @@ function ApplicationsContent() {
     setSelectedCandidate(candidate);
   };
 
-  const handleOpenInterview = (candidate: {
-    id: string;
-    name: string;
-    position: string;
-    avatar: string;
-  }) => {
-    setInterviewCandidate(candidate);
-  };
+ 
 
   const toggleJobExpansion = (jobId: number) => {
     setExpandedJobs((prev) =>
@@ -201,6 +197,21 @@ function ApplicationsContent() {
   if (error) {
     return <div className="p-8 text-center text-red-500">Error loading applications: {error.message}</div>;
   }
+   const handleOpenInterview = (candidate: {
+    id: string;
+    name: string;
+    position: string;
+    avatar: string;
+    status: string
+  }) => {
+    if(candidate?.status === "interview scheduled") {
+      setInterviewWithdrawCandidate(candidate);
+      setInterviewModalOpen(true);
+    }
+    else{
+      setInterviewCandidate(candidate);
+    }
+  };
 
   return (
     <section className="py-8">
@@ -365,11 +376,12 @@ function ApplicationsContent() {
                                       id: application.id.toString()!,
                                       name: application.name,
                                       position: application.position,
-                                      avatar: application.avatar
+                                      avatar: application.avatar,
+                                      status: application.status,
                                     })}
                                   >
                                     <Calendar className="h-4 w-4 mr-2" />
-                                    Schedule Interview
+                                    {application?.status === "interview scheduled" ? "Withdraw Interview" : "Schedule Interview"}
                                   </Button>
                                 </div>
                               </div>
@@ -405,7 +417,7 @@ function ApplicationsContent() {
                     {jobApplications.reduce(
                       (total, job) => 
                         total + job.applications.filter(app => 
-                          app.status.toLowerCase() === "applied"
+                          app?.status?.toLowerCase() === "applied"
                         ).length,
                       0
                     )}
@@ -417,7 +429,7 @@ function ApplicationsContent() {
                     {jobApplications.reduce(
                       (total, job) => 
                         total + job.applications.filter(app => 
-                          app.status.toLowerCase() === "shortlisted"
+                          app?.status?.toLowerCase() === "shortlisted"
                         ).length,
                       0
                     )}
@@ -431,7 +443,7 @@ function ApplicationsContent() {
                     {jobApplications.reduce(
                       (total, job) => 
                         total + job.applications.filter(app => 
-                          app.status.toLowerCase() === "interview"
+                          app?.status?.toLowerCase() === "interview"
                         ).length,
                       0
                     )}
@@ -443,7 +455,7 @@ function ApplicationsContent() {
                     {jobApplications.reduce(
                       (total, job) => 
                         total + job.applications.filter(app => 
-                          app.status.toLowerCase() === "rejected"
+                          app?.status?.toLowerCase() === "rejected"
                         ).length,
                       0
                     )}
@@ -503,6 +515,15 @@ function ApplicationsContent() {
           onClose={() => setInterviewCandidate(null)}
           candidate={interviewCandidate}
           application_id={interviewCandidate?.id}
+          mutate={mutate}
+        />
+      )}
+      {interviewModalOpen && (
+        <InterviewWithdrawModal
+          application_id={interviewWithdrawCandidate?.id!}
+          isOpen={interviewModalOpen}
+          onClose={() => setInterviewModalOpen(false)}
+          mutate={mutate}
         />
       )}
     </section>

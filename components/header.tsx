@@ -35,6 +35,7 @@ import { employerToken, jobSeekerToken } from "@/lib/tokens";
 import { toast } from "react-toastify";
 import { initializeEcho } from "@/lib/echo-setup";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ChatPreview {
   id: number;
@@ -163,10 +164,11 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center cursor-pointer">
-              <div className="text-3xl">
+              {/* <div className="text-3xl">
                 <span className="text-black">Apply</span>
                 <span className="text-neutral-800">mandu</span>
-              </div>
+              </div> */}
+              <Image src="/main-logo.svg" alt="Logo" width={94} height={60} />
             </Link>
           </div>
 
@@ -176,12 +178,12 @@ const Header = () => {
                 key={item.path}
                 href={item.path}
                 className={cn(
-                  "text-sm hover:text-neutral-900 cursor-pointer transition-colors",
+                  "text-sm text-manduPrimary cursor-pointer transition-colors",
                   isActivePath(
                     pathName,
                     item.path,
                     item.path === routes.home
-                  ) && "font-bold text-neutral-900"
+                  ) && "font-bold text-manduPrimary"
                 )}
               >
                 {item.label}
@@ -189,7 +191,7 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-x-5">
             {
             isLoading ? <AuthSkeleton/> : 
             isAuthenticated ? (
@@ -413,7 +415,7 @@ const Header = () => {
                         isEmployer ? (
                           <Link href="/dashboard/employer">
                             <DropdownMenuItem>
-                              <span>Employer</span>
+                              <span>Employer Dashboard</span>
                             </DropdownMenuItem>
                           </Link>
                         ) : (
@@ -474,14 +476,14 @@ const Header = () => {
             ) : (
               <>
                 <Button
-                  className="hidden md:flex bg-black text-white hover:bg-neutral-800"
+                  className="font-[600] hidden md:flex border-manduSecondary border-[1px] bg-white text-manduSecondary hover:bg-white hover:text-manduSecondary rounded-[24px]"
                   onClick={openLoginModal}
                 >
                   Sign In
                 </Button>
                 <Button
                   variant="outline"
-                  className="hidden md:flex bg-white border-neutral-200 hover:bg-neutral-50"
+                  className="hidden md:flex bg-manduSecondary border-manduSecondary hover:text-manduSecondary border-[1px] text-white  rounded-[24px]"
                   onClick={() => openRegisterModal(false)}
                 >
                   Register

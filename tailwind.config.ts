@@ -15,7 +15,25 @@ const config: Config = {
       },
     },
     extend: {
+       fontFamily: {
+        nasalization: ['var(--font-nasalization)'],
+      },
       colors: {
+        manduPrimary: {
+          DEFAULT: "#001C4A",
+        },
+        manduSecondary: {
+          DEFAULT: "#DC143C",
+          opacity: {
+            
+          }
+        },
+        manduTertiary: {
+          DEFAULT: "#F2F2F2",
+        },
+        manduBorder: {
+          DEFAULT: "#404040",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

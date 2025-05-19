@@ -9,6 +9,12 @@ import LoginModal from "@/components/login-modal";
 import RegisterModal from "@/components/register-modal";
 import ForgotPasswordModal from "@/components/forgot-password-modal";
 import { Toaster } from "@/components/ui/toaster";
+import localFont from "next/font/local";
+
+const myFont = localFont({
+  src: "../public/fonts/nasalization.woff2",
+  variable: '--font-nasalization', 
+});
 
 export const metadata: Metadata = {
   title: "Applymandu - Your Gateway to Career Opportunities",
@@ -25,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} antialiased min-h-screen bg-neutral-50`}
+        className={`${inter.className} ${myFont.variable} antialiased min-h-screen bg-neutral-50`}
       >
         <ThemeProvider
           attribute="class"

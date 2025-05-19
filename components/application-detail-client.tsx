@@ -494,6 +494,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
         onClose={() => setIsInterviewModalOpen(false)}
         candidate={candidate!}
         application_id={id}
+        mutate={mutate}
       />
     </section>
   );
