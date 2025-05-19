@@ -327,7 +327,7 @@ const JobsPage = () => {
             </div>
 
             <div className="max-w-5xl mx-auto rounded-2xl shadow-lg p-6 md:p-10">
-              <div className="flex flex-col md:flex-row gap-x-4 justify-start items-center rounded-[50px] shadow-sm md:bg-white p-x-[1px] p-y-[2px]">
+              <div className="flex flex-col md:flex-row gap-x-4 justify-start items-center rounded-[50px] shadow-sm md:bg-white p-x-[2px] p-y-[2px]">
                 {/* <div className="relative mb-6 flex gap-4"> */}
                   <div className="flex-1 relative md:mb-0 mb-4">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400 h-5 w-5" />
@@ -340,13 +340,17 @@ const JobsPage = () => {
                     />
                   </div>
                   <Button
-                    className="bg-manduSecondary rounded-[50px] text-white px-8 md:px-6 py-2 md:py-2 text-base md:text-lg md:font-[600] hover:bg-neutral-800 transition-colors whitespace-nowrap"
+                    className="bg-manduSecondary mr-2 rounded-[50px] text-white px-8 md:px-6 py-2 md:py-2 text-base md:text-lg md:font-[600] hover:bg-neutral-800 transition-colors whitespace-nowrap"
                     onClick={() => setIsFilterOpen(true)}
                   >
                     <Sliders className="h-4 w-4 mr-4" />
                     <span>Filters</span>
                   </Button>
                 {/* </div> */}
+                </div>
+
+
+                <div className="mt-4">
 
                 <div className="flex flex-wrap gap-2 mb-6">
                   {activeFilters.map((filter) => (
@@ -400,7 +404,7 @@ const JobsPage = () => {
                     }
                     }
                       key={search}
-                      className="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-full text-sm cursor-pointer"
+                      className="px-4 py-2 md:py-3 md:px-6 bg-white/10 text-white border border-white/20 rounded-full text-sm cursor-pointer"
                     >
                        <Briefcase className="inline-block align-middle h-4 w-4 mr-2 text-white" />
                       {search}
