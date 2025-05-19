@@ -25,7 +25,7 @@ const config: Config = {
         manduSecondary: {
           DEFAULT: "#DC143C",
           opacity: {
-            
+
           }
         },
         manduTertiary: {
@@ -33,6 +33,18 @@ const config: Config = {
         },
         manduBorder: {
           DEFAULT: "#404040",
+        },
+        grayText: {
+          DEFAULT: "#D1D1D1",
+        },
+        patternText: {
+          DEFAULT: "#003893",
+        },
+        patternPrimary:{
+          DEFAULT: "#013893",
+        },
+        patternSecondary:{
+          DEFAULT: "#001C4A",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

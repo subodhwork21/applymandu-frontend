@@ -168,7 +168,7 @@ const Header = () => {
                 <span className="text-black">Apply</span>
                 <span className="text-neutral-800">mandu</span>
               </div> */}
-              <Image src="/main-logo.svg" alt="Logo" width={94} height={60} />
+              <Image src="/main-logo.svg" alt="Logo" width={94} height={60} className="w-[54px] h-[40px] md:w-[94px] md:h-[60px]" />
             </Link>
           </div>
 
@@ -393,7 +393,7 @@ const Header = () => {
                         />
                         <AvatarFallback>{user?.first_name?.charAt(0)}</AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium text-neutral-800">
+                      <span className="text-sm font-medium text-neutral-800 md:block hidden">
                         {user?.first_name ? user?.first_name + " " + user?.last_name : user?.company_name} 
                       </span>
                     </Button>

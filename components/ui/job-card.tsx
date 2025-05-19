@@ -1,12 +1,14 @@
 import React from "react";
 import Link from "next/link";
-import { MapPin, Clock, DollarSign, Heart, CheckCircle } from "lucide-react";
+import {  DollarSign, CheckCircle, HeartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/hooks/use-toast";
 import { baseFetcher } from "@/lib/fetcher";
 import Image from "next/image";
+import { ClockIcon, MapPinIcon } from "@heroicons/react/24/solid";
+// import {HeartIcon } from 'lucide-solid';
 
 interface JobCardProps {
   id: number;
@@ -78,8 +80,9 @@ const JobCard = ({
   return (
     <Link href={`/jobs/${id}`}>
       <div className="bg-white rounded-xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 p-2 bg-white rounded-xl border-b-2 shadow-lg justify-center flex-shrink-0">
+        <div className="flex items-start flex-col gap-y-[10px] w-full">
+          <div className="flex items-start gap-x-4 w-full">
+          <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
             <div className="text-white text-xl">
               <Image
                 src={job?.image}
@@ -90,16 +93,16 @@ const JobCard = ({
             </div>
           </div>
           <div className="flex-1">
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start mb-1">
               <div>
-                <h3 className="text-lg font-medium">{title}
-                <span className="bg-manduSecondary-opacity opacity-20 text-sm font-medium ml-2  text-white">
+                <h3 className="text-lg font-semibold feat-text">{title}
+                <span className="bg-manduSecondary/10  text-sm  font-medium ml-2 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
                     {
-                      jobType
+                      "New"
                     }
                 </span>
                 </h3>
-                <p className="text-neutral-600 text-sm">{company}</p>
+                <p className="text-sm capitalize text-manduPrimary font-medium">{company}</p>
               </div>
               {job?.saved === true ? (
                 <Button
@@ -108,11 +111,11 @@ const JobCard = ({
                     e.stopPropagation();
                     handleSaveJob(job?.id, job?.saved!);
                   }}
-                  variant="ghost"
+                  // variant="ghost"
                   size="icon"
-                  className="text-neutral-400 hover:text-neutral-600"
+                  className="bg-white border border-grayText rounded-full"
                 >
-                  <Heart className={`text-blue-500 h-5 w-5`} />
+                  <HeartIcon fill="grayText" size={20} />
                 </Button>
               ) : job?.saved === false ? (
                 <Button
@@ -123,29 +126,31 @@ const JobCard = ({
                   }}
                   variant="ghost"
                   size="icon"
-                  className="text-neutral-400 hover:text-neutral-600"
+                  className="text-neutral-400 border-1px border-grayText rounded-full"
                 >
-                  <Heart className="h-5 w-5" />
+                  <HeartIcon />
                 </Button>
               ) : null}
             </div>
-            <div className="flex items-center gap-4 text-sm text-neutral-600 mb-4">
-              <span className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
+            <div className="flex items-center gap-4 text-sm text-neutral-600 mb-1">
+              <span className="flex items-center gap-2 capitalize">
+                <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
                 {location}
               </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
+              <span className="flex items-center gap-2 capitalize">
+                <ClockIcon className="h-4 w-4 text-[#4A5568]" />
                 {jobType}
               </span>
-              <span className="flex items-center gap-1">
-                {/* <DollarSign className="h-4 w-4" /> */}
+             
+            </div>
+             <span className="flex items-center mb-4 text-manduSecondary text-[17px] font-bold">
                 {salary}
               </span>
-            </div>
-            <div className="mt-auto">
+           
+          </div>
+          </div>
               <Button
-                className={`w-full bg-black text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-neutral-300 text-neutral-600 cursor-not-allowed" : ""}`}
+                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-manduPrimary text-white font-semibold cursor-not-allowed" : ""}`}
                 onClick={handleApply}
               >
                 {isAuthenticated && !isEmployer
@@ -155,8 +160,6 @@ const JobCard = ({
                   : "Sign in to Apply"}
               </Button>
             </div>
-          </div>
-        </div>
       </div>
     </Link>
   );

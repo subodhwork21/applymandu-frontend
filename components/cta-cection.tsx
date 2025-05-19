@@ -8,30 +8,30 @@ const CTASection = () => {
   const { isAuthenticated } = useAuth();
   return (
     !isAuthenticated && (
-    <section className="py-16 bg-neutral-100 2xl:px-0 px-12">
+    <section className="py-16  2xl:px-0 px-12 bg-patternPrimary">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+          <h2 className="text-2xl md:text-4xl font-normal mb-4 text-white font-nasalization">
             Ready to Find Your Next Opportunity?
           </h2>
-          <p className="text-neutral-600 mb-8">
+          <p className="mb-8 text-base text-white">
             Join thousands of professionals who&apos;ve found their dream jobs
             through Applymandu
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               href="/register"
-              className="px-6 py-3 bg-black text-white rounded-md hover:bg-neutral-800 transition-colors inline-flex items-center justify-center"
+              className="px-6 py-3 bg-white text-patternText hover:text-patternText/60 rounded-md transition-colors inline-flex items-center justify-center"
             >
               <UserPlusIcon />
-              <span className="ml-2">Create an Account</span>
+              <span className="ml-4">Create an Account</span>
             </Link>
             <Link
               href="/jobs"
-              className="px-6 py-3 bg-white border border-neutral-300 text-neutral-800 rounded-md hover:bg-neutral-100 transition-colors inline-flex items-center justify-center"
+              className="px-6 py-3 bg-patternPrimary border-[1px] border-[patternText/60!important] text-white rounded-md transition-colors inline-flex items-center justify-center"
             >
               <BriefcaseIcon />
-              <span className="ml-2">Browse All Jobs</span>
+              <span className="ml-4">Browse All Jobs</span>
             </Link>
           </div>
         </div>

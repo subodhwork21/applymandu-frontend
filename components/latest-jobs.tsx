@@ -24,7 +24,7 @@ const LatestJobs = () => {
     error,
     isLoading,
     mutate,
-  } = useSWR<JobResponse>("api/job/latest", defaultFetcher);
+  } = useSWR<JobResponse>("api/job/latest?label=new", defaultFetcher);
 
   return (
     <section className="py-12 bg-white 2xl:px-0 px-12">
