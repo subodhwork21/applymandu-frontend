@@ -5,7 +5,15 @@ import { UserPlusIcon, BriefcaseIcon } from "./ui/icons";
 import { useAuth } from "@/lib/auth-context";
 
 const CTASection = () => {
-  const { isAuthenticated } = useAuth();
+   const {
+      user,
+      isAuthenticated,
+      isEmployer,
+      logout,
+      isLoading,
+      openLoginModal,
+      openRegisterModal,
+    } = useAuth();
   return (
     !isAuthenticated && (
     <section className="py-16  2xl:px-0 px-12 bg-patternPrimary">
@@ -20,6 +28,7 @@ const CTASection = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
+            onClick={()=> openRegisterModal(false)}
               href="/register"
               className="px-6 py-3 bg-white text-patternText hover:text-patternText/60 rounded-md transition-colors inline-flex items-center justify-center"
             >
