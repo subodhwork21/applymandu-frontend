@@ -27,14 +27,13 @@ const CTASection = () => {
             through Applymandu
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
+            <p
             onClick={()=> openRegisterModal(false)}
-              href="/register"
               className="px-6 py-3 bg-white text-patternText hover:text-patternText/60 rounded-md transition-colors inline-flex items-center justify-center"
             >
               <UserPlusIcon />
               <span className="ml-4">Create an Account</span>
-            </Link>
+            </p>
             <Link
               href="/jobs"
               className="px-6 py-3 bg-patternPrimary border-[1px] border-[patternText/60!important] text-white rounded-md transition-colors inline-flex items-center justify-center"
