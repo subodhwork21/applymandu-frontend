@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Users, Briefcase, UserCheck, TrendingUp } from 'lucide-react';
+import { Users, Briefcase, UserCheck, TrendingUp, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -20,19 +20,94 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import useSWR from 'swr';
+import { employerToken } from '@/lib/tokens';
 
-const data = [
-  { name: 'Jan 1', value: 45 },
-  { name: 'Jan 5', value: 65 },
-  { name: 'Jan 10', value: 55 },
-  { name: 'Jan 15', value: 85 },
-  { name: 'Jan 20', value: 75 },
-  { name: 'Jan 25', value: 90 },
-  { name: 'Jan 30', value: 100 },
-];
+// Define the types for our API responses
+interface ApplicationStats {
+  active_jobs: number;
+  active_applications: number;
+  hired_applications: number;
+  application_trends: {
+    date: string;
+    applications: number;
+  }[];
+  timeframe: string;
+  stats: {
+    application_change_percent: number;
+    new_jobs_this_week: number;
+    new_hires_this_month: number;
+  };
+}
+
+interface PopularJob {
+  id: number;
+  title: string;
+  slug: string | null;
+  location: string;
+  company_name: string | null;
+  applications_count: number;
+  skills: string[];
+  posted_date: string;
+  views_count: number;
+}
+
+interface PopularJobsResponse {
+  success: boolean;
+  popular_jobs: PopularJob[];
+}
+
+// SWR fetcher function
+const fetcher = async (url: string) => {
+  const token = employerToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  
+  return response.json();
+};
 
 const AnalyticsPage = () => {
-  const [timeRange, setTimeRange] = useState('30');
+  const [timeRange, setTimeRange] = useState('5days');
+  
+  // Fetch application stats data using SWR
+  const { data: statsData, error: statsError, isLoading: statsLoading } = useSWR<ApplicationStats>(
+    `${process.env.NEXT_PUBLIC_API_URL}api/dashboard/application-trends?timeframe=${timeRange}`,
+    fetcher
+  );
+  
+  // Fetch popular jobs data using SWR
+  const { data: jobsData, error: jobsError, isLoading: jobsLoading } = useSWR<PopularJobsResponse>(
+    `${process.env.NEXT_PUBLIC_API_URL}api/dashboard/popular-jobs`,
+    fetcher
+  );
+
+  // Handle timeframe change
+  const handleTimeRangeChange = (value: string) => {
+    setTimeRange(value);
+  };
+
+  // Format percentage for display
+  const formatPercentage = (value: number) => {
+    return value > 0 ? `+${value}%` : `${value}%`;
+  };
+  
+  // Calculate hire rate (applications / views) as a percentage
+  const calculateHireRate = (applications: number, views: number) => {
+    if (views === 0) return 0;
+    return Math.round((applications / views) * 100);
+  };
 
   return (
     <section className="py-8">
@@ -44,33 +119,39 @@ const AnalyticsPage = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-neutral-600">Total Applications</p>
-                    <h3 className="text-2xl mt-2">1,234</h3>
+                    <h3 className="text-2xl mt-2">{statsLoading ? '...' : statsData?.active_applications.toLocaleString()}</h3>
                   </div>
                   <Users className="h-8 w-8 text-neutral-400" />
                 </div>
-                <p className="text-xs text-green-600 mt-4">+12% from last month</p>
+                <p className={`text-xs mt-4 ${statsData && statsData?.stats?.application_change_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {statsLoading ? '...' : formatPercentage(statsData?.stats?.application_change_percent || 0)} from last period
+                </p>
               </div>
 
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-neutral-600">Active Jobs</p>
-                    <h3 className="text-2xl mt-2">45</h3>
+                    <h3 className="text-2xl mt-2">{statsLoading ? '...' : statsData?.active_jobs}</h3>
                   </div>
                   <Briefcase className="h-8 w-8 text-neutral-400" />
                 </div>
-                <p className="text-xs text-green-600 mt-4">+5 new this week</p>
+                <p className="text-xs text-green-600 mt-4">
+                  {statsLoading ? '...' : `+${statsData?.stats.new_jobs_this_week || 0} new this week`}
+                </p>
               </div>
 
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-neutral-600">Hired Candidates</p>
-                    <h3 className="text-2xl mt-2">89</h3>
+                    <h3 className="text-2xl mt-2">{statsLoading ? '...' : statsData?.hired_applications}</h3>
                   </div>
                   <UserCheck className="h-8 w-8 text-neutral-400" />
                 </div>
-                <p className="text-xs text-green-600 mt-4">+8 this month</p>
+                <p className="text-xs text-green-600 mt-4">
+                  {statsLoading ? '...' : `+${statsData?.stats.new_hires_this_month || 0} this month`}
+                </p>
               </div>
             </div>
 
@@ -79,63 +160,102 @@ const AnalyticsPage = () => {
                 <h2 className="text-xl">Application Trends</h2>
                 <Select 
                   value={timeRange}
-                  onValueChange={setTimeRange}
+                  onValueChange={handleTimeRangeChange}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select time range" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="30">Last 30 Days</SelectItem>
-                    <SelectItem value="90">Last 3 Months</SelectItem>
-                    <SelectItem value="180">Last 6 Months</SelectItem>
-                    <SelectItem value="365">Last Year</SelectItem>
+                    <SelectItem value="5days">Last 5 Days</SelectItem>
+                    <SelectItem value="7days">Last 7 Days</SelectItem>
+                    <SelectItem value="30days">Last 30 Days</SelectItem>
+                    <SelectItem value="60days">Last 60 Days</SelectItem>
+                    <SelectItem value="90days">Last 90 Days</SelectItem>
+                    <SelectItem value="180days">Last 180 Days</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#000" 
-                      strokeWidth={2}
-                      dot={{ fill: '#000' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              
+              {statsLoading ? (
+                <div className="h-64 flex items-center justify-center">
+                  <p className="text-neutral-500">Loading chart data...</p>
+                </div>
+              ) : statsError ? (
+                <div className="h-64 flex items-center justify-center">
+                  <p className="text-red-500">Error loading chart data. Please try again.</p>
+                </div>
+              ) : (
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={statsData?.application_trends || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="date" 
+                        tick={{ fontSize: 12 }}
+                        tickMargin={10}
+                      />
+                      <YAxis 
+                        allowDecimals={false}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value} applications`, 'Applications']}
+                        labelFormatter={(label) => `Date: ${label}`}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="applications" 
+                        name="Applications"
+                        stroke="#001C4A" 
+                        strokeWidth={2}
+                        dot={{ fill: '#001C4A', r: 4 }}
+                        activeDot={{ r: 6, fill: '#000389' }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-6">Popular Job Positions</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border-b border-neutral-200">
-                  <div>
-                    <h3 className="text-lg">Frontend Developer</h3>
-                    <p className="text-sm text-neutral-600">156 applications</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm">45% hire rate</p>
-                    <Progress value={45} className="w-32 h-2 mt-2" />
-                  </div>
+              {jobsLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <p className="text-neutral-500">Loading popular jobs...</p>
                 </div>
-
-                <div className="flex items-center justify-between p-4 border-b border-neutral-200">
-                  <div>
-                    <h3 className="text-lg">UI/UX Designer</h3>
-                    <p className="text-sm text-neutral-600">98 applications</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm">38% hire rate</p>
-                    <Progress value={38} className="w-32 h-2 mt-2" />
-                  </div>
+              ) : jobsError ? (
+                <div className="flex justify-center items-center h-32">
+                  <p className="text-red-500">Error loading popular jobs. Please try again.</p>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  {jobsData?.popular_jobs.slice(0, 5).map((job) => (
+                    <div key={job.id} className="flex items-center justify-between p-4 border-b border-neutral-200">
+                      <div>
+                        <h3 className="text-lg">{job.title}</h3>
+                        <p className="text-sm text-neutral-600">{job.applications_count} applications</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Eye className="h-3 w-3 text-neutral-400" />
+                          <span className="text-xs text-neutral-500">{job.views_count} views</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm">{calculateHireRate(job.applications_count, job.views_count)}% application rate</p>
+                        <Progress 
+                          value={calculateHireRate(job.applications_count, job.views_count)} 
+                          className="w-32 h-2 mt-2" 
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {jobsData?.popular_jobs.length === 0 && (
+                    <div className="text-center py-6 text-neutral-500">
+                      No job positions available yet.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

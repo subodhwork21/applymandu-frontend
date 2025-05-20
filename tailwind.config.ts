@@ -46,6 +46,15 @@ const config: Config = {
         patternSecondary:{
           DEFAULT: "#001C4A",
         },
+        grayColor: {
+          DEFAULT: "#525252"
+        },
+        pureGray: {
+          DEFAULT: "#333333",
+        },
+        bluePrime: {
+          DEFAULT: "#2D3748",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

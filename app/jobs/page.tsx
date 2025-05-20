@@ -14,6 +14,9 @@ import {
   Minus,
   LucideBriefcase,
   Briefcase,
+  HeartIcon,
+  MapPinIcon,
+  ClockIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -587,7 +590,7 @@ const JobsPage = () => {
           <section className="py-8 bg-neutral-100">
             <div className="container mx-auto px-4">
               <h2 className="text-2xl mb-6">Featured Jobs</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {featuredLoading || !featuredJobs?.data ? (
                   <JobSkeletonMax />
                 ) : featuredJobs?.data?.length === 0 ? (
@@ -596,32 +599,33 @@ const JobsPage = () => {
                   </div>
                 ) : (
                   featuredJobs?.data?.map((job) => (
-                    <Link key={job.id} href={`/jobs/${job.id}`}>
-                      <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-4">
-                          <div className="w-16 h-16 bg-white rounded-lg border-b-2 shadow-lg flex items-center justify-center">
-                            <div className="text-white text-2xl">
-                              <Image
-                                src={job?.image}
-                                alt="Company Logo"
-                                width={48}
-                                height={48}
-                              />
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="text-xl">{job.title}</h3>
-                                <p className="text-neutral-600">
-                                  {job.employer_name}
-                                </p>
-                              </div>
-                              <span className="bg-black text-white text-xs px-3 py-1 rounded-full">
-                                Featured
-                              </span>
-                            </div>
-                            <div className="flex flex-wrap gap-2 my-3">
+                     <Link href={`/jobs/${job.id}`}>
+      <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+        <div className="flex items-start flex-col gap-y-[10px] w-full">
+          <div className="flex items-start gap-x-4 w-full">
+          <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
+            <div className="text-white text-xl">
+              <Image
+                src={job?.image}
+                alt="Company Logo"
+                width={48}
+                height={48}
+              />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between items-start mb-1">
+              <div>
+                <h3 className="text-lg font-semibold feat-text">{job?.title}
+                <span className="bg-manduSecondary/10  text-sm  font-medium ml-2 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
+                    {
+                      "New"
+                    }
+                </span>
+                </h3>
+                <p className="text-sm capitalize text-manduPrimary font-medium">{job?.employer_name}</p>
+              </div>
+                <div className="flex flex-wrap gap-2 my-3">
                               {job.skills &&
                                 job.skills.map((skill, id) => (
                                   <span
@@ -632,63 +636,64 @@ const JobsPage = () => {
                                   </span>
                                 ))}
                             </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4 text-sm text-neutral-600">
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {job.location}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  {job.employment_type}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  {/* <DollarSign className="h-4 w-4" /> */}
-                                  {job.salary_range?.formatted}
-                                </span>
-                              </div>
-                            {
-                              job?.saved === true ?  <Button
-                              onClick={(e) => {
-                                e.preventDefault(); 
-                                e.stopPropagation(); 
-                                handleSaveJob(job?.id, job?.saved!);
-                              }}
-                                variant="ghost"
-                                size="icon"
-                                className="text-neutral-400 hover:text-neutral-600"
-                              > 
-                                <Heart   className={`text-blue-500 h-5 w-5`} />
-                              </Button> :
-                              job?.saved === false ? 
-                              <Button
-                              onClick={(e) => {
-                                e.preventDefault(); 
-                                e.stopPropagation();
-                                handleSaveJob(job?.id, job?.saved!);
-                              }}
-                                variant="ghost"
-                                size="icon"
-                                className="text-neutral-400 hover:text-neutral-600"
-                              >
-                                <Heart className="h-5 w-5" />
-                              </Button> : null
-                            }
-                            </div>
-                            <div className="mt-4">
-                              <Button
-                                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-neutral-800"
-                                onClick={(e) => handleApply(e, job)}
-                              >
-                                {isAuthenticated && !isEmployer
-                                  ? job?.is_applied ? "Applied": "Apply Now":
-                                  "Sign in to Apply"} 
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+              {job?.saved === true ? (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveJob(job?.id, job?.saved!);
+                  }}
+                  // variant="ghost"
+                  size="icon"
+                  className="bg-white border border-grayText rounded-full"
+                >
+                  <HeartIcon fill="grayText" size={20} />
+                </Button>
+              ) : job?.saved === false ? (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveJob(job?.id, job?.saved!);
+                  }}
+                  variant="ghost"
+                  size="icon"
+                  className="text-neutral-400 border-1px border-grayText rounded-full"
+                >
+                  <HeartIcon />
+                </Button>
+              ) : null}
+            </div>
+            <div className="flex items-center gap-4 text-sm text-neutral-600 mb-1">
+              <span className="flex items-center gap-2 capitalize">
+                <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
+                {job?.location}
+              </span>
+              <span className="flex items-center gap-2 capitalize">
+                <ClockIcon className="h-4 w-4 text-[#4A5568]" />
+                {job?.jobType}
+              </span>
+             
+            </div>
+             <span className="flex items-center mb-4 text-manduSecondary text-[17px] font-bold">
+                {job?.salary}
+              </span>
+           
+          </div>
+          </div>
+              <Button
+                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-manduPrimary text-white font-semibold cursor-not-allowed" : ""}`}
+                onClick={handleApply}
+              >
+                {isAuthenticated && !isEmployer
+                  ? job?.is_applied
+                    ? "Applied"
+                    : "Apply Now"
+                  : "Sign in to Apply"}
+              </Button>
+            </div>
+      </div>
+    </Link>
                   ))
                 )}
               </div>

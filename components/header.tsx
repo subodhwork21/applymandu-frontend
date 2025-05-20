@@ -23,6 +23,8 @@ import {
   BookMarked,
   CreditCard,
   MessageCircle,
+  Calendar,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import RegisterModal from "./register-modal";
@@ -36,6 +38,9 @@ import { toast } from "react-toastify";
 import { initializeEcho } from "@/lib/echo-setup";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import useSWR from "swr";
+import { formatDistanceToNow } from "date-fns";
+import { defaultFetcher } from "@/lib/fetcher";
 
 interface ChatPreview {
   id: number;
@@ -46,6 +51,44 @@ interface ChatPreview {
   last_message: string;
   unread_count: number;
   updated_at: string;
+}
+
+// Define types for the notification data
+interface NotificationData {
+  description: string;
+  subject_type: string;
+  subject_id: number;
+  [key: string]: any;
+}
+
+interface Notification {
+  id: string;
+  type: string;
+  activity_type: string;
+  data: NotificationData;
+  read_at: string | null;
+  created_at: string;
+  source: string;
+}
+
+interface NotificationsResponse {
+  current_page: number;
+  data: Notification[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
 }
 
 const Header = () => {
@@ -62,7 +105,7 @@ const Header = () => {
 
   const pathName = usePathname();
   const isActive = pathName;
-  
+
   // Chat notifications state
   const [chats, setChats] = useState<ChatPreview[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
@@ -73,53 +116,54 @@ const Header = () => {
     position: string;
     avatar: string;
   } | null>(null);
-  
+
   // Add state for active tab in notifications dropdown
-  const [activeTab, setActiveTab] = useState<'notifications' | 'messages'>('notifications');
+  const [activeTab, setActiveTab] = useState<"notifications" | "messages">(
+    "notifications"
+  );
 
   const fetchChatPreviews = useCallback(async () => {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${baseUrl}api/chats/previews`, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jobSeekerToken() || employerToken()}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jobSeekerToken() || employerToken()}`,
+        },
       });
-  
+
       const data = await response.json();
-      
+
       if (data.success) {
         setChats(data.data);
         // Calculate total unread messages
-        const unreadCount = data.data.reduce((total: number, chat: ChatPreview) => 
-          total + chat.unread_count, 0);
+        const unreadCount = data.data.reduce(
+          (total: number, chat: ChatPreview) => total + chat.unread_count,
+          0
+        );
         setTotalUnread(unreadCount);
       }
     } catch (error) {
       console.error("Error fetching chat previews:", error);
     }
   }, []);
-  
+
   // Fetch chat previews
   useEffect(() => {
     if (isAuthenticated && user?.id) {
-      
       // Initial data fetch
       fetchChatPreviews();
       // Set up Echo listener for new messages
       if (window.Echo) {
         const channel = window.Echo.private(`user.${user?.id}.messages`);
-        channel.listen('.new-chat-message', ( ) => {
-
+        channel.listen(".new-chat-message", () => {
           fetchChatPreviews();
         });
-        
+
         // Add error handling
-        channel.error(() => {
-        });
+        channel.error(() => {});
       }
-      
+
       // Clean up function
       return () => {
         if (window.Echo) {
@@ -143,20 +187,83 @@ const Header = () => {
   const formatMessageTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
     if (diffInDays === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } else if (diffInDays === 1) {
-      return 'Yesterday';
+      return "Yesterday";
     } else if (diffInDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
+      return date.toLocaleDateString([], { weekday: "short" });
     } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString([], { month: "short", day: "numeric" });
     }
   };
 
-  const pathname = usePathname();
+ // Inside your Header component:
+const pathname = usePathname();
+const { 
+  data: notificationsData, 
+  error: notificationsError, 
+  mutate: refetchNotifications 
+} = useSWR<NotificationsResponse>(
+  `api/notifications`,
+  defaultFetcher
+);
+
+// Refetch notifications when the pathname changes
+// useEffect(() => {
+//   refetchNotifications();
+// }, [pathname, refetchNotifications]);
+
+  // Helper function to get notification icon based on activity type
+  const getNotificationIcon = (activityType: string) => {
+    switch (activityType) {
+      case "interview_scheduled":
+        return <Calendar className="h-4 w-4 text-blue-600" />;
+      case "application_viewed":
+        return <BookMarked className="h-4 w-4 text-green-600" />;
+      case "job_match":
+        return <Briefcase className="h-4 w-4 text-purple-600" />;
+      case "message_received":
+        return <MessageSquare className="h-4 w-4 text-orange-600" />;
+      case "payment_processed":
+        return <CreditCard className="h-4 w-4 text-red-600" />;
+      default:
+        return <Bell className="h-4 w-4 text-blue-600" />;
+    }
+  };
+  // Helper function to get background color based on activity type
+  const getNotificationBgColor = (activityType: string) => {
+    switch (activityType) {
+      case "interview_scheduled":
+        return "bg-blue-100";
+      case "application_viewed":
+        return "bg-green-100";
+      case "job_match":
+        return "bg-purple-100";
+      case "message_received":
+        return "bg-orange-100";
+      case "payment_processed":
+        return "bg-red-100";
+      default:
+        return "bg-blue-100";
+    }
+  };
+
+  // Helper function to format the time
+  const formatNotificationTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    } catch (error) {
+      return "some time ago";
+    }
+  };
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
@@ -164,11 +271,13 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center cursor-pointer">
-              {/* <div className="text-3xl">
-                <span className="text-black">Apply</span>
-                <span className="text-neutral-800">mandu</span>
-              </div> */}
-              <Image src="/main-logo.svg" alt="Logo" width={94} height={60} className="w-[54px] h-[40px] md:w-[94px] md:h-[60px]" />
+              <Image
+                src="/main-logo.svg"
+                alt="Logo"
+                width={94}
+                height={60}
+                className="w-[54px] h-[40px] md:w-[94px] md:h-[60px]"
+              />
             </Link>
           </div>
 
@@ -192,9 +301,9 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-x-5">
-            {
-            isLoading ? <AuthSkeleton/> : 
-            isAuthenticated ? (
+            {isLoading ? (
+              <AuthSkeleton />
+            ) : isAuthenticated ? (
               <>
                 {/* Notifications Dropdown with Messages Tab */}
                 <DropdownMenu>
@@ -210,9 +319,11 @@ const Header = () => {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex justify-between items-center">
                         <p className="text-sm font-semibold">
-                          {activeTab === 'notifications' ? 'Notifications' : 'Messages'}
+                          {activeTab === "notifications"
+                            ? "Notifications"
+                            : "Messages"}
                         </p>
-                        {activeTab === 'notifications' ? (
+                        {activeTab === "notifications" ? (
                           <Button
                             variant="ghost"
                             className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
@@ -231,92 +342,92 @@ const Header = () => {
                         )}
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    
+                    {/* <DropdownMenuSeparator /> */}
+
                     {/* Tabs for Notifications and Messages */}
                     <div className="flex border-b border-neutral-200">
-                      <button 
+                      <button
                         className={`flex-1 py-2 px-4 text-sm font-medium ${
-                          activeTab === 'notifications' 
-                            ? 'border-b-2 border-neutral-900' 
-                            : 'text-neutral-600 hover:text-neutral-900'
+                          activeTab === "notifications"
+                            ? "border-b-2 border-neutral-900"
+                            : "text-neutral-600 hover:text-neutral-900"
                         }`}
-                        onClick={() => setActiveTab('notifications')}
+                        onClick={() => setActiveTab("notifications")}
                       >
                         Notifications
                       </button>
-                      <button 
+                      <button
                         className={`flex-1 py-2 px-4 text-sm ${
-                          activeTab === 'messages' 
-                            ? 'font-medium border-b-2 border-neutral-900' 
-                            : 'text-neutral-600 hover:text-neutral-900'
+                          activeTab === "messages"
+                            ? "font-medium border-b-2 border-neutral-900"
+                            : "text-neutral-600 hover:text-neutral-900"
                         }`}
-                        onClick={() => setActiveTab('messages')}
+                        onClick={() => setActiveTab("messages")}
                       >
                         Messages {totalUnread > 0 && `(${totalUnread})`}
                       </button>
                     </div>
-                    
+
                     <div className="max-h-96 overflow-auto">
                       {/* Notifications Section */}
-                      {activeTab === 'notifications' && (
+                      {activeTab === "notifications" && (
                         <div>
-                          <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                              <Briefcase className="h-4 w-4 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">
-                                New job match found
+                          {notificationsError ? (
+                            <DropdownMenuItem className="text-center p-4 cursor-default">
+                              <p className="text-sm text-red-500">
+                                Failed to load notifications
                               </p>
-                              <p className="text-xs text-neutral-500 mt-1">
-                                Senior Developer position at TechCorp matches your
-                                profile
+                            </DropdownMenuItem>
+                          ) : !notificationsData ? (
+                            <DropdownMenuItem className="text-center p-4 cursor-default">
+                              <p className="text-sm text-neutral-500">
+                                Loading notifications...
                               </p>
-                              <p className="text-xs text-neutral-400 mt-2">
-                                2 hours ago
+                            </DropdownMenuItem>
+                          ) : notificationsData.data.length === 0 ? (
+                            <DropdownMenuItem className="text-center p-4 cursor-default">
+                              <p className="text-sm text-neutral-500">
+                                No notifications yet
                               </p>
-                            </div>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
-                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                              <BookMarked className="h-4 w-4 text-green-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">
-                                Application viewed
-                              </p>
-                              <p className="text-xs text-neutral-500 mt-1">
-                                Your application for Product Designer at DesignCo
-                                was viewed 8
-                              </p>
-                              <p className="text-xs text-neutral-400 mt-2">
-                                1 day ago
-                              </p>
-                            </div>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-start p-4 cursor-pointer">
-                            <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                              <CreditCard className="h-4 w-4 text-purple-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">
-                                Subscription renewed
-                              </p>
-                              <p className="text-xs text-neutral-500 mt-1">
-                                Your premium subscription has been renewed
-                                successfully
-                              </p>
-                              <p className="text-xs text-neutral-400 mt-2">
-                                2 days ago
-                              </p>
-                            </div>
-                          </DropdownMenuItem>
+                            </DropdownMenuItem>
+                          ) : (
+                            notificationsData.data.map((notification) => (
+                              <DropdownMenuItem
+                                key={notification.id}
+                                className="flex items-start p-4 cursor-pointer"
+                              >
+                                <div
+                                  className={`h-8 w-8 rounded-full ${getNotificationBgColor(
+                                    notification.activity_type
+                                  )} flex items-center justify-center mr-3`}
+                                >
+                                  {getNotificationIcon(
+                                    notification.activity_type
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">
+                                    {notification.activity_type
+                                      .replace("_", " ")
+                                      .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                  </p>
+                                  <p className="text-xs text-neutral-500 mt-1">
+                                    {notification.data.description}
+                                  </p>
+                                  <p className="text-xs text-neutral-400 mt-2">
+                                    {formatNotificationTime(
+                                      notification.created_at
+                                    )}
+                                  </p>
+                                </div>
+                              </DropdownMenuItem>
+                            ))
+                          )}
                         </div>
                       )}
-                      
+
                       {/* Messages Section */}
-                      {activeTab === 'messages' && (
+                      {activeTab === "messages" && (
                         <div>
                           {chats.length === 0 ? (
                             <div className="p-4 text-center text-sm text-neutral-500">
@@ -324,15 +435,20 @@ const Header = () => {
                             </div>
                           ) : (
                             chats.map((chat) => (
-                              <DropdownMenuItem 
-                                key={chat.id} 
+                              <DropdownMenuItem
+                                key={chat.id}
                                 className="flex items-start p-4 cursor-pointer"
                                 onClick={() => handleOpenMessageModal(chat)}
                               >
                                 <div className="relative">
                                   <Avatar className="h-10 w-10">
-                                    <AvatarImage src={chat.avatar} alt={chat.name} />
-                                    <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
+                                    <AvatarImage
+                                      src={chat.avatar}
+                                      alt={chat.name}
+                                    />
+                                    <AvatarFallback>
+                                      {chat.name.charAt(0)}
+                                    </AvatarFallback>
                                   </Avatar>
                                   {chat.unread_count > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -342,7 +458,9 @@ const Header = () => {
                                 </div>
                                 <div className="flex-1 ml-3">
                                   <div className="flex justify-between">
-                                    <p className="text-sm font-medium">{chat.name}</p>
+                                    <p className="text-sm font-medium">
+                                      {chat.name}
+                                    </p>
                                     <p className="text-xs text-neutral-500">
                                       {formatMessageTime(chat.updated_at)}
                                     </p>
@@ -357,16 +475,21 @@ const Header = () => {
                         </div>
                       )}
                     </div>
-                    
-                    <DropdownMenuSeparator />
+
                     <DropdownMenuItem className="p-4 cursor-pointer">
-                      {activeTab === 'notifications' ? (
-                        <Link
-                          href="/notifications"
-                          className="text-sm text-center w-full text-neutral-600 hover:text-neutral-900"
-                        >
-                          View all notifications
-                        </Link>
+                      {activeTab === "notifications" ? (
+                      <>
+                       {notificationsData && notificationsData.total > 0 && (
+                            <DropdownMenuItem className="text-center p-3 border-t border-neutral-100">
+                              <Button
+                                variant="link"
+                                className="w-full text-sm text-neutral-600"
+                              >
+                                View all notifications
+                              </Button>
+                            </DropdownMenuItem>
+                          )}
+                      </>
                       ) : (
                         <Link
                           href="/dashboard/messages"
@@ -391,10 +514,14 @@ const Header = () => {
                           src={user?.image_path}
                           alt={user?.first_name}
                         />
-                        <AvatarFallback>{user?.first_name?.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>
+                          {user?.first_name?.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium text-neutral-800 md:block hidden">
-                        {user?.first_name ? user?.first_name + " " + user?.last_name : user?.company_name} 
+                        {user?.first_name
+                          ? user?.first_name + " " + user?.last_name
+                          : user?.company_name}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -411,33 +538,33 @@ const Header = () => {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      {
-                        isEmployer ? (
-                          <Link href="/dashboard/employer">
-                            <DropdownMenuItem>
-                              <span>Employer Dashboard</span>
-                            </DropdownMenuItem>
-                          </Link>
-                        ) : (
-                          <Link href="/dashboard/jobseeker/">
-                            <DropdownMenuItem>
-                              <span>Dashboard</span>
-                            </DropdownMenuItem>
-                          </Link>
-                        )
-                      }
-                      {
-                        isEmployer ?   <Link href="/dashboard/employer/applications">
-                        <DropdownMenuItem>
-                          <span>My Applications</span>
-                        </DropdownMenuItem>
-                      </Link> :   <Link href="/dashboard/jobseeker/applications">
-                        <DropdownMenuItem>
-                          <span>My Applications</span>
-                        </DropdownMenuItem>
-                      </Link>
-                      }
-                    
+                      {isEmployer ? (
+                        <Link href="/dashboard/employer">
+                          <DropdownMenuItem>
+                            <span>Employer Dashboard</span>
+                          </DropdownMenuItem>
+                        </Link>
+                      ) : (
+                        <Link href="/dashboard/jobseeker/">
+                          <DropdownMenuItem>
+                            <span>Dashboard</span>
+                          </DropdownMenuItem>
+                        </Link>
+                      )}
+                      {isEmployer ? (
+                        <Link href="/dashboard/employer/applications">
+                          <DropdownMenuItem>
+                            <span>My Applications</span>
+                          </DropdownMenuItem>
+                        </Link>
+                      ) : (
+                        <Link href="/dashboard/jobseeker/applications">
+                          <DropdownMenuItem>
+                            <span>My Applications</span>
+                          </DropdownMenuItem>
+                        </Link>
+                      )}
+
                       <Link href="/dashboard/jobseeker/saved">
                         <DropdownMenuItem>
                           <span>Saved Jobs</span>
@@ -520,29 +647,31 @@ const Header = () => {
                 </Link>
               ))}
               {isLoading ? (
-                <AuthSkeleton/>
-              ) : !isAuthenticated && (
-                <div className="flex space-x-4 pt-2">
-                  <Button
-                    className="flex-1 bg-black text-white hover:bg-neutral-800"
-                    onClick={openLoginModal}
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1 bg-white border-neutral-200 hover:bg-neutral-50"
-                    onClick={() => openRegisterModal(false)}
-                  >
-                    Register
-                  </Button>
-                </div>
+                <AuthSkeleton />
+              ) : (
+                !isAuthenticated && (
+                  <div className="flex space-x-4 pt-2">
+                    <Button
+                      className="flex-1 bg-black text-white hover:bg-neutral-800"
+                      onClick={openLoginModal}
+                    >
+                      Sign In
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 bg-white border-neutral-200 hover:bg-neutral-50"
+                      onClick={() => openRegisterModal(false)}
+                    >
+                      Register
+                    </Button>
+                  </div>
+                )
               )}
             </nav>
           </div>
         )}
       </div>
-      
+
       {/* Message Modal */}
       {selectedChat && (
         <MessageModal
