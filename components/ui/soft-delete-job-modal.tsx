@@ -16,9 +16,10 @@ interface SoftDeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   jobId: number | null;
+  mutate: () => void;
 }
 
-const SoftDeleteModal = ({ isOpen, onClose, jobId }: SoftDeleteModalProps) => {
+const SoftDeleteModal = ({ isOpen, onClose, jobId, mutate }: SoftDeleteModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCloseJob = async () => {
@@ -35,6 +36,7 @@ const SoftDeleteModal = ({ isOpen, onClose, jobId }: SoftDeleteModalProps) => {
       if (response?.ok) {
         toast.success("Job closed successfully");
         onClose();
+        mutate();
         // You might want to refresh the job listings after closing a job
         // This could be done by passing a callback function from the parent component
       } else {

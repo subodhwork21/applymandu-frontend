@@ -12,12 +12,7 @@ import { JobResponse } from "@/types/job-type";
 
 const LatestJobs = () => {
   const { isAuthenticated } = useAuth();
-  // const latestJobs = [...jobs]
-  //   .sort(
-  //     (a, b) =>
-  //       new Date(b.postedTime).getTime() - new Date(a.postedTime).getTime()
-  //   )
-  //   .slice(0, 3);
+
 
   const {
     data: latestJobs,

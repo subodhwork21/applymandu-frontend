@@ -398,6 +398,7 @@ const EmployerDashboardPage = () => {
             isOpen={softDeleteModal}
             onClose={() => setSoftDeleteModal(false)}
             jobId={softDeleteId}
+            mutate={mutateJobs}
           />
         ) : null
       }

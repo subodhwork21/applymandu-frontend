@@ -432,6 +432,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
           avatar: candidate?.image_path || ""
         }}
         application_id={candidate?.applications[0]?.id.toString()}
+        mutate={mutate}
       />
     </section>
   );
