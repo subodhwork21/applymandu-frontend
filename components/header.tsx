@@ -386,7 +386,7 @@ const {
                             </DropdownMenuItem>
                           ) : notificationsData.data.length === 0 ? (
                             <DropdownMenuItem className="text-center p-4 cursor-default">
-                              <p className="text-sm text-neutral-500">
+                              <p className="text-sm text-neutral-500 text-center w-full">
                                 No notifications yet
                               </p>
                             </DropdownMenuItem>

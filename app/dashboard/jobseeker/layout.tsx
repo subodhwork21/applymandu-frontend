@@ -17,7 +17,6 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const {user} = useAuth();
-  const router = useRouter();
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard/jobseeker/" },
@@ -47,8 +46,8 @@ export default function DashboardLayout({
   }, []);
 
 
-    if ( (!jobSeekerToken() && typeof window != 'undefined')) {
-   redirect("/")
+    if ( (!jobSeekerToken() && typeof window != 'undefined' && !user)) {
+     redirect("/")
   }
   if(!user){
       <section className="w-screen h-screen flex justify-center items-center relative">

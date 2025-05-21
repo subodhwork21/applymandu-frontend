@@ -22,6 +22,7 @@ import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { format, formatDistanceToNow } from "date-fns";
 import RecentApplications from "@/components/recent-applications";
+import SoftDeleteModal from "@/components/ui/soft-delete-job-modal";
 
 // Define interfaces for the API response
 interface ActiveJob {
@@ -87,6 +88,9 @@ const EmployerDashboardPage = () => {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
+    const [softDeleteId, setSoftDeleteId] = useState<number | null>(null);
+  const [softDeleteModal, setSoftDeleteModal] = useState(false);
+
   const handleEditJob = (job: any) => {
     setSelectedJob(job);
     setIsPostJobModalOpen(true);
@@ -109,6 +113,15 @@ const EmployerDashboardPage = () => {
     } catch (error) {
       return "Recently";
     }
+  };
+
+  //soft delete
+
+
+
+  const handleCloseJob = async (jobId: number) => {
+    setSoftDeleteId(jobId);
+    setSoftDeleteModal(true);
   };
 
 
@@ -253,12 +266,12 @@ const EmployerDashboardPage = () => {
                           >
                             Edit
                           </Button>
-                          <Link href={`/dashboard/employer/jobs/${job.id}`}>
+                          <Link href={`/jobs/${job.id}`}>
                             <Button variant="outline" size="sm" className="w-full">
                               View
                             </Button>
                           </Link>
-                          <Button variant="outline" size="sm">
+                          <Button onClick={() => handleCloseJob(job.id)} variant="outline" size="sm">
                             Close
                           </Button>
                         </div>
@@ -301,7 +314,7 @@ const EmployerDashboardPage = () => {
                 <div className="w-24 h-24 bg-neutral-200 rounded-full mb-4 flex items-center justify-center">
                   <Building className="h-8 w-8 text-neutral-600" />
                 </div>
-                <h2 className="text-xl mb-2">{user?.company_name || "Your Company"}</h2>
+                <h2 className="text-xl mb-2">{user?.company_name}</h2>
                 <p className="text-neutral-600 mb-6">
                   IT Services & Consulting
                 </p>
@@ -379,6 +392,15 @@ const EmployerDashboardPage = () => {
         isOpen={isUpgradeModalOpen}
         onClose={() => setIsUpgradeModalOpen(false)}
       />
+      {
+        softDeleteId && softDeleteModal ? (
+          <SoftDeleteModal
+            isOpen={softDeleteModal}
+            onClose={() => setSoftDeleteModal(false)}
+            jobId={softDeleteId}
+          />
+        ) : null
+      }
     </section>
   );
 };

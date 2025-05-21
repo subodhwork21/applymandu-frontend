@@ -112,7 +112,7 @@ const PopularClosingJobs = () => {
                 popularJobsData?.popular_jobs.map((job) => (
                   <Link 
                     key={job.id} 
-                    href={job.slug ? `/jobs/${job.slug}` : `/jobs/${job.id}`} 
+                    href={`/jobs/${job.id}`} 
                     className="w-full"
                   >
                     <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-neutral-200">
@@ -208,7 +208,7 @@ const PopularClosingJobs = () => {
                 closingJobsData?.expiring_jobs.map((job) => (
                   <Link 
                     key={job.id} 
-                    href={job.slug ? `/jobs/${job.slug}` : `/jobs/${job.id}`} 
+                    href={`/jobs/${job.id}`} 
                     className="w-full"
                   >
                     <div className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border ${job.expiring_soon ? 'border-orange-300' : 'border-neutral-200'}`}>

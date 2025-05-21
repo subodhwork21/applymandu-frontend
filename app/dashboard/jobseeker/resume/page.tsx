@@ -338,7 +338,6 @@ const ResumePage = () => {
 
   // If required steps are complete, show the resume view
   const profileCompletionPercentage = calculateProfileCompletion();
-  console.log(profileCompletionPercentage)
   if (profileCompletionPercentage >= 100) {
     return <ResumeView />;
   }

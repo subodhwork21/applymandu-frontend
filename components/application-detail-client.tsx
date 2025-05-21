@@ -51,6 +51,7 @@ interface ApplicationData {
   skills: string[];
   status_history: ApplicationStatus[];
   user_image: string;
+  location: string | null;
 }
 
 interface ApiResponse {
@@ -238,7 +239,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                         <span className="flex items-center">
                           <MapPin className="h-4 w-4 mr-2" />
                           {/* Location not provided in the data, using placeholder */}
-                          Kathmandu
+                          {application?.location || "N/A"}
                         </span>
                       </div>
                     </div>
@@ -252,7 +253,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                         : "bg-yellow-100 text-yellow-800"
                     } rounded-full text-sm font-medium`}
                   >
-                    {displayStatus}
+                    {displayStatus.split("_").join(" ")}
                   </span>
                 </div>
 
@@ -284,7 +285,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                                 {status.remarks ||
                                   (status.status === "applied"
                                     ? "Application was successfully submitted"
-                                    : `Application status changed to ${status.status}`)}
+                                    : `Application status changed to ${status.status.split("_").join(" ")}`)}
                               </p>
                             </div>
                           </div>

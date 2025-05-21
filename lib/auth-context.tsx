@@ -161,8 +161,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async() => {
+   const {response, result, error} = await baseFetcher("api/logout", {
+      method: "POST",
+    });
+    if(response?.ok){
+       setUser(null);
     deleteCookie("JOBSEEKER_TOKEN");
     deleteCookie("EMPLOYER_TOKEN");
     toast({
@@ -171,8 +175,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       variant: "default",
       className: "bg-blue",
     });
-    router.push("/");
     closeLoginModal();
+      // router.push("/");
+    }
+    else{
+      toast({
+        title: "Error!",
+        description: "Something went wrong",
+        variant: "destructive",
+        className: "bg-red",
+      });
+    }
+   
   };
 
   const openLoginModal = () => {

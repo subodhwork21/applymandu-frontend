@@ -51,9 +51,10 @@ interface PostJobModalProps {
     status?: boolean;
     slug?: string;
   };
+  mutate?: () => void;
 }
 
-const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
+const PostJobModal = ({ isOpen, onClose, editJob, mutate }: PostJobModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form state with arrays for multi-option fields
@@ -291,6 +292,7 @@ const PostJobModal = ({ isOpen, onClose, editJob }: PostJobModalProps) => {
             title: "Success",
             description: "Job updated successfully",
           });
+          mutate?.();
       onClose();
 
         } else {

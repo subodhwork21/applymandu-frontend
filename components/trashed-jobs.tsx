@@ -4,15 +4,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
-  Plus,
-  Copy,
-  Share,
-  Download,
-  Users,
+  Trash2,
+  RefreshCw,
   Calendar,
   MapPin,
   Briefcase,
-  Recycle,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,11 +20,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PostJobModal from "@/components/post-job-modal";
 import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { format, parseISO } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Skill {
   id: number;
@@ -65,6 +71,7 @@ interface Job {
   is_applied: boolean;
   status: boolean;
   slug: string;
+  deleted_at: string;
 }
 
 interface JobsResponse {
@@ -91,68 +98,68 @@ interface JobsResponse {
   };
 }
 
-const JobListingsPage = () => {
+const TrashedJobsPage = () => {
   const router = useRouter();
-  const [isPostJobModalOpen, setIsPostJobModalOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-
-    const {data: listingOverview, isLoading, mutate:listingOverviewMutate} = useSWR<Record<string,any>>(
-    "api/job/listing-overview/all", defaultFetcher
-  );
-
-  const handleEditJob = (job: Job) => {
-    setSelectedJob(job);
-    setIsPostJobModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsPostJobModalOpen(false);
-    setSelectedJob(null);
-  };
-
-  const handleViewApplications = (jobId: number) => {
-    router.push(`/dashboard/employer/applications?jobId=${jobId}`);
-  };
+  const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data: jobsResponse, mutate } = useSWR<JobsResponse>(
-    "api/employer/job/all-employer-job",
+    "api/job/trash/jobs",
     defaultFetcher
   );
 
   if (!jobsResponse) {
-    return <div className="p-8 text-center">Loading job listings...</div>;
+    return <div className="p-8 text-center">Loading trashed job listings...</div>;
   }
 
-  const handleToggleJobStatus = async (jobId: number) => {
-   const {response, result, errors} = await baseFetcher("api/job/update-status/"+jobId, {
+  const handleRestoreJob = async (jobId: number) => {
+    const { response, result, errors } = await baseFetcher(`api/job/restore/${jobId}`, {
       method: "POST",
-   });
-   if(response?.ok){
-    toast({
-      title: "Success",
-      description: result.message || "Job status updated successfully",
     });
-    mutate();
-   }
-   else{
-    toast({
-      title: "Error",
-      description: errors || "Something went wrong",
-    })
-   }
+    
+    if (response?.ok) {
+      toast({
+        title: "Success",
+        description: result.message || "Job restored successfully",
+      });
+      mutate();
+    } else {
+      toast({
+        title: "Error",
+        description: errors || "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeletePermanently = async () => {
+    if (!jobToDelete) return;
+    
+    const { response, result, errors } = await baseFetcher(`api/job/force-delete/${jobToDelete.id}`, {
+      method: "POST",
+    });
+    
+    if (response?.ok) {
+      toast({
+        title: "Success",
+        description: result.message || "Job permanently deleted",
+      });
+      setIsDeleteDialogOpen(false);
+      setJobToDelete(null);
+      mutate();
+    } else {
+      toast({
+        title: "Error",
+        description: errors || "Something went wrong",
+        variant: "destructive",
+      });
+    }
   };
 
   // Filter jobs based on search query and filters
   const filteredJobs = jobsResponse.data.filter((job) => {
-    if (statusFilter !== "all") {
-     
-      const jobStatus = job.viewed ? "paused" : "active"; 
-      if (statusFilter !== jobStatus) return false;
-    }
-
     if (departmentFilter !== "all" && job.department !== departmentFilter) {
       return false;
     }
@@ -170,20 +177,16 @@ const JobListingsPage = () => {
     return true;
   });
 
-
-
-
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl">Job Listings</h1>
+          <h1 className="text-2xl">Trashed Job Listings</h1>
           <Button
-            className="bg-black text-white hover:bg-neutral-800"
-            onClick={() => setIsPostJobModalOpen(true)}
+            variant="outline"
+            onClick={() => router.push("/dashboard/employer/jobs")}
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Post New Job
+            Back to Active Jobs
           </Button>
         </div>
 
@@ -192,21 +195,6 @@ const JobListingsPage = () => {
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex space-x-4">
-                  <Select 
-                    defaultValue="all" 
-                    value={statusFilter}
-                    onValueChange={setStatusFilter}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="paused">Paused</SelectItem>
-                      <SelectItem value="closed">Closed</SelectItem>
-                    </SelectContent>
-                  </Select>
                   <Select 
                     defaultValue="all"
                     value={departmentFilter}
@@ -230,7 +218,7 @@ const JobListingsPage = () => {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                   <Input
                     type="text"
-                    placeholder="Search jobs..."
+                    placeholder="Search trashed jobs..."
                     className="pl-10 w-64"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -241,7 +229,7 @@ const JobListingsPage = () => {
               <div className="space-y-4">
                 {filteredJobs.length === 0 ? (
                   <div className="text-center py-8 text-neutral-500">
-                    No job listings found matching your criteria.
+                    No trashed job listings found matching your criteria.
                   </div>
                 ) : (
                   filteredJobs.map((job) => (
@@ -274,31 +262,35 @@ const JobListingsPage = () => {
                             </p>
                             <p className="flex items-center gap-2">
                               <Calendar className="h-4 w-4" />
-                              Deadline: {format(new Date(job.application_deadline), "MMM dd, yyyy")}
+                              Deleted on: {format(new Date(job.deleted_at), "MMM dd, yyyy")}
                             </p>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 ${job.status ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"} rounded-full text-sm`}>
-                          {job.status ? "Active" : "Inactive"}
+                        <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm">
+                          Trashed
                         </span>
                       </div>
                       <div className="flex justify-end space-x-2 mt-4">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleEditJob(job)}
+                          onClick={() => handleRestoreJob(job.id)}
+                          className="text-green-600 border-green-600 hover:bg-green-50"
                         >
-                          Edit
-                        </Button>
-                        <Button onClick={() => handleToggleJobStatus(job.id)} variant="outline" size="sm">
-                          {job.status ? "Pause" : "Activate"}
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Restore
                         </Button>
                         <Button
+                          variant="outline"
                           size="sm"
-                          className="bg-black text-white hover:bg-neutral-800"
-                          onClick={() => handleViewApplications(job.id)}
+                          className="text-red-600 border-red-600 hover:bg-red-50"
+                          onClick={() => {
+                            setJobToDelete(job);
+                            setIsDeleteDialogOpen(true);
+                          }}
                         >
-                          View Applications
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Permanently
                         </Button>
                       </div>
                     </div>
@@ -340,59 +332,61 @@ const JobListingsPage = () => {
 
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Listings Overview</h2>
+              <h2 className="text-xl mb-4">Trashed Jobs Info</h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Active Jobs</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.active_jobs}</span>
+                  <span className="text-sm text-neutral-600">Total Trashed Jobs</span>
+                  <span className="text-sm">{jobsResponse.meta.total}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Paused</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.paused_jobs}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Closed</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.closed_jobs}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Total Views</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.total_views}</span>
-                </div>
-
+                <p className="text-sm text-neutral-600">
+                  Trashed jobs are kept for 30 days before being permanently deleted. You can restore them anytime during this period.
+                </p>
               </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Quick Actions</h2>
+              <h2 className="text-xl mb-4">Bulk Actions</h2>
               <div className="space-y-2">
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  variant="outline"
+                  className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50"
+                  onClick={async () => {
+                    const { response, result, errors } = await baseFetcher("api/job/batch-restore", {
+                      method: "POST",
+                      body: JSON.stringify({
+                        ids: jobsResponse.data.map((job) => job.id),
+                      }),
+                    });
+                    
+                    if (response?.ok) {
+                      toast({
+                        title: "Success",
+                        description: result.message || "All jobs restored successfully",
+                      });
+                      mutate();
+                    } else {
+                      toast({
+                        title: "Error",
+                        description: errors || "Something went wrong",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
                 >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Duplicate Job
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Restore All Jobs
                 </Button>
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  variant="outline"
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    // Show confirmation dialog for emptying trash
+                    setJobToDelete({ id: -1 } as Job); // Use -1 as a special ID to indicate "all jobs"
+                    setIsDeleteDialogOpen(true);
+                  }}
                 >
-                  <Share className="h-4 w-4 mr-2" />
-                  Share Job
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Report
-                </Button>
-                 <Button
-                 onClick={()=> router.push("/dashboard/employer/trashed-jobs")}
-                  variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
-                >
-                  <Recycle className="h-4 w-4 mr-2" />
-                  Restore Trash Jobs
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Empty Trash
                 </Button>
               </div>
             </div>
@@ -400,33 +394,63 @@ const JobListingsPage = () => {
         </div>
       </div>
 
-      <PostJobModal
-        isOpen={isPostJobModalOpen}
-        onClose={handleCloseModal}
-        editJob={selectedJob ? {
-          id: selectedJob.id.toString(),
-          title: selectedJob.title,
-          department: selectedJob?.department,
-          employment_type: selectedJob.employment_type,
-          experience_level: selectedJob?.experience_level,
-          location: selectedJob.location,
-          salary_min: selectedJob.salary_range.min,
-          salary_max: selectedJob.salary_range.max,
-          location_type: selectedJob?.location_type,
-          application_deadline: selectedJob?.application_deadline,
-          skills: selectedJob?.skills.map((skill) => skill.name),
-          salary: selectedJob.salary_range.formatted,
-          status: selectedJob.status,
-          requirements: selectedJob?.requirements,
-          responsibilities: selectedJob?.responsibilities,
-          benefits: selectedJob?.benefits,
-          description: selectedJob.description,
-          slug: selectedJob.slug,
-        } : undefined}
-        mutate={mutate}
-      />
+      {/* Confirmation Dialog for Permanent Deletion */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              {jobToDelete?.id === -1 ? "Empty Trash" : "Delete Job Permanently"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {jobToDelete?.id === -1 
+                ? "Are you sure you want to permanently delete all trashed jobs? This action cannot be undone."
+                : `Are you sure you want to permanently delete "${jobToDelete?.title}"? This action cannot be undone.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (jobToDelete?.id === -1) {
+                  // Empty trash (delete all trashed jobs)
+                  const { response, result, errors } = await baseFetcher("api/job/batch-delete", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      ids: jobsResponse.data.map((job) => job.id),
+                    }),
+                  });
+                  
+                  if (response?.ok) {
+                    toast({
+                      title: "Success",
+                      description: result.message || "Trash emptied successfully",
+                    });
+                    mutate();
+                  } else {
+                    toast({
+                      title: "Error",
+                      description: errors || "Something went wrong",
+                      variant: "destructive",
+                    });
+                  }
+                } else {
+                  // Delete single job permanently
+                  handleDeletePermanently();
+                }
+                setIsDeleteDialogOpen(false);
+                setJobToDelete(null);
+              }}
+            >
+              {jobToDelete?.id === -1 ? "Empty Trash" : "Delete Permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 };
 
-export default JobListingsPage;
+export default TrashedJobsPage;

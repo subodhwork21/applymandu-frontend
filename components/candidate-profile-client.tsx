@@ -151,7 +151,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
     e.preventDefault();
        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
    
-       const res = await fetch(`${baseUrl}api/employer/download-document/` + id, {
+       const res = await fetch(`${baseUrl}api/employer/download-document-by-profile/` + id, {
          method: "GET",
          headers: {
            Authorization: `Bearer ${employerToken()}`,

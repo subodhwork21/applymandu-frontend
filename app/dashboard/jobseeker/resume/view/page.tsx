@@ -38,6 +38,10 @@ const ResumeView = () => {
     defaultFetcher
   );
 
+    const {data: resumeStats, isLoading, mutate: statsMutate} = useSWR<Record<string,any>>(
+    "api/jobseeker/resume-stats/", defaultFetcher
+  );
+
   if (!resume?.data) {
     return (
       <div className="py-8 text-center">
@@ -100,6 +104,9 @@ const ResumeView = () => {
    
    
   };
+
+
+
 
 
 
@@ -505,16 +512,16 @@ const ResumeView = () => {
                   <span className="text-sm text-neutral-600">
                     Profile Views
                   </span>
-                  <span className="text-sm">245</span>
+                  <span className="text-sm">{resumeStats?.data?.profile_views || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Downloads</span>
-                  <span className="text-sm">32</span>
+                  <span className="text-sm">{resumeStats?.data?.resume_downloads}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Last Updated</span>
                   <span className="text-sm">
-                    {profile.updated_at ? format(new Date(profile.updated_at), "MMM d, yyyy") : "Not updated yet"}
+                    {resumeStats?.data?.resume_updated_at ? format(new Date(resumeStats?.data?.resume_updated_at), "MMM d, yyyy") : "Not updated yet"}
                   </span>
                 </div>
               </div>
