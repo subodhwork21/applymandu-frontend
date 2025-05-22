@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     if (response?.ok) {
-      if(result?.two_fa){
+      if(result?.two_fa === 1){
          setPendingLoginEmail(email);
         setPendingLoginPassword(password);
         
