@@ -413,7 +413,7 @@ const SettingsPage = () => {
                   </Label>
                   <Switch
                     id="2fa"
-                    defaultChecked={!!settingsData?.data?.profile?.two_fa}
+                    defaultChecked={!!Number(settingsData?.data?.profile?.two_fa)}
                     onCheckedChange={handleTwoFactorAuth}
                   />
                 </div>
