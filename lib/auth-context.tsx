@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     if (response?.ok) {
-      if(result?.two_fa === 1){
+      if(result?.two_fa === true){
          setPendingLoginEmail(email);
         setPendingLoginPassword(password);
         
