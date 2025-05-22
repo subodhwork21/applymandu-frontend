@@ -25,6 +25,7 @@ import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { format } from "date-fns";
 import InterviewWithdrawModal from "@/components/interview-withdraw-modal";
+import DataNavigation from "@/components/ui/data-navigation";
 
 interface SalaryRange {
   min: string;
@@ -88,6 +89,26 @@ interface JobApplicationsResponse {
   success: boolean;
   message: string;
   data: Job[];
+  meta: {
+    current_page: number;
+    from: number;
+    last_page: number;
+    links: {
+      url: string | null;
+      label: string;
+      active: boolean;
+    }[];
+    path: string;
+    per_page: number;
+    to: number;
+    total: number;
+  };
+  links: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
 }
 
 // Create a separate component that uses useSearchParams
@@ -99,14 +120,14 @@ function ApplicationsContent() {
   const [interviewWithdrawCandidate, setInterviewWithdrawCandidate] = useState<Record<string, any> | null>(null);
 
   const [selectedCandidate, setSelectedCandidate] = useState<{
-    id: string;     
+    id: string;
     name: string;
     position: string;
     avatar: string;
   } | null>(null);
 
   const [interviewCandidate, setInterviewCandidate] = useState<{
-    id: string;     
+    id: string;
     name: string;
     position: string;
     avatar: string;
@@ -123,7 +144,7 @@ function ApplicationsContent() {
     setSelectedCandidate(candidate);
   };
 
- 
+
 
   const toggleJobExpansion = (jobId: number) => {
     setExpandedJobs((prev) =>
@@ -137,11 +158,11 @@ function ApplicationsContent() {
   const url = `api/employer/job/applications?${urlsearchParams.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR<JobApplicationsResponse>(
-   url,
+    url,
     defaultFetcher
   );
 
-  const {data: applicationSummary, isLoading:applicationSummaryLoading, mutate:applicationSummaryMutate} = useSWR<Record<string, string>>("api/employer/job/application-summary", defaultFetcher);
+  const { data: applicationSummary, isLoading: applicationSummaryLoading, mutate: applicationSummaryMutate } = useSWR<Record<string, string>>("api/employer/job/application-summary", defaultFetcher);
 
   // Process the API data to match the expected format for the component
   const jobApplications = React.useMemo(() => {
@@ -152,7 +173,7 @@ function ApplicationsContent() {
       const processedApplications = job.applications.map(app => {
         // Generate a random avatar seed based on user ID
         // const avatarSeed = `user-${app.user_id}`;
-        
+
         // Extract skills from requirements (first 3 for display)
         const skills = app.skills || job.requirements.slice(0, 3).map(req => {
           // Extract just the first few words for each skill
@@ -169,7 +190,7 @@ function ApplicationsContent() {
           avatar: app?.user_image,
         };
       });
-      
+
       return {
         jobId: job.id,
         title: job.title,
@@ -202,18 +223,18 @@ function ApplicationsContent() {
   if (error) {
     return <div className="p-8 text-center text-red-500">Error loading applications: {error.message}</div>;
   }
-   const handleOpenInterview = (candidate: {
+  const handleOpenInterview = (candidate: {
     id: string;
     name: string;
     position: string;
     avatar: string;
     status: string
   }) => {
-    if(candidate?.status === "interview scheduled") {
+    if (candidate?.status === "interview scheduled") {
       setInterviewWithdrawCandidate(candidate);
       setInterviewModalOpen(true);
     }
-    else{
+    else {
       setInterviewCandidate(candidate);
     }
   };
@@ -405,6 +426,28 @@ function ApplicationsContent() {
                       )}
                     </div>
                   ))}
+                  {filteredJobs.length > 0 && data?.meta && (
+                    <div className="mt-8">
+                      <DataNavigation
+                        meta={data.meta}
+                        onPageChange={(url) => {
+                          if (url) {
+                            const urlObj = new URL(url);
+                            const page = urlObj.searchParams.get('page');
+
+                            // Preserve existing query parameters
+                            const currentParams = new URLSearchParams(searchParams.toString());
+                            currentParams.set('page', page || '1');
+
+                            router.push(`/dashboard/employer/applications?${currentParams.toString()}`);
+                            mutate();
+                          }
+                        }}
+                        className="justify-center"
+                      />
+                    </div>
+                  )}
+
                 </div>
               )}
             </div>
@@ -431,17 +474,17 @@ function ApplicationsContent() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Applied</span>
                   <span className="text-sm">
-                   {
-                    applicationSummary && applicationSummary.applied_applications
-                   }
+                    {
+                      applicationSummary && applicationSummary.applied_applications
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Shortlisted</span>
                   <span className="text-sm">
-                   {
-                    applicationSummary && applicationSummary.shortlisted_applications
-                   }
+                    {
+                      applicationSummary && applicationSummary.shortlisted_applications
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -469,11 +512,11 @@ function ApplicationsContent() {
               <h2 className="text-xl mb-4">Quick Filters</h2>
               <div className="space-y-2">
                 <Button
-                onClick={() => {
-                  router.push("/dashboard/employer/applications?orderby=newest");
-                  applicationSummaryMutate()
-                  mutate();
-                }}
+                  onClick={() => {
+                    router.push("/dashboard/employer/applications?orderby=newest");
+                    applicationSummaryMutate()
+                    mutate();
+                  }}
                   variant="ghost"
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >
@@ -481,10 +524,10 @@ function ApplicationsContent() {
                   New Applications
                 </Button>
                 <Button
-                onClick={() => {
-                  router.push("/dashboard/employer/applications?orderby=today");
-                  mutate();
-                }}
+                  onClick={() => {
+                    router.push("/dashboard/employer/applications?orderby=today");
+                    mutate();
+                  }}
                   variant="ghost"
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >

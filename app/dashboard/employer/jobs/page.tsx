@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Search,
   Plus,
@@ -113,12 +113,15 @@ const JobListingsPage = () => {
     setSelectedJob(null);
   };
 
+  const searchParams = useSearchParams();
+  const page = searchParams.get("page");
+
   const handleViewApplications = (jobId: number) => {
     router.push(`/dashboard/employer/applications?jobId=${jobId}`);
   };
 
   const { data: jobsResponse, mutate } = useSWR<JobsResponse>(
-    "api/employer/job/all-employer-job",
+    `api/employer/job/all-employer-job${page ? `?page=${page}` : ""}`,
     defaultFetcher
   );
 
@@ -323,7 +326,7 @@ const JobListingsPage = () => {
                             const url = new URL(link.url);
                             const page = url.searchParams.get("page");
                             if (page) {
-                              // Refetch with new page
+                              router.push(`/dashboard/employer/jobs?page=${page}`);
                               mutate();
                             }
                           }

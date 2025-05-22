@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import PostJobModal from "@/components/post-job-modal";
 import UpgradePlanModal from "@/components/upgrade-plan-modal";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
@@ -24,6 +24,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import RecentApplications from "@/components/recent-applications";
 import SoftDeleteModal from "@/components/ui/soft-delete-job-modal";
 import Image from "next/image";
+import DataNavigation from "@/components/ui/data-navigation";
 
 // Define interfaces for the API response
 interface ActiveJob {
@@ -99,13 +100,16 @@ const EmployerDashboardPage = () => {
 
   const { user } = useAuth();
 
+  const searchParams = useSearchParams();
+  const page = searchParams.get("page");
+
   // Fetch dashboard stats
   const { data: statsData, isLoading: statsLoading, mutate: mutateStats } = 
     useSWR<DashboardData>("api/dashboard/active-jobs-applications", defaultFetcher);
 
   // Fetch active job listings
   const { data: jobsData, isLoading: jobsLoading, mutate: mutateJobs } = 
-    useSWR<DashboardResponse>("api/dashboard/active-job-listing", defaultFetcher);
+    useSWR<DashboardResponse>(`api/dashboard/active-job-listing${page ? `?page=${page}` : ""}`, defaultFetcher);
 
   // Format posted date to relative time (e.g., "5 days ago")
   const getPostedTimeAgo = (postedDate: string) => {
@@ -282,30 +286,32 @@ const EmployerDashboardPage = () => {
                 </div>
               )}
               
-              {/* Pagination controls if needed */}
-              {jobsData && jobsData?.active_jobs?.last_page > 1 && (
-                <div className="flex justify-center mt-6 space-x-2">
-                  {jobsData.active_jobs.links.map((link, index) => (
-                    <Button
-                      key={index}
-                      variant={link.active ? "default" : "outline"}
-                      size="sm"
-                      disabled={!link.url}
-                      onClick={() => {
-                        if (link.url) {
-                          // Extract page number from URL
-                          const url = new URL(link.url);
-                          const page = url.searchParams.get('page');
-                          if (page) {
-                            // mutateJobs(`api/dashboard/active-job-listing?page=${page}`);
-                          }
-                        }
-                      }}
-                      dangerouslySetInnerHTML={{ __html: link.label }}
-                    />
-                  ))}
+              {jobsData && jobsData.active_jobs?.last_page > 1 && (
+                <div className="mt-6">
+                  <DataNavigation 
+                    meta={{
+                      current_page: jobsData.active_jobs.current_page,
+                      from: jobsData.active_jobs.from,
+                      last_page: jobsData.active_jobs.last_page,
+                      links: jobsData.active_jobs.links,
+                      path: jobsData.active_jobs.path,
+                      per_page: jobsData.active_jobs.per_page,
+                      to: jobsData.active_jobs.to,
+                      total: jobsData.active_jobs.total
+                    }}
+                    onPageChange={(url) => {
+                      // Extract page number from URL
+                      const urlObj = new URL(url);
+                      const page = urlObj.searchParams.get('page');
+                     router.push(`/dashboard/employer?page=${page}`);
+                      // Refresh job listings
+                      mutateJobs();
+                    }}
+                    className="justify-center"
+                  />
                 </div>
               )}
+
             </div>
           </div>
 
@@ -318,6 +324,8 @@ const EmployerDashboardPage = () => {
                       <Image
                         src={user?.image_path}
                         alt="Company Logo"
+                        width={100}
+                        height={100}
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
