@@ -11,6 +11,7 @@ import ForgotPasswordModal from "@/components/forgot-password-modal";
 import { Toaster } from "@/components/ui/toaster";
 import localFont from "next/font/local";
 import TwoFactorModal from "@/components/TwoFactorModal";
+import { Poppins } from 'next/font/google';
 
 const myFont = localFont({
   src: "../public/fonts/nasalization.woff2",
@@ -23,16 +24,28 @@ export const metadata: Metadata = {
     "Find your dream job or hire the perfect candidate with Applymandu, the leading job board in Nepal.",
 };
 
+    
+    const poppins = Poppins({
+      subsets: ['latin'],
+      display: 'swap',
+      variable: '--font-poppins',
+      weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
+    });
+
+
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+
   
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} ${myFont.variable} antialiased min-h-screen bg-neutral-50`}
+        className={`${poppins.className} ${myFont.variable} antialiased min-h-screen bg-neutral-50`}
       >
         <ThemeProvider
           attribute="class"

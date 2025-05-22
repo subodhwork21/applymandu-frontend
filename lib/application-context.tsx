@@ -17,7 +17,7 @@ export function ApplicationProvider({ children }: { children: React.ReactNode })
   const [isApplyOpen, setIsApplyOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobDescription['data'] | null>(null);
 
-  const openApplicationPanel = (job: JobDescription['data']) => {
+  const openApplicationPanel = (job: any) => {
     setSelectedJob(job);
     setIsApplyOpen(true);
   };

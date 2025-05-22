@@ -85,7 +85,7 @@ const JobCard = ({
           <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
             <div className="text-white text-xl">
               <Image
-                src={job?.image}
+                src={job?.image || "/logo.png"}
                 alt="Company Logo"
                 width={48}
                 height={48}
