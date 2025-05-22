@@ -154,10 +154,6 @@ const JobsPage = () => {
     if (e.key === "Enter") {
       e.preventDefault();
       urlSearchParams.set("search", e.currentTarget.value);
-      // setActiveFilters([
-      //   ...activeFilters?.filter((item) => item != searchParams.get("search")),
-      //   e?.currentTarget?.value,
-      // ]);
       router.push(`/jobs?${urlSearchParams.toString()}`);
       jobMutate();
     }

@@ -2,11 +2,12 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRightIcon } from "./ui/icons";
-import { MapPin, DollarSign, Users, Heart } from "lucide-react";
+import { MapPin, DollarSign, Users, Heart, HeartIcon } from "lucide-react";
 import Image from "next/image";
 import useSWR from "swr";
 import { Button } from "./ui/button";
-import { defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { toast } from "@/hooks/use-toast";
 
 // Define interfaces for the job data based on the actual API response
 interface PopularJob {
@@ -20,6 +21,7 @@ interface PopularJob {
   company_name: string;
   skills: string[];
   posted_date: string;
+saved: boolean;
 }
 
 interface PopularJobsResponse {
@@ -41,6 +43,7 @@ interface ExpiringJob {
   application_deadline: string;
   days_remaining: number;
   expiring_soon: boolean;
+  saved: boolean;
 }
 
 interface ExpiringJobsResponse {
@@ -48,16 +51,19 @@ interface ExpiringJobsResponse {
   expiring_jobs: ExpiringJob[];
 }
 
+ 
+
+
 // Create a fetcher function for SWR
 
 const PopularClosingJobs = () => {
   // Fetch popular jobs data
-  const { data: popularJobsData, error: popularJobsError } = useSWR<PopularJobsResponse>("api/job/popular",
+  const { data: popularJobsData, error: popularJobsError, mutate: mutatePopular } = useSWR<PopularJobsResponse>("api/job/popular",
     defaultFetcher
   );
 
   // Fetch closing jobs data
-  const { data: closingJobsData, error: closingJobsError } = useSWR<ExpiringJobsResponse>("api/job/expiring",
+  const { data: closingJobsData, error: closingJobsError, mutate: mutateClosing } = useSWR<ExpiringJobsResponse>("api/job/expiring",
     defaultFetcher
   );
 
@@ -71,6 +77,30 @@ const PopularClosingJobs = () => {
   if (hasError) {
     return <div className="py-12 text-center">Failed to load jobs data</div>;
   }
+   const handleSaveJob = async (id: number, saved: boolean) => {
+    const { response, result } = await baseFetcher(
+      saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id,
+      {
+        method: "GET",
+      }
+    );
+
+    if (response?.ok) {
+      toast({
+        title: "Success",
+        description: result?.message,
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: result?.message,
+        variant: "destructive",
+      });
+    }
+    mutatePopular();
+    mutateClosing();
+  };
 
   return (
     <section className="py-12 bg-white 2xl:px-0 px-4">
@@ -138,13 +168,13 @@ const PopularClosingJobs = () => {
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
-                              <Button
+                              {/* <Button
                                 variant="ghost"
                                 size="icon"
                                 className="text-neutral-400 hover:text-neutral-600"
                               >
                                 <Heart className="h-5 w-5" fill="grayText"/>
-                              </Button>
+                              </Button> */}
                             </div>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-neutral-600 justify-between">
@@ -234,13 +264,33 @@ const PopularClosingJobs = () => {
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-neutral-400 hover:text-neutral-600"
-                              >
-                                <Heart className="h-5 w-5" fill="grayText"/>
-                              </Button>
+                              {/* {job?.saved === true ? (
+                                            <Button
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleSaveJob(job?.id, job?.saved!);
+                                              }}
+                                              // variant="ghost"
+                                              size="icon"
+                                              className="bg-white border border-grayText rounded-full"
+                                            >
+                                              <HeartIcon fill="grayText" size={20} />
+                                            </Button>
+                                          ) : job?.saved === false ? (
+                                            <Button
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleSaveJob(job?.id, job?.saved!);
+                                              }}
+                                              variant="ghost"
+                                              size="icon"
+                                              className="text-neutral-400 border-1px border-grayText rounded-full"
+                                            >
+                                              <HeartIcon />
+                                            </Button>
+                                          ) : null} */}
                             </div>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-neutral-600 justify-between">

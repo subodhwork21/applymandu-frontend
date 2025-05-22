@@ -565,7 +565,12 @@ const {
                         </Link>
                       )}
 
-                      <Link href="/dashboard/jobseeker/saved">
+{
+  isEmployer ?   <Link href="/dashboard/employer/settings">
+                        <DropdownMenuItem>
+                          <span>Settings</span>
+                        </DropdownMenuItem>
+                      </Link> :  <><Link href="/dashboard/jobseeker/saved">
                         <DropdownMenuItem>
                           <span>Saved Jobs</span>
                         </DropdownMenuItem>
@@ -574,7 +579,9 @@ const {
                         <DropdownMenuItem>
                           <span>Settings</span>
                         </DropdownMenuItem>
-                      </Link>
+                      </Link></>
+}
+                     
                       {isEmployer ? (
                         <p onClick={() => openRegisterModal(false)}>
                           <DropdownMenuItem>

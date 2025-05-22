@@ -32,6 +32,8 @@ interface TwoFactorSession {
   verification_url: string;
   token: string;
   expires_at: string;
+  email: string;
+  secret: string;
 }
 
 interface AuthContextType {
@@ -171,6 +173,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           verification_url: result.verification_url,
           token: result.token,
           expires_at: result.expires_at,
+          email: email,
+          secret: result?.secret_key
+
         });
         openTwoFactorModal();
       } else {
@@ -285,7 +290,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsEmployer(true);
         setCookie("EMPLOYER_TOKEN", result?.token);
         setIsLoading(false);
-      closeLoginModal();
+        closeLoginModal();
 
         
         toast({
