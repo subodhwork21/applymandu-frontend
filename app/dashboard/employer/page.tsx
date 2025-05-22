@@ -23,6 +23,7 @@ import { defaultFetcher } from "@/lib/fetcher";
 import { format, formatDistanceToNow } from "date-fns";
 import RecentApplications from "@/components/recent-applications";
 import SoftDeleteModal from "@/components/ui/soft-delete-job-modal";
+import Image from "next/image";
 
 // Define interfaces for the API response
 interface ActiveJob {
@@ -312,11 +313,23 @@ const EmployerDashboardPage = () => {
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <div className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 bg-neutral-200 rounded-full mb-4 flex items-center justify-center">
-                  <Building className="h-8 w-8 text-neutral-600" />
+                 {
+                    user?.image_path ? (
+                      <Image
+                        src={user?.image_path}
+                        alt="Company Logo"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <Building className="w-12 h-12 text-neutral-600" />
+                    )
+                 }
                 </div>
                 <h2 className="text-xl mb-2">{user?.company_name}</h2>
                 <p className="text-neutral-600 mb-6">
-                  IT Services & Consulting
+                  {
+                    // user?.email
+                  }
                 </p>
                 <div className="w-full space-y-3 text-sm">
                   <div className="flex items-center gap-2">
