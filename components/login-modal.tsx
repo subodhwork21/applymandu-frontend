@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/lib/auth-context";
+import TwoFactorModal from "./TwoFactorModal";
 
 const LoginModal = () => {
   const {
@@ -48,6 +49,7 @@ const LoginModal = () => {
   };
 
   return (
+    <>
     <Dialog open={isLoginModalOpen} onOpenChange={closeLoginModal}>
       <DialogContent className="sm:max-w-md p-0">
         <div className="flex justify-between items-center p-5 border-b border-neutral-200">
@@ -166,6 +168,8 @@ const LoginModal = () => {
         </div>
       </DialogContent>
     </Dialog>
+     <TwoFactorModal />
+     </>
   );
 };
 

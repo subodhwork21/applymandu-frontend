@@ -212,7 +212,7 @@ const {
   error: notificationsError, 
   mutate: refetchNotifications 
 } = useSWR<NotificationsResponse>(
-  `api/notifications`,
+  isAuthenticated ? `api/notifications` : null,
   defaultFetcher
 );
 

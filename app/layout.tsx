@@ -10,6 +10,7 @@ import RegisterModal from "@/components/register-modal";
 import ForgotPasswordModal from "@/components/forgot-password-modal";
 import { Toaster } from "@/components/ui/toaster";
 import localFont from "next/font/local";
+import TwoFactorModal from "@/components/TwoFactorModal";
 
 const myFont = localFont({
   src: "../public/fonts/nasalization.woff2",
@@ -43,10 +44,12 @@ export default function RootLayout({
             <ApplicationProvider>
               {children}
               <ApplicationPanel />
+
               <LoginModal />
               <RegisterModal />
               <ForgotPasswordModal />
             </ApplicationProvider>
+                <TwoFactorModal />
           </AuthProvider>
         </ThemeProvider>
       <Toaster />

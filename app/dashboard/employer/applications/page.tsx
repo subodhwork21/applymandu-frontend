@@ -133,10 +133,15 @@ function ApplicationsContent() {
     );
   };
 
+  const urlsearchParams = new URLSearchParams(searchParams.toString());
+  const url = `api/employer/job/applications?${urlsearchParams.toString()}`;
+
   const { data, error, isLoading, mutate } = useSWR<JobApplicationsResponse>(
-    "api/employer/job/applications",
+   url,
     defaultFetcher
   );
+
+  const {data: applicationSummary, isLoading:applicationSummaryLoading, mutate:applicationSummaryMutate} = useSWR<Record<string, string>>("api/employer/job/application-summary", defaultFetcher);
 
   // Process the API data to match the expected format for the component
   const jobApplications = React.useMemo(() => {
@@ -249,14 +254,23 @@ function ApplicationsContent() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select defaultValue="all">
+                  <Select defaultValue={searchParams.get("status") || "all"} onValueChange={(value) => {
+                    if (value === "all") {
+                      router.push("/dashboard/employer/applications");
+                    } else {
+                      router.push(
+                        `/dashboard/employer/applications?status=${value}`
+                      );
+                    }
+                    mutate();
+                  }}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="All Status" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
                       <SelectItem value="applied">Applied</SelectItem>
-                      <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                      <SelectItem value="interview_scheduled">Interview Scheduled</SelectItem>
                       <SelectItem value="interview">Interview</SelectItem>
                       <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
@@ -405,34 +419,29 @@ function ApplicationsContent() {
                     Total Applications
                   </span>
                   <span className="text-sm">
-                    {jobApplications.reduce(
+                    {/* {jobApplications.reduce(
                       (total, job) => total + job.applications.length,
                       0
-                    )}
+                    )} */}
+                    {
+                      applicationSummary && applicationSummary.total_applications
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Applied</span>
                   <span className="text-sm">
-                    {jobApplications.reduce(
-                      (total, job) => 
-                        total + job.applications.filter(app => 
-                          app?.status?.toLowerCase() === "applied"
-                        ).length,
-                      0
-                    )}
+                   {
+                    applicationSummary && applicationSummary.applied_applications
+                   }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Shortlisted</span>
                   <span className="text-sm">
-                    {jobApplications.reduce(
-                      (total, job) => 
-                        total + job.applications.filter(app => 
-                          app?.status?.toLowerCase() === "shortlisted"
-                        ).length,
-                      0
-                    )}
+                   {
+                    applicationSummary && applicationSummary.shortlisted_applications
+                   }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -440,25 +449,17 @@ function ApplicationsContent() {
                     Interview Scheduled
                   </span>
                   <span className="text-sm">
-                    {jobApplications.reduce(
-                      (total, job) => 
-                        total + job.applications.filter(app => 
-                          app?.status?.toLowerCase() === "interview"
-                        ).length,
-                      0
-                    )}
+                    {
+                      applicationSummary && applicationSummary.interview_scheduled_applications
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Rejected</span>
                   <span className="text-sm">
-                    {jobApplications.reduce(
-                      (total, job) => 
-                        total + job.applications.filter(app => 
-                          app?.status?.toLowerCase() === "rejected"
-                        ).length,
-                      0
-                    )}
+                    {
+                      applicationSummary && applicationSummary.rejected_applications
+                    }
                   </span>
                 </div>
               </div>
@@ -468,6 +469,11 @@ function ApplicationsContent() {
               <h2 className="text-xl mb-4">Quick Filters</h2>
               <div className="space-y-2">
                 <Button
+                onClick={() => {
+                  router.push("/dashboard/employer/applications?orderby=newest");
+                  applicationSummaryMutate()
+                  mutate();
+                }}
                   variant="ghost"
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >
@@ -475,6 +481,10 @@ function ApplicationsContent() {
                   New Applications
                 </Button>
                 <Button
+                onClick={() => {
+                  router.push("/dashboard/employer/applications?orderby=today");
+                  mutate();
+                }}
                   variant="ghost"
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >
@@ -483,6 +493,10 @@ function ApplicationsContent() {
                 </Button>
                 <Button
                   variant="ghost"
+                  onClick={() => {
+                    router.push("/dashboard/employer/applications?status=shortlisted");
+                    mutate();
+                  }}
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >
                   <Star className="h-4 w-4 mr-2" />
@@ -490,6 +504,10 @@ function ApplicationsContent() {
                 </Button>
                 <Button
                   variant="ghost"
+                  onClick={() => {
+                    router.push("/dashboard/employer/applications?status=applied");
+                    mutate();
+                  }}
                   className="w-full justify-start text-neutral-600 hover:text-neutral-900"
                 >
                   <Clock className="h-4 w-4 mr-2" />

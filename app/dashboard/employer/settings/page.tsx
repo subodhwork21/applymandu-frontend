@@ -58,7 +58,7 @@ const SettingsPage = () => {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
   const [logoFile, setLogoFile] = React.useState<File | null>(null);
-  
+
   const {
     register,
     handleSubmit,
@@ -84,13 +84,14 @@ const SettingsPage = () => {
     data: settingsData,
     error,
     isLoading,
-    mutate
+    mutate,
   } = useSWR<ApiResponse>("api/employer/settings/all", defaultFetcher);
 
   useEffect(() => {
     if (settingsData?.data) {
-      const { company_name, email, phone, profile, image_path } = settingsData.data;
-      
+      const { company_name, email, phone, profile, image_path } =
+        settingsData.data;
+
       // Set logo preview from existing data
       if (image_path) {
         setLogoPreview(image_path);
@@ -131,28 +132,33 @@ const SettingsPage = () => {
     formData.append("industry", data.industry);
     formData.append("address", data.address);
     formData.append("website", data.website);
-    formData.append("founded_year", data.foundedYear.toString()); 
+    formData.append("founded_year", data.foundedYear.toString());
     formData.append("description", data.description);
     formData.append("email", data.email);
     formData.append("phone", data.phone);
 
     if (logoFile) {
       formData.append("logo", logoFile);
-    }
-    else if(logoPreview){
+    } else if (
+      logoPreview &&
+      !logoPreview.startsWith("data:") &&
+      !logoPreview.startsWith("http")
+    ) {
+      // If logoPreview is a file path (not a data URL or http URL), append it
       formData.append("logo", logoPreview);
     }
 
-    console.log(formData.get("company_name"));
-
     try {
-      const {response, errors, result} = await baseFetcher("api/employer/update-settings", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Authorization": `Bearer ${employerToken()}`
-        },
-      });
+      const { response, errors, result } = await baseFetcher(
+        "api/employer/update-settings",
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${employerToken()}`,
+          },
+        }
+      );
 
       if (response?.ok) {
         toast({
@@ -164,7 +170,7 @@ const SettingsPage = () => {
       } else {
         toast({
           title: "Error updating settings",
-          description:errors || result?.message
+          description: errors || result?.message,
         });
       }
     } catch (error) {
@@ -194,11 +200,43 @@ const SettingsPage = () => {
     const file = e.target.files?.[0];
     if (file) {
       setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+
+      // Create a URL for the file preview
+      const objectUrl = URL.createObjectURL(file);
+      setLogoPreview(objectUrl);
+
+      // Clean up the URL when component unmounts
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  };
+
+  // Update the function to correctly handle the Switch component's onChange event
+  const handleTwoFactorAuth = async (checked: boolean) => {
+    try {
+      const { response, result, errors } = await baseFetcher(
+        "api/employer/2fa/update",
+        {
+          method: "POST",
+          body: JSON.stringify({ "2fa": checked ? 1 : 0 }),
+        }
+      );
+
+      if (response?.ok) {
+        toast({
+          title: "Two Factor Authentication updated",
+          description: result?.message,
+        });
+      } else {
+        toast({
+          title: "Error updating two factor authentication",
+          description: errors || result?.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error updating two factor authentication",
+        description: "An unexpected error occurred",
+      });
     }
   };
 
@@ -300,10 +338,16 @@ const SettingsPage = () => {
                 <div className="space-y-2">
                   <Label>Company Logo</Label>
                   <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center">
+                    <div className="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center overflow-hidden">
                       {logoPreview ? (
                         <img
-                          src={logoPreview ? logoPreview : settingsData?.data?.image_path }
+                          src={logoPreview}
+                          alt="Company Logo"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : settingsData?.data?.image_path ? (
+                        <img
+                          src={settingsData?.data?.image_path}
                           alt="Company Logo"
                           className="w-full h-full object-cover rounded-lg"
                         />
@@ -331,14 +375,18 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="flex justify-end space-x-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     disabled={!isDirty && !logoFile}
                     onClick={() => {
                       reset();
                       setLogoFile(null);
-                      setLogoPreview(settingsData?.data?.image_path || settingsData?.data?.profile?.logo || null);
+                      setLogoPreview(
+                        settingsData?.data?.image_path ||
+                          settingsData?.data?.profile?.logo ||
+                          null
+                      );
                     }}
                   >
                     Cancel
@@ -365,7 +413,8 @@ const SettingsPage = () => {
                   </Label>
                   <Switch
                     id="2fa"
-                    checked={!!settingsData?.data?.profile?.two_fa}
+                    defaultChecked={!!settingsData?.data?.profile?.two_fa}
+                    onCheckedChange={handleTwoFactorAuth}
                   />
                 </div>
                 <div className="flex items-center justify-between">

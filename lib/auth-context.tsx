@@ -24,12 +24,20 @@ interface User {
   image_path?: string;
   experiences?: [];
   position_title?: string;
+  two_fa_enabled?: boolean;
+}
+
+interface TwoFactorSession {
+  qr_code: string;
+  verification_url: string;
+  token: string;
+  expires_at: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void | { requires2FA: boolean, email: string }>;
   logout: () => void;
   openLoginModal: () => void;
   closeLoginModal: () => void;
@@ -42,6 +50,13 @@ interface AuthContextType {
   openForgotPasswordModal: () => void;
   closeForgotPasswordModal: () => void;
   isForgotPasswordModalOpen: boolean;
+  // New 2FA related states and functions
+  twoFactorSession: TwoFactorSession | null;
+  isTwoFactorModalOpen: boolean;
+  openTwoFactorModal: () => void;
+  closeTwoFactorModal: () => void;
+  verifyTwoFactorCode: (code: string) => Promise<void>;
+  generateTwoFactorSession: (email: string, token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -60,17 +75,29 @@ const AuthContext = createContext<AuthContextType>({
   openForgotPasswordModal: () => {},
   closeForgotPasswordModal: () => {},
   isForgotPasswordModalOpen: false,
+  // New 2FA related states and functions
+  twoFactorSession: null,
+  isTwoFactorModalOpen: false,
+  openTwoFactorModal: () => {},
+  closeTwoFactorModal: () => {},
+  verifyTwoFactorCode: async () => {},
+  generateTwoFactorSession: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [token2fa ,setToken] = useState<string | null>(null);
   const [isEmployer, setIsEmployer] = useState<boolean | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
+  const [twoFactorSession, setTwoFactorSession] = useState<TwoFactorSession | null>(null);
+  const [isTwoFactorModalOpen, setIsTwoFactorModalOpen] = useState(false);
+  const [pendingLoginEmail, setPendingLoginEmail] = useState<string | null>(null);
+  const [pendingLoginPassword, setPendingLoginPassword] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const login = async (email: string, password: string) => {
@@ -85,16 +112,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    console.log(errors, result?.message);
-
-    // console.log(response?.ok,result);
-
-    // if(response?.status === 401){
-    //   throw new Error("Invalid credentials");
-    // }
-
     if (response?.ok) {
-      setCookie("JOBSEEKER_TOKEN", result?.token);
+      if(result?.two_fa){
+         setPendingLoginEmail(email);
+        setPendingLoginPassword(password);
+        
+        // Generate 2FA session
+        await generateTwoFactorSession(email, result?.token);
+        setToken(result?.token);
+        
+        // Return info that 2FA is required
+        return { requires2FA: true, email };
+      }
+      if(result?.is_employer === true){
+
+        setCookie("EMPLOYER_TOKEN", result?.token);
+      }
+      else{
+        setCookie("JOBSEEKER_TOKEN", result?.token);
+      }
       setUser({
         id: result?.user?.id,
         email: result?.user?.email,
@@ -113,6 +149,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(errors || result?.message);
     }
   };
+
+
+  const generateTwoFactorSession = async (email: string, token: string) => {
+    try {
+      const { response, result } = await baseFetcher(
+        "api/2fa/generate",
+        {
+          method: "POST",
+          body: JSON.stringify({ email }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },  
+        }
+      );
+
+      if (response?.ok && result) {
+        setTwoFactorSession({
+          qr_code: result.qr_code,
+          verification_url: result.verification_url,
+          token: result.token,
+          expires_at: result.expires_at,
+        });
+        openTwoFactorModal();
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to generate 2FA session",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openTwoFactorModal = () => setIsTwoFactorModalOpen(true);
+  const closeTwoFactorModal = () => setIsTwoFactorModalOpen(false);
 
   const fetchUserByToken = async (token: string) => {
     const response = await fetch(
@@ -140,6 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsEmployer(result?.is_employer);
         setIsLoading(false);
       } else {
+        deleteCookie("EMPLOYER_TOKEN");
         setCookie("JOBSEEKER_TOKEN", result?.token);
         setUser({
           id: result?.data?.id,
@@ -154,12 +233,128 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } else {
       deleteCookie("JOBSEEKER_TOKEN");
+      deleteCookie("EMPLOYER_TOKEN");
       setUser(null);
       setIsLoading(false);
       // router.push("/");
       // throw new Error("Invalid token");
     }
   };
+
+   const verifyTwoFactorCode = async (code: string) => {
+    if (!twoFactorSession) {
+      toast({
+        title: "Error",
+        description: "No active 2FA session",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { response, result } = await baseFetcher(
+        "api/2fa/verify",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            token: twoFactorSession.token,
+            code: code,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token2fa}`,
+          },
+        }
+      );
+
+      if (response?.ok) {
+        // If we have pending login credentials, complete the login process
+        if (pendingLoginEmail && pendingLoginPassword) {
+          await completeLoginAfter2FA();
+        }
+
+        setUser({
+          id: result?.user?.id,
+          email: result?.user?.email,
+          first_name: result?.user?.first_name,
+          last_name: result?.user?.last_name,
+          image_path: result?.user?.image_path,
+          two_fa_enabled: result?.user?.two_fa_enabled,
+        });
+
+        setIsEmployer(true);
+        setCookie("EMPLOYER_TOKEN", result?.token);
+        setIsLoading(false);
+      closeLoginModal();
+
+        
+        toast({
+          title: "Success",
+          description: "Two-factor authentication successful",
+        });
+        
+        closeTwoFactorModal();
+        setTwoFactorSession(null);
+      } else {
+        toast({
+          title: "Error",
+          description: result?.message || "Invalid verification code",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+  const completeLoginAfter2FA = async () => {
+    if (!pendingLoginEmail || !pendingLoginPassword) return;
+    
+    const { response, result, errors } = await baseFetcher(
+      "api/login/complete-2fa",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: pendingLoginEmail,
+          password: pendingLoginPassword,
+          token: twoFactorSession?.token,
+        }),
+      }
+    );
+
+    if (response?.ok) {
+      setCookie("EMPLOYER_TOKEN", result?.token);
+      setUser({
+        id: result?.user?.id,
+        email: result?.user?.email,
+        first_name: result?.user?.first_name,
+        last_name: result?.user?.last_name,
+        image_path: result?.user?.image_path,
+        two_fa_enabled: result?.user?.two_fa_enabled,
+      });
+      setIsEmployer(result?.is_employer);
+      
+      // Clear pending login info
+      setPendingLoginEmail(null);
+      setPendingLoginPassword(null);
+      
+      toast({
+        title: "Success",
+        description: "Login successful",
+      });
+      closeLoginModal();
+    } else {
+      toast({
+        title: "Error",
+        description: errors || result?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const logout = async() => {
    const {response, result, error} = await baseFetcher("api/logout", {
@@ -227,6 +422,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   
 
+  
   return (
     <AuthContext.Provider
       value={{
@@ -245,11 +441,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         openForgotPasswordModal,
         closeForgotPasswordModal,
         isForgotPasswordModalOpen,
+        // New 2FA related states and functions
+        twoFactorSession,
+        isTwoFactorModalOpen,
+        openTwoFactorModal,
+        closeTwoFactorModal,
+        verifyTwoFactorCode,
+        generateTwoFactorSession,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
+
+
 }
 
 export function useAuth() {

@@ -77,6 +77,11 @@ const CandidatesPage = () => {
     defaultFetcher
   );
 
+  const {data:candidateStats, mutate:mutateCandidateStats} = useSWR<Record<string,any>>(
+    `api/candidate/stats/all`,
+    defaultFetcher
+  );
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -209,18 +214,18 @@ const CandidatesPage = () => {
                   <span className="text-sm text-neutral-600">
                     Total Candidates
                   </span>
-                  <span className="text-sm">{candidatesResponse?.data.length || 0}</span>
+                  <span className="text-sm">{candidateStats?.total_candidates || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Active</span>
                   <span className="text-sm">
-                    {candidatesResponse?.data.filter(c => c.profile !== null).length || 0}
+                    {candidateStats?.active_candidates || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">With Skills</span>
                   <span className="text-sm">
-                    {candidatesResponse?.data.filter(c => c.skills.length > 0).length || 0}
+                    {candidateStats?.candidates_with_skills || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -228,7 +233,7 @@ const CandidatesPage = () => {
                     Incomplete Profiles
                   </span>
                   <span className="text-sm">
-                    {candidatesResponse?.data.filter(c => c.profile === null).length || 0}
+                    {candidateStats?.incomplete_profile_candidates || 0}
                   </span>
                 </div>
               </div>
