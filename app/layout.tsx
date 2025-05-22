@@ -44,6 +44,9 @@ export default function RootLayout({
   
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/main-logo.svg" sizes="any" />
+      </head>
       <body
         className={`${poppins.className} ${myFont.variable} antialiased min-h-screen bg-neutral-50`}
       >
