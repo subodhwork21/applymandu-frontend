@@ -152,11 +152,11 @@ const Header = () => {
 
   // Fetch chat previews
   useEffect(() => {
-    if (isAuthenticated && user?.id) {
+    if (isAuthenticated && user?.id && echo) {
       // Initial data fetch
       fetchChatPreviews();
       // Set up Echo listener for new messages
-        const channel = echo.private(`user.${user?.id}.messages`);
+        const channel = echo?.private(`user.${user?.id}.messages`);
         channel.listen("NewChatMessage", () => {
           fetchChatPreviews();
         });
