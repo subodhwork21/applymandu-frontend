@@ -41,6 +41,8 @@ import Image from "next/image";
 import useSWR from "swr";
 import { formatDistanceToNow } from "date-fns";
 import { defaultFetcher } from "@/lib/fetcher";
+import { echo } from "@/lib/echo-setup";
+
 
 interface ChatPreview {
   id: number;
@@ -154,15 +156,13 @@ const Header = () => {
       // Initial data fetch
       fetchChatPreviews();
       // Set up Echo listener for new messages
-      if (window.Echo) {
-        const channel = window.Echo.private(`user.${user?.id}.messages`);
-        channel.listen(".new-chat-message", () => {
+        const channel = echo.private(`user.${user?.id}.messages`);
+        channel.listen("NewChatMessage", () => {
           fetchChatPreviews();
         });
 
         // Add error handling
         channel.error(() => {});
-      }
 
       // Clean up function
       return () => {
@@ -205,21 +205,21 @@ const Header = () => {
     }
   };
 
- // Inside your Header component:
-const pathname = usePathname();
-const { 
-  data: notificationsData, 
-  error: notificationsError, 
-  mutate: refetchNotifications 
-} = useSWR<NotificationsResponse>(
-  isAuthenticated ? `api/notifications` : null,
-  defaultFetcher
-);
+  // Inside your Header component:
+  const pathname = usePathname();
+  const {
+    data: notificationsData,
+    error: notificationsError,
+    mutate: refetchNotifications,
+  } = useSWR<NotificationsResponse>(
+    isAuthenticated ? `api/notifications` : null,
+    defaultFetcher
+  );
 
-// Refetch notifications when the pathname changes
-// useEffect(() => {
-//   refetchNotifications();
-// }, [pathname, refetchNotifications]);
+  // Refetch notifications when the pathname changes
+  // useEffect(() => {
+  //   refetchNotifications();
+  // }, [pathname, refetchNotifications]);
 
   // Helper function to get notification icon based on activity type
   const getNotificationIcon = (activityType: string) => {
@@ -478,8 +478,8 @@ const {
 
                     <DropdownMenuItem className="p-4 cursor-pointer">
                       {activeTab === "notifications" ? (
-                      <>
-                       {notificationsData && notificationsData.total > 0 && (
+                        <>
+                          {notificationsData && notificationsData.total > 0 && (
                             <DropdownMenuItem className="text-center p-3 border-t border-neutral-100">
                               <Button
                                 variant="link"
@@ -489,7 +489,7 @@ const {
                               </Button>
                             </DropdownMenuItem>
                           )}
-                      </>
+                        </>
                       ) : (
                         <Link
                           href="/dashboard/messages"
@@ -565,23 +565,27 @@ const {
                         </Link>
                       )}
 
-{
-  isEmployer ?   <Link href="/dashboard/employer/settings">
-                        <DropdownMenuItem>
-                          <span>Settings</span>
-                        </DropdownMenuItem>
-                      </Link> :  <><Link href="/dashboard/jobseeker/saved">
-                        <DropdownMenuItem>
-                          <span>Saved Jobs</span>
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link href="/dashboard/jobseeker/settings">
-                        <DropdownMenuItem>
-                          <span>Settings</span>
-                        </DropdownMenuItem>
-                      </Link></>
-}
-                     
+                      {isEmployer ? (
+                        <Link href="/dashboard/employer/settings">
+                          <DropdownMenuItem>
+                            <span>Settings</span>
+                          </DropdownMenuItem>
+                        </Link>
+                      ) : (
+                        <>
+                          <Link href="/dashboard/jobseeker/saved">
+                            <DropdownMenuItem>
+                              <span>Saved Jobs</span>
+                            </DropdownMenuItem>
+                          </Link>
+                          <Link href="/dashboard/jobseeker/settings">
+                            <DropdownMenuItem>
+                              <span>Settings</span>
+                            </DropdownMenuItem>
+                          </Link>
+                        </>
+                      )}
+
                       {isEmployer ? (
                         <p onClick={() => openRegisterModal(false)}>
                           <DropdownMenuItem>

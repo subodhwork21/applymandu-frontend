@@ -83,10 +83,9 @@ const MessageModal = ({ isOpen, onClose, candidate }: MessageModalProps) => {
 // In your component:
 useEffect(() => {
   // Only proceed if both echo and chatId are available
-  console.log("echo", echo)
   if (!echo || !chatId) return;
 
-  console.log(`Subscribing to private-chat.${chatId} channel`);
+  // console.log(`Subscribing to private-chat.${chatId} channel`);
   
   // Create a reference to the channel for cleanup
   const channel = echo.private(`chat.${chatId}`);
