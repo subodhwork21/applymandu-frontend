@@ -16,17 +16,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import Image from "next/image";
+import { MapPinIcon } from "@heroicons/react/24/solid";
 
 const CompaniesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const renderStars = (rating: number) => {
     return (
-      <div className="flex items-center">
+      <div className="flex items-center gap-[3px]">
         {[...Array(5)].map((_, index) => (
           <Star
             key={index}
-            className={`h-4 w-4 ${
+            className={`h-6 w-6 ${
               index < Math.floor(rating)
                 ? "text-yellow-400 fill-yellow-400"
                 : index < rating
@@ -35,7 +37,7 @@ const CompaniesPage = () => {
             }`}
           />
         ))}
-        <span className="ml-2 text-sm text-neutral-600">
+        <span className="ml-2 text-sm text-[#444444] font-semibold">
           {rating.toFixed(1)}
         </span>
       </div>
@@ -47,13 +49,15 @@ const CompaniesPage = () => {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="bg-white border-b border-neutral-200 py-16">
+        <section className="bg-white bg-[url('/pattern.jpg')] bg-contain bg-center relative border-b border-neutral-200 py-16">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90"></div>
+           <div className="relative z-10 text-white">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h1 className="text-4xl font-bold mb-4">
+            <div className="text-center max-w-5xl mx-auto mb-12">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 font-normal font-nasalization leading-[60px]">
                 Discover Great Places to Work
               </h1>
-              <p className="text-neutral-600 text-lg">
+              <p className="text-manduTertiary text-base font-normal">
                 Explore companies hiring now and find your ideal workplace
               </p>
             </div>
@@ -64,19 +68,20 @@ const CompaniesPage = () => {
                 <Input
                   type="text"
                   placeholder="Search companies by name, industry or location"
-                  className="w-full pl-12 pr-4 py-6 text-lg"
+                  className="w-full pl-12 pr-4 py-6 text-lg rounded-[44px] placeholder:font-normal placeholder:text-sm text-black"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
           </div>
+          </div>
         </section>
 
         {/* Featured Companies */}
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-semibold mb-8">Featured Companies</h2>
+            <h2 className="text-3xl font-normal mb-8 font-nasalization text-manduSecondary uppercase">Featured Companies</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
@@ -107,31 +112,37 @@ const CompaniesPage = () => {
               ].map((company, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg transition-all duration-200"
+                  className="bg-white rounded-[20px] border border-neutral-200 p-6 hover:shadow-lg transition-all duration-200"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-neutral-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <span className="text-neutral-800 text-2xl font-semibold">
-                        {company.name[0]}
+                         <Image
+                          src={ "/logo.png"}
+                          alt="Company Logo"
+                          width={52}
+                          className="rounded-[6.8px]"
+                          height={52}
+                        />
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-medium mb-1">
+                      <h3 className="text-lg mb-1 text-bluePrime font-semibold">
                         {company.name}
                       </h3>
-                      <p className="text-neutral-600 text-sm mb-2">
+                      <p className="text-patternSecondary text-base font-medium mb-2">
                         {company.industry} • {company.employees} employees
                       </p>
-                      <div className="flex items-center text-sm text-neutral-500 mb-3">
-                        <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                      <div className="flex items-center text-sm text-patternSecondary mb-3">
+                        <MapPinIcon className="h-4 w-4 mr-1 flex-shrink-0" />
                         <span className="truncate">{company.location}</span>
                       </div>
                       <div className="mb-4">{renderStars(company.rating)}</div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs bg-neutral-100 px-3 py-1.5 rounded-full text-neutral-700">
+                        <span className="text-xs shadow-sm rounded-[50px] bg-neutral-100 px-3 py-1.5 text-neutral-700">
                           {company.openings} Open positions
                         </span>
-                        <Button variant="outline" size="sm" className="ml-auto">
+                        <Button variant="outline" size="sm" className="ml-auto font-semibold bg-manduPrimary text-base text-white rounded-[8px]">
                           View Company
                         </Button>
                       </div>
@@ -146,7 +157,7 @@ const CompaniesPage = () => {
         {/* Browse by Industry */}
         <section className="py-12 bg-neutral-50">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-semibold mb-8">Browse by Industry</h2>
+            <h2 className="text-3xl text-manduSecondary font-nasalization font-normal mb-8">Browse by Industry</h2>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[

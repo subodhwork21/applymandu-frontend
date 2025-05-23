@@ -105,7 +105,7 @@ const PopularClosingJobs = () => {
   return (
     <section className="py-12 bg-white 2xl:px-0 px-4">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className={`grid grid-cols-1 ${closingJobsData?.expiring_jobs?.length === 0 ? "lg:grid-cols-1 gap-8" : "lg:grid-cols-2 gap-8"}`}>
           {/* Most Popular */}
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -120,7 +120,7 @@ const PopularClosingJobs = () => {
               </Link>
             </div>
 
-            <div className="space-y-4 gap-2 flex flex-col w-full justify-between items-start">
+           {popularJobsData && popularJobsData?.popular_jobs?.length > 0 && <div className="space-y-4 gap-2 flex flex-col w-full justify-between items-start">
               {isLoadingPopular ? (
                 // Loading skeleton
                 Array(5).fill(0).map((_, index) => (
@@ -199,7 +199,7 @@ const PopularClosingJobs = () => {
                   </Link>
                 ))
               )}
-            </div>
+            </div>}
           </div>
 
           {/* Closing Soon */}
@@ -216,7 +216,7 @@ const PopularClosingJobs = () => {
               </Link>
             </div>
 
-            <div className="space-y-4">
+        { closingJobsData && closingJobsData?.expiring_jobs?.length > 0 ?   <div className="space-y-4">
               {isLoadingClosing ? (
                 // Loading skeleton
                 Array(5).fill(0).map((_, index) => (
@@ -235,7 +235,7 @@ const PopularClosingJobs = () => {
                   </div>
                 ))
               ) : (
-                closingJobsData?.expiring_jobs.map((job) => (
+             closingJobsData &&  closingJobsData?.expiring_jobs.map((job) => (
                   <Link 
                     key={job.id} 
                     href={`/jobs/${job.id}`} 
@@ -324,7 +324,7 @@ const PopularClosingJobs = () => {
                   </Link>
                 ))
               )}
-            </div>
+            </div> : null}
           </div>
         </div>
       </div>

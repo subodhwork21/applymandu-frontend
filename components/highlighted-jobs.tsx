@@ -72,7 +72,7 @@ const HighlightedJobs = () => {
     }
 
   return (
-    <section className="py-12 bg-neutral-50 2xl:px-0 px-4">
+    highlightedJobs &&  highlightedJobs?.data?.length >0  ?   <section className="py-12 bg-neutral-50 2xl:px-0 px-4">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-nasalization uppercase text-manduSecondary">Highlighted Jobs</h2>
@@ -239,7 +239,9 @@ const HighlightedJobs = () => {
           ))}
         </div>
       </div>
-    </section>
+    </section> : <></>
+    
+  
   );
 };
 
