@@ -588,7 +588,7 @@ const JobsPage = () => {
         {searchParams.toString() === "" ? (
           <section className="py-8 bg-neutral-100">
             <div className="container mx-auto px-4">
-              <h2 className=" mb-6 text-manduSecondary font-nasalization font-normal text-3xl">
+              <h2 className=" mb-6 text-manduSecondary uppercase font-nasalization font-normal text-3xl">
                 Featured Jobs
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -601,16 +601,17 @@ const JobsPage = () => {
                 ) : (
                   featuredJobs?.data?.map((job, index) => (
                     <Link href={`/jobs/${job.id}`} key={index}>
-                      <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                      <div className="bg-white rounded-2xl shadow-lg md:p-6 p-4 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
                         <div className="flex items-start flex-col gap-y-[10px] w-full">
-                          <div className="flex items-start gap-x-4 w-full">
+                          <div className="flex items-start gap-x-1 w-full">
                             <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
                               <div className="text-white text-xl">
                                 <Image
                                   src={job?.image || "/logo.png"}
                                   alt="Company Logo"
-                                  width={48}
-                                  height={48}
+                                  className="rounded-[6px]"
+                                  width={52}
+                                  height={52}
                                 />
                               </div>
                             </div>
@@ -708,7 +709,7 @@ const JobsPage = () => {
         <section className="py-8 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl text-manduSecondary font-nasalization">All Jobs</h2>
+              <h2 className="text-3xl uppercase text-manduSecondary font-nasalization">All Jobs</h2>
               <div className="flex items-center gap-4 text-bluePrime">
                 {/* <span className="text-sm text-bluePrime">Sort by:</span> */}
                 <Select
@@ -741,15 +742,16 @@ const JobsPage = () => {
               ) : (
                 jobs?.data?.map((job: Job, index) => (
                   <Link key={index} href={`/jobs/${job.id}`}>
-                    <div className="bg-white rounded-[15px] p-6 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 p-2 bg-white rounded-lg border-b-2 shadow-lg justify-center flex-shrink-0">
-                          <div className="text-white text-xl">
+                    <div className="bg-white rounded-[15px] md:p-6 p-4 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                      <div className="flex items-start gap-1">
+                        <div className="w-18 h-18 p-2">
+                          <div className="text-sm">
                             <Image
                               src={job?.image ?? "/logo.png"}
                               alt="Company Logo"
-                              width={48}
-                              height={48}
+                              className="rounded-[4px]"
+                              width={52}
+                              height={52}
                             />
                           </div>
                         </div>

@@ -6,6 +6,7 @@ import { Briefcase, Clock, Globe, RocketIcon, TrendingUp } from "lucide-react";
 
 const Hero = () => {
   const router = useRouter();
+  const [inputSearch, setInputSearch] = React.useState("");
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) =>{
     if(e.key == "Enter"){
@@ -35,13 +36,15 @@ const Hero = () => {
                 <SearchIcon />
               </div>
               <input
+              value={inputSearch}
+              onChange={(e)=> setInputSearch(e?.target?.value)}
               onKeyDown={(e)=> handleSearch(e)}
                 type="text"
                 placeholder="Search jobs, keywords, or companies"
                 className="w-full pl-14 md:pl-16 pr-6 py-3 md:py-3 text-manduPrimary text-base md:text-lg bg-neutral-50 rounded-[50px] border-none focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all"
               />
             </div>
-            <button onClick={(e)=> router.push("/jobs?search="+e?.currentTarget?.value)} className="bg-manduSecondary rounded-[50px] text-white px-8 md:px-6 py-2 md:py-2 text-base md:text-lg md:font-[600] hover:bg-neutral-800 transition-colors whitespace-nowrap">
+            <button onClick={(e)=> router.push("/jobs?search="+inputSearch)} className="bg-manduSecondary rounded-[50px] text-white px-8 md:px-6 py-2 md:py-2 text-base md:text-lg md:font-[600] hover:bg-neutral-800 transition-colors whitespace-nowrap">
               Search Jobs
             </button>
           </div>
@@ -62,12 +65,12 @@ const Hero = () => {
         <span className="text-lg">Part-time</span>
       </button>
       
-      <button className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
+      <button onClick={(e)=> router.push("/jobs?experience_level[]="+"Entry Level")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
         <TrendingUp size={20} />
         <span className="text-lg">Entry Level</span>
       </button>
 
-        <button className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
+        <button onClick={(e)=> router.push("/jobs?experience_level[]="+"Senior Level")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
         <RocketIcon size={20} />
         <span className="text-lg">Experienced</span>
       </button>
