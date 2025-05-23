@@ -73,7 +73,7 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
       startIndex = Math.max(0, endIndex - 2);
     }
     
-    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 4);
+    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 3);
   }
 
   // Determine if we need to show ellipsis
@@ -83,7 +83,7 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
   return (
     <Pagination className={className}>
       {/* Add a custom class to reduce the gap between items */}
-      <PaginationContent className="gap-1 sm:gap-2">
+      <PaginationContent className="gap-[0px] sm:gap-1">
         {/* Previous button */}
         <PaginationItem>
           <PaginationPrevious 
@@ -131,6 +131,7 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
         {showEndEllipsis && (
           <PaginationItem>
             <PaginationEllipsis />
+            
           </PaginationItem>
         )}
         
