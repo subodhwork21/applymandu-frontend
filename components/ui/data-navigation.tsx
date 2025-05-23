@@ -62,21 +62,18 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
     !link.label.includes("Next")
   );
 
-  // Logic to show only 4 page links at a time
   let visiblePageLinks = [...pageLinks];
   const currentPageIndex = pageLinks.findIndex(link => link.active);
   
-  if (pageLinks.length > 2) {
-    // Calculate start and end indices for the visible links
+  if (pageLinks.length > 3) {
     let startIndex = Math.max(0, currentPageIndex - 1);
-    let endIndex = Math.min(startIndex + 1, pageLinks.length - 1);
+    let endIndex = Math.min(startIndex + 2, pageLinks.length - 1);
     
-    // Adjust startIndex if endIndex is at the maximum
     if (endIndex === pageLinks.length - 1) {
-      startIndex = Math.max(0, endIndex - 1);
+      startIndex = Math.max(0, endIndex - 2);
     }
     
-    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 2);
+    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 4);
   }
 
   // Determine if we need to show ellipsis
@@ -85,7 +82,8 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
 
   return (
     <Pagination className={className}>
-      <PaginationContent>
+      {/* Add a custom class to reduce the gap between items */}
+      <PaginationContent className="gap-1 sm:gap-2">
         {/* Previous button */}
         <PaginationItem>
           <PaginationPrevious 
@@ -121,6 +119,8 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
               href={link.url || "#"} 
               isActive={link.active}
               onClick={(e) => link.url && handlePageClick(e, link.url)}
+              // Make the pagination links more compact
+              className="h-8 w-8 p-0 sm:h-9 sm:w-9"
             >
               {link.label}
             </PaginationLink>
