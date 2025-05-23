@@ -66,17 +66,17 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
   let visiblePageLinks = [...pageLinks];
   const currentPageIndex = pageLinks.findIndex(link => link.active);
   
-  if (pageLinks.length > 4) {
+  if (pageLinks.length > 2) {
     // Calculate start and end indices for the visible links
     let startIndex = Math.max(0, currentPageIndex - 1);
-    let endIndex = Math.min(startIndex + 3, pageLinks.length - 1);
+    let endIndex = Math.min(startIndex + 1, pageLinks.length - 1);
     
     // Adjust startIndex if endIndex is at the maximum
     if (endIndex === pageLinks.length - 1) {
-      startIndex = Math.max(0, endIndex - 3);
+      startIndex = Math.max(0, endIndex - 1);
     }
     
-    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 4);
+    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 2);
   }
 
   // Determine if we need to show ellipsis
