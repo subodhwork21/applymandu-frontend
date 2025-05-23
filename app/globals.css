@@ -99,5 +99,10 @@
 
 .feat-text{
   color: #2D3748;
+
 }
 
+
+.container{
+  max-width: 1540px;
+}

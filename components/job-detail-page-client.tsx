@@ -93,8 +93,8 @@ const JobDetailPageClient = ({
               <div className="flex items-center gap-6">
                 <div className="w-20 h-20 rounded-lg flex items-center justify-center">
                   <Image
-                    src={job.image}
-                    alt={job.image}
+                    src={job.image ?? "/logo.png"}
+                    alt={job.image ?? "Company Logo"}
                     width={80}
                     height={80}
                     className="object-contain"

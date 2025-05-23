@@ -24,9 +24,7 @@ const config: Config = {
         },
         manduSecondary: {
           DEFAULT: "#DC143C",
-          opacity: {
-
-          }
+      
         },
         manduTertiary: {
           DEFAULT: "#F2F2F2",
@@ -54,6 +52,9 @@ const config: Config = {
         },
         bluePrime: {
           DEFAULT: "#2D3748",
+        },
+        grayTag: {
+          DEFAULT: "#F1F1F1",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

@@ -15,8 +15,6 @@ import {
   LucideBriefcase,
   Briefcase,
   HeartIcon,
-  MapPinIcon,
-  ClockIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +66,7 @@ import DataNavigation from "@/components/ui/data-navigation";
 import { useAuth } from "@/lib/auth-context";
 import { JobSkeletonMax, JobSkeletonMini } from "@/components/ui/job-skeleton";
 import { toast } from "@/hooks/use-toast";
+import { ClockIcon, MapPinIcon } from "@heroicons/react/24/solid";
 
 export default function Page() {
   return (
@@ -97,8 +96,6 @@ const JobsPage = () => {
   );
 
   // const featuredJobs = getFeaturedJobs();
-
-  
 
   const router = useRouter();
 
@@ -159,16 +156,13 @@ const JobsPage = () => {
     }
   };
 
-
-
   const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Get form data
     const formData = new FormData(e.currentTarget);
 
     // Get current search params and update them
-  let params = new URLSearchParams(searchParams.toString());
-
+    let params = new URLSearchParams(searchParams.toString());
 
     // Track all active filters
     const newActiveFilters: string[] = [];
@@ -180,7 +174,7 @@ const JobsPage = () => {
 
       selectedJobTypes.forEach((type) => {
         params.append("employment_type[]", type.toString());
-        newActiveFilters.push(type.toString()); 
+        newActiveFilters.push(type.toString());
       });
     }
 
@@ -189,13 +183,14 @@ const JobsPage = () => {
       params.delete("experience_level[]");
       experienceLevels.forEach((level) => {
         params.append("experience_level[]", level.toString());
-        const levelLabel = level.toString() === "entry" 
-        ? "Entry Level" 
-        : level.toString() === "mid" 
-          ? "Mid Level" 
-          : "Senior Level";
-      
-      newActiveFilters.push(levelLabel); 
+        const levelLabel =
+          level.toString() === "entry"
+            ? "Entry Level"
+            : level.toString() === "mid"
+            ? "Mid Level"
+            : "Senior Level";
+
+        newActiveFilters.push(levelLabel);
       });
     }
 
@@ -204,7 +199,7 @@ const JobsPage = () => {
     const maxSalary = formData.get("max-salary");
     if (minSalary && minSalary.toString().trim() !== "") {
       params.set("salary_min", minSalary.toString());
-      
+
       if (maxSalary && maxSalary.toString().trim() !== "") {
         // If both min and max are set, add a combined filter
         newActiveFilters.push(`$${minSalary}-$${maxSalary}`);
@@ -247,7 +242,7 @@ const JobsPage = () => {
       skills.forEach((skill) => {
         if (skill) {
           params.append("skills", skill);
-          newActiveFilters.push(skill); 
+          newActiveFilters.push(skill);
         }
       });
     }
@@ -263,7 +258,9 @@ const JobsPage = () => {
     const urlObj = new URL(url);
     const queryParams = urlObj.search;
 
-    router.push(`/jobs${queryParams}`);
+    router.push(`/jobs${queryParams}`, {
+      scroll: false,
+    });
 
     const apiUrl = `api/job/latest${queryParams}`;
 
@@ -282,30 +279,31 @@ const JobsPage = () => {
     jobMutate();
   };
 
+  const handleSaveJob = async (id: number, saved: boolean) => {
+    const { response, result } = await baseFetcher(
+      saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id,
+      {
+        method: "GET",
+      }
+    );
 
-  const handleSaveJob = async (id: number, saved: boolean) =>{
-    const {response, result} = await baseFetcher(saved ? "api/activity/unsave-job/"+id  : "api/activity/save-job/"+id, {
-      method: "GET",
-    })
-
-    if(response?.ok){
+    if (response?.ok) {
       toast({
         title: "Success",
         description: result?.message,
-        variant: "default", 
+        variant: "default",
       });
-    }
-      else{
+    } else {
       toast({
         title: "Error",
         description: result?.message,
-        variant: "destructive", 
+        variant: "destructive",
       });
     }
 
     jobMutate();
     featuredMutate();
-  }
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -313,21 +311,21 @@ const JobsPage = () => {
       <main>
         {/* Search and Filter Section */}
         <section className="bg-white border-b border-neutral-200 py-20 bg-[url('/pattern.jpg')] bg-contain bg-center relative">
-         <div className="absolute inset-0 bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90"></div>
-           <div className="relative z-10 text-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 font-normal font-nasalization">
-                Find Your Next Career Move
-              </h2>
-              <p className="text-manduTertiary text-sm md:text-xl">
-                Discover thousands of job opportunities from top companies
-              </p>
-            </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90"></div>
+          <div className="relative z-10 text-white">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 font-normal font-nasalization">
+                  Find Your Next Career Move
+                </h2>
+                <p className="text-manduTertiary text-sm md:text-xl">
+                  Discover thousands of job opportunities from top companies
+                </p>
+              </div>
 
-            <div className="max-w-5xl mx-auto rounded-2xl shadow-lg p-6 md:p-10">
-              <div className="flex flex-col md:flex-row gap-x-4 justify-start items-center rounded-[50px] shadow-sm md:bg-white p-x-[2px] p-y-[2px]">
-                {/* <div className="relative mb-6 flex gap-4"> */}
+              <div className="max-w-5xl mx-auto rounded-2xl shadow-lg p-6 md:p-10">
+                <div className="flex flex-col md:flex-row gap-x-4 justify-start items-center rounded-[50px] shadow-sm md:bg-white p-x-[2px] p-y-[2px]">
+                  {/* <div className="relative mb-6 flex gap-4"> */}
                   <div className="flex-1 relative md:mb-0 mb-4">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400 h-5 w-5" />
                     <input
@@ -345,75 +343,70 @@ const JobsPage = () => {
                     <Sliders className="h-4 w-4 mr-4" />
                     <span>Filters</span>
                   </Button>
-                {/* </div> */}
+                  {/* </div> */}
                 </div>
-
 
                 <div className="mt-4">
-
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {activeFilters.map((filter) => (
-                    <div
-                      key={filter}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-base"
-                    >
-                      <span>{filter}</span>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {activeFilters.map((filter) => (
+                      <div
+                        key={filter}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-base"
+                      >
+                        <span>{filter}</span>
+                        <button
+                          onClick={() => {
+                            setActiveFilters(
+                              activeFilters.filter((f) => f !== filter)
+                            );
+                            // removeSpecificParam({ value: filter }, jobMutate, params, router);
+                          }}
+                          className="hover:text-neutral-300"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {activeFilters.length != 0 && (
                       <button
                         onClick={() => {
-                          setActiveFilters(
-                            
-                            activeFilters.filter((f) => f !== filter)
-                          );
-                          // removeSpecificParam({ value: filter }, jobMutate, params, router);
-                        
+                          router.push("/jobs");
+                          setActiveFilters([]);
                         }}
-                        className="hover:text-neutral-300"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-400 text-white rounded-full text-base hover:bg-red-200"
                       >
-                        <X className="h-4 w-4" />
+                        <Minus className="h-4 w-4" />
+                        <span>Clear Filter</span>
                       </button>
-                    </div>
-                  ))}
-                  {activeFilters.length != 0 && (
-                    <button
-                      onClick={() => {
-                        router.push("/jobs");
-                        setActiveFilters([]);
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-400 text-white rounded-full text-base hover:bg-red-200"
-                    >
-                      <Minus className="h-4 w-4" />
-                      <span>Clear Filter</span>
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-8">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-base font-normal text-white">
-                    Popular Searches:
-                  </span>
-                  {popularSearches.map((search) => (
-                    <>
-                    <span
-                    onClick={()=> {
-                      router.push("/jobs?search="+search)
-
-                      jobMutate();
-                    }
-                    }
-                      key={search}
-                      className="px-4 py-2 md:py-3 md:px-6 bg-white/10 text-white border border-white/20 rounded-full text-sm cursor-pointer"
-                    >
-                       <Briefcase className="inline-block align-middle h-4 w-4 mr-2 text-white" />
-                      {search}
+                <div className="mt-8">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-base font-normal text-white">
+                      Popular Searches:
                     </span>
-                    </>
-                  ))}
+                    {popularSearches.map((search) => (
+                      <>
+                        <span
+                          onClick={() => {
+                            router.push("/jobs?search=" + search);
+
+                            jobMutate();
+                          }}
+                          key={search}
+                          className="px-4 py-2 md:py-3 md:px-6 bg-white/10 text-white border border-white/20 rounded-full text-sm cursor-pointer"
+                        >
+                          <Briefcase className="inline-block align-middle h-4 w-4 mr-2 text-white" />
+                          {search}
+                        </span>
+                      </>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
         </section>
 
@@ -585,111 +578,113 @@ const JobsPage = () => {
         {searchParams.toString() === "" ? (
           <section className="py-8 bg-neutral-100">
             <div className="container mx-auto px-4">
-              <h2 className="text-2xl mb-6">Featured Jobs</h2>
+              <h2 className=" mb-6 text-manduSecondary font-nasalization font-normal text-3xl">
+                Featured Jobs
+              </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {featuredLoading || !featuredJobs?.data ? (
                   <JobSkeletonMax />
                 ) : featuredJobs?.data?.length === 0 ? (
-                  <div className="text-center text-lg lg:col-span-2 col-span-1">
+                  <div className="text-center text-lg  lg:col-span-2 col-span-1 text-manduSecondary">
                     No featured jobs found
                   </div>
                 ) : (
                   featuredJobs?.data?.map((job) => (
-                     <Link href={`/jobs/${job.id}`}>
-      <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
-        <div className="flex items-start flex-col gap-y-[10px] w-full">
-          <div className="flex items-start gap-x-4 w-full">
-          <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
-            <div className="text-white text-xl">
-              <Image
-                src={job?.image}
-                alt="Company Logo"
-                width={48}
-                height={48}
-              />
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-start mb-1">
-              <div>
-                <h3 className="text-lg font-semibold feat-text">{job?.title}
-                <span className="bg-manduSecondary/10  text-sm  font-medium ml-2 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
-                    {
-                      "New"
-                    }
-                </span>
-                </h3>
-                <p className="text-sm capitalize text-manduPrimary font-medium">{job?.employer_name}</p>
-              </div>
-                <div className="flex flex-wrap gap-2 my-3">
-                              {job.skills &&
-                                job.skills.map((skill, id) => (
-                                  <span
-                                    key={id}
-                                    className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-md text-sm"
-                                  >
-                                    {skill?.name}
-                                  </span>
-                                ))}
+                    <Link href={`/jobs/${job.id}`}>
+                      <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                        <div className="flex items-start flex-col gap-y-[10px] w-full">
+                          <div className="flex items-start gap-x-4 w-full">
+                            <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
+                              <div className="text-white text-xl">
+                                <Image
+                                  src={job?.image || "/logo.png"}
+                                  alt="Company Logo"
+                                  width={48}
+                                  height={48}
+                                />
+                              </div>
                             </div>
-              {job?.saved === true ? (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSaveJob(job?.id, job?.saved!);
-                  }}
-                  // variant="ghost"
-                  size="icon"
-                  className="bg-white border border-grayText rounded-full"
-                >
-                  <HeartIcon fill="grayText" size={20} />
-                </Button>
-              ) : job?.saved === false ? (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSaveJob(job?.id, job?.saved!);
-                  }}
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-400 border-1px border-grayText rounded-full"
-                >
-                  <HeartIcon />
-                </Button>
-              ) : null}
-            </div>
-            <div className="flex items-center gap-4 text-sm text-neutral-600 mb-1">
-              <span className="flex items-center gap-2 capitalize">
-                <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
-                {job?.location}
-              </span>
-              <span className="flex items-center gap-2 capitalize">
-                <ClockIcon className="h-4 w-4 text-[#4A5568]" />
-                {job?.jobType}
-              </span>
-             
-            </div>
-             <span className="flex items-center mb-4 text-manduSecondary text-[17px] font-bold">
-                {job?.salary}
-              </span>
-           
-          </div>
-          </div>
-              <Button
-                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-manduPrimary text-white font-semibold cursor-not-allowed" : ""}`}
-                onClick={handleApply}
-              >
-                {isAuthenticated && !isEmployer
-                  ? job?.is_applied
-                    ? "Applied"
-                    : "Apply Now"
-                  : "Sign in to Apply"}
-              </Button>
-            </div>
-      </div>
-    </Link>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <h3 className="font-semibold mb-1.5 feat-text text-xl">
+                                    {job?.title}
+                                    <span className="bg-manduSecondary/10  text-sm  font-medium ml-6 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
+                                      {"New"}
+                                    </span>
+                                  </h3>
+                                  <p className="capitalize text-manduPrimary font-medium text-base mb-2.5">
+                                    {job?.employer_name}
+                                  </p>
+                                   <div className="flex flex-wrap gap-2">
+                                  {job.skills &&
+                                    job.skills.map((skill, id) => (
+                                      <span
+                                        key={id}
+                                        className="px-3 py-1 font-semibold bg-grayTag/70  rounded-[10px] text-[9px] capitalize text-manduBorder"
+                                      >
+                                        {skill?.name}
+                                      </span>
+                                    ))}
+                                </div>
+                                </div>
+                               
+                                {job?.saved === true ? (
+                                  <Button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleSaveJob(job?.id, job?.saved!);
+                                    }}
+                                    // variant="ghost"
+                                    size="icon"
+                                    className="bg-white border border-grayText rounded-full"
+                                  >
+                                    <HeartIcon fill="#D1D1D1" size={25} />
+                                  </Button>
+                                ) : job?.saved === false ? (
+                                  <Button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleSaveJob(job?.id, job?.saved!);
+                                    }}
+                                    variant="ghost"
+                                    size="icon"
+                                    className="border shadow-sm border-grayText rounded-full"
+                                  >
+                                    <HeartIcon size={20}/>
+                                  </Button>
+                                ) : null}
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-neutral-600 mb-1.5">
+                                <span className="flex items-center gap-2 capitalize">
+                                  <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
+                                  {job?.location}
+                                </span>
+                                <span className="flex items-center gap-2 capitalize">
+                                  <ClockIcon className="h-4 w-4 text-[#4A5568]" />
+                                  {job?.employment_type}
+                                </span>
+                              </div>
+                              <span className="flex items-center mb-4 text-manduSecondary text-base font-bold">
+                                {job?.salary_range?.formatted}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            className={`w-full bg-manduPrimary text-base font-semibold text-white hover:bg-neutral-800  ${isAuthenticated && !isEmployer ? job.is_applied ? "bg-manduSecondary hover:bg-manduSecondary/80 text-white font-semibold cursor-not-allowed" : "bg-manduSecondary hover:bg-manduSecondary/80": "bg-manduPrimary text-white"}`}
+                            onClick={(e)=>handleApply(e, job)}
+                          >
+                            {isAuthenticated && !isEmployer
+                              ? job?.is_applied
+                                ? "Applied"
+                                : "Apply Now"
+                              : "Sign in to Apply"}
+                          </Button>
+                        </div>
+                      </div>
+                    </Link>
                   ))
                 )}
               </div>
@@ -703,7 +698,7 @@ const JobsPage = () => {
         <section className="py-8 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl">All Jobs</h2>
+              <h2 className="text-3xl text-manduSecondary font-nasalization">All Jobs</h2>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-neutral-600">Sort by:</span>
                 <Select
@@ -726,7 +721,7 @@ const JobsPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
               {isLoading || !jobs?.data ? (
                 <JobSkeletonMini count={9} />
               ) : jobs?.data?.length === 0 ? (
@@ -741,7 +736,7 @@ const JobsPage = () => {
                         <div className="w-12 h-12 p-2 bg-white rounded-lg border-b-2 shadow-lg justify-center flex-shrink-0">
                           <div className="text-white text-xl">
                             <Image
-                              src={job?.image}
+                              src={job?.image ?? "/logo.png"}
                               alt="Company Logo"
                               width={48}
                               height={48}
@@ -758,34 +753,33 @@ const JobsPage = () => {
                                 {job.employer_name}
                               </p>
                             </div>
-                            {
-                              job?.saved === true ?  <Button
-                              onClick={(e) => {
-                                e.preventDefault(); 
-                                e.stopPropagation(); 
-                                handleSaveJob(job?.id, job?.saved!);
-                              }}
+                            {job?.saved === true ? (
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleSaveJob(job?.id, job?.saved!);
+                                }}
                                 variant="ghost"
                                 size="icon"
                                 className="text-neutral-400 hover:text-neutral-600"
-                              > 
-                                <Heart   className={`text-blue-500 h-5 w-5`} />
-                              </Button> :
-                              job?.saved === false ? 
+                              >
+                                <Heart className={`text-blue-500 h-5 w-5`} />
+                              </Button>
+                            ) : job?.saved === false ? (
                               <Button
-                              onClick={(e) => {
-                                e.preventDefault(); 
-                                e.stopPropagation();
-                                handleSaveJob(job?.id, job?.saved!);
-                              }}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleSaveJob(job?.id, job?.saved!);
+                                }}
                                 variant="ghost"
                                 size="icon"
                                 className="text-neutral-400 hover:text-neutral-600"
                               >
                                 <Heart className="h-5 w-5" />
-                              </Button> : null
-                            }
-                           
+                              </Button>
+                            ) : null}
                           </div>
                           <p className="text-neutral-600 text-sm mb-4 line-clamp-2">
                             {job.description}
@@ -826,9 +820,11 @@ const JobsPage = () => {
                             className="px-4 py-2 bg-black text-white rounded-lg hover:bg-neutral-800"
                             onClick={(e) => handleApply(e, job)}
                           >
-                             {isAuthenticated && !isEmployer
-                                  ? job?.is_applied ? "Applied": "Apply Now":
-                                  "Sign in to Apply"} 
+                            {isAuthenticated && !isEmployer
+                              ? job?.is_applied
+                                ? "Applied"
+                                : "Apply Now"
+                              : "Sign in to Apply"}
                           </Button>
                         </div>
                       </div>

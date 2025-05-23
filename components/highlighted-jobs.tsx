@@ -224,7 +224,7 @@ const HighlightedJobs = () => {
           </div>
           </div>
               <Button
-                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-manduPrimary text-white font-semibold cursor-not-allowed" : ""}`}
+                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800  ${isAuthenticated && !isEmployer ? job.is_applied ? "bg-manduSecondary text-white font-semibold cursor-not-allowed" : "bg-manduSecondary": "bg-manduPrimary text-white"}`}
                 onClick={(e)=> handleApply(e, job)}
               >
                 {isAuthenticated && !isEmployer

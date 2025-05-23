@@ -96,7 +96,7 @@ const JobCard = ({
             <div className="flex justify-between items-start mb-1">
               <div>
                 <h3 className="text-lg font-semibold feat-text">{title}
-                <span className="bg-manduSecondary/10  text-sm  font-medium ml-2 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
+                <span className="bg-manduSecondary/10  text-sm  font-medium ml-3 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
                     {
                       "New"
                     }
@@ -150,7 +150,7 @@ const JobCard = ({
           </div>
           </div>
               <Button
-                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-manduPrimary text-white font-semibold cursor-not-allowed" : ""}`}
+                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${isAuthenticated && !isEmployer ? job.is_applied ? "bg-manduSecondary text-white font-semibold cursor-not-allowed hover:bg-manduSecondary/80" : "bg-manduSecondary hover:bg-manduSecondary/80": "bg-manduPrimary text-white"}`}
                 onClick={handleApply}
               >
                 {isAuthenticated && !isEmployer
