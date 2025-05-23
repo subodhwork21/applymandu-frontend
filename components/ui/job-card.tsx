@@ -81,14 +81,15 @@ const JobCard = ({
     <Link href={`/jobs/${id}`}>
       <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
         <div className="flex items-start flex-col gap-y-[10px] w-full">
-          <div className="flex items-start gap-x-4 w-full">
+          <div className="flex items-start gap-x-1.5 w-full">
           <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
-            <div className="text-white text-xl">
+            <div className="text-white text-xl ">
               <Image
                 src={job?.image || "/logo.png"}
                 alt="Company Logo"
-                width={48}
-                height={48}
+                width={52}
+                className="rounded-[6.8px]"
+                height={52}
               />
             </div>
           </div>
@@ -102,7 +103,7 @@ const JobCard = ({
                     }
                 </span>
                 </h3>
-                <p className="text-sm capitalize text-manduPrimary font-medium">{company}</p>
+                <p className="text-base capitalize text-manduPrimary font-medium">{company}</p>
               </div>
               {job?.saved === true ? (
                 <Button
@@ -132,7 +133,7 @@ const JobCard = ({
                 </Button>
               ) : null}
             </div>
-            <div className="flex items-center gap-4 text-sm text-neutral-600 mb-1">
+            <div className="flex items-center justify-start gap-4 text-sm text-neutral-600 mb-1">
               <span className="flex items-center gap-2 capitalize">
                 <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
                 {location}

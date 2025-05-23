@@ -75,10 +75,10 @@ const HighlightedJobs = () => {
     <section className="py-12 bg-neutral-50 2xl:px-0 px-4">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-nasalization text-manduSecondary">Highlighted Jobs</h2>
+          <h2 className="text-3xl font-nasalization uppercase text-manduSecondary">Highlighted Jobs</h2>
           <Link
             href="/jobs/featured"
-            className="text-sm flex items-center hover:underline cursor-pointer group"
+            className="text-base flex items-center hover:underline cursor-pointer group text-manduSecondary font-semibold"
           >
             View all <ArrowRightIcon />
           </Link>

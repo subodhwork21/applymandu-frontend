@@ -25,10 +25,10 @@ const LatestJobs = () => {
     <section className="py-12 bg-white 2xl:px-0 px-4">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-normal text-manduSecondary font-nasalization">Latest Jobs</h2>
+          <h2 className="text-3xl font-normal text-manduSecondary uppercase font-nasalization">Latest Jobs</h2>
           <Link
             href="/jobs"
-            className="text-sm flex items-center hover:underline cursor-pointer group"
+            className="flex capitalize items-center hover:underline cursor-pointer group text-manduSecondary font-semibold text-base"
           >
             View all <ArrowRightIcon />
           </Link>

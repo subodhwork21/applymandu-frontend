@@ -109,12 +109,12 @@ const PopularClosingJobs = () => {
           {/* Most Popular */}
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl text-manduSecondary font-nasalization font-normal">
+              <h2 className="text-2xl text-manduSecondary uppercase font-nasalization font-normal">
                 Most Popular
               </h2>
               <Link
                 href="/jobs/popular"
-                className="text-sm flex text-manduSecondary font-semibold items-center hover:underline cursor-pointer"
+                className="text-sm flex uppercase text-manduSecondary font-semibold items-center hover:underline cursor-pointer"
               >
                 View all <ArrowRightIcon />
               </Link>
@@ -148,7 +148,7 @@ const PopularClosingJobs = () => {
                     <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-neutral-200">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center">
-                          <div className="text-xl">
+                          <div className="text-sm">
                             <Image
                               src={job.company_logo || "/placeholder-logo.png"}
                               alt={`${job.company_name} Logo`}

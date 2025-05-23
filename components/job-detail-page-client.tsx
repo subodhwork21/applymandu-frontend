@@ -120,7 +120,7 @@ const JobDetailPageClient = ({
                         </span>
                       </div>
                       <span className="flex items-center gap-1 text-manduSecondary font-semibold">
-                        {job.salary_range.formatted}
+                        {job?.salary_range?.formatted}
                       </span>
                     </div>
                     {job?.saved === true ? (
@@ -128,7 +128,7 @@ const JobDetailPageClient = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleSaveJob(job?.id, job?.saved!);
+                          handleSaveJob(job?.id!, job?.saved!);
                         }}
                         variant="ghost"
                         size="icon"
@@ -141,7 +141,7 @@ const JobDetailPageClient = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleSaveJob(job?.id, job?.saved!);
+                          handleSaveJob(job?.id!, job?.saved!);
                         }}
                         variant="ghost"
                         size="icon"
@@ -262,7 +262,7 @@ const JobDetailPageClient = ({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    handleSaveJob(job?.id, job?.saved!);
+                    handleSaveJob(job?.id!, job?.saved!);
                   }}
                   variant="ghost"
                   size="icon"
@@ -275,7 +275,7 @@ const JobDetailPageClient = ({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    handleSaveJob(job?.id, job?.saved!);
+                    handleSaveJob(job?.id!, job?.saved!);
                   }}
                   variant="ghost"
                   size="icon"
@@ -319,7 +319,7 @@ const JobDetailPageClient = ({
                   <div>
                     <p className="text-sm text-bluePrime">Salary Range</p>
                     <p className="text-manduBorder">
-                      {job.salary_range.formatted}
+                      {job?.salary_range?.formatted || "N/A"}
                     </p>
                   </div>
                 </div>

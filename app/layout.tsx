@@ -14,7 +14,7 @@ import TwoFactorModal from "@/components/TwoFactorModal";
 import { Poppins } from 'next/font/google';
 
 const myFont = localFont({
-  src: "../public/fonts/nasalization.woff2",
+  src: "../public/fonts/nasalization.ttf",
   variable: '--font-nasalization', 
 });
 
