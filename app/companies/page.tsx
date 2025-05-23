@@ -116,7 +116,7 @@ const CompaniesPage = () => {
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-neutral-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-neutral-800 text-2xl font-semibold">
+                      <span className="text-neutral-800 text-sm">
                          <Image
                           src={ "/logo.png"}
                           alt="Company Logo"

@@ -62,6 +62,27 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
     !link.label.includes("Next")
   );
 
+  // Logic to show only 4 page links at a time
+  let visiblePageLinks = [...pageLinks];
+  const currentPageIndex = pageLinks.findIndex(link => link.active);
+  
+  if (pageLinks.length > 4) {
+    // Calculate start and end indices for the visible links
+    let startIndex = Math.max(0, currentPageIndex - 1);
+    let endIndex = Math.min(startIndex + 3, pageLinks.length - 1);
+    
+    // Adjust startIndex if endIndex is at the maximum
+    if (endIndex === pageLinks.length - 1) {
+      startIndex = Math.max(0, endIndex - 3);
+    }
+    
+    visiblePageLinks = pageLinks.slice(startIndex, startIndex + 4);
+  }
+
+  // Determine if we need to show ellipsis
+  const showStartEllipsis = visiblePageLinks[0]?.label !== "1";
+  const showEndEllipsis = visiblePageLinks[visiblePageLinks.length - 1]?.label !== meta.last_page.toString();
+
   return (
     <Pagination className={className}>
       <PaginationContent>
@@ -75,8 +96,26 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
           />
         </PaginationItem>
         
-        {/* Page links */}
-        {pageLinks.map((link, index) => (
+        {/* Start ellipsis if needed */}
+        {showStartEllipsis && (
+          <PaginationItem>
+            <PaginationLink 
+              href={pageLinks[0].url || "#"} 
+              onClick={(e) => pageLinks[0].url && handlePageClick(e, pageLinks[0].url)}
+            >
+              1
+            </PaginationLink>
+          </PaginationItem>
+        )}
+        
+        {showStartEllipsis && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
+        
+        {/* Visible page links (max 4) */}
+        {visiblePageLinks.map((link, index) => (
           <PaginationItem key={index}>
             <PaginationLink 
               href={link.url || "#"} 
@@ -88,10 +127,21 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
           </PaginationItem>
         ))}
         
-        {/* Show ellipsis only if there are more than displayed pages */}
-        {meta.last_page > meta.links.length - 2 && (
+        {/* End ellipsis if needed */}
+        {showEndEllipsis && (
           <PaginationItem>
             <PaginationEllipsis />
+          </PaginationItem>
+        )}
+        
+        {showEndEllipsis && (
+          <PaginationItem>
+            <PaginationLink 
+              href={pageLinks[pageLinks.length - 1].url || "#"} 
+              onClick={(e) => pageLinks[pageLinks.length - 1].url && handlePageClick(e, pageLinks[pageLinks.length - 1].url)}
+            >
+              {meta.last_page}
+            </PaginationLink>
           </PaginationItem>
         )}
         
