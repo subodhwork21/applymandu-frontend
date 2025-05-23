@@ -19,10 +19,10 @@ const Hero = () => {
        <div className="relative z-10 text-white">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-5xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 font-normal font-nasalization">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 font-normal font-nasalization leading-[60px]">
             Your Dream Job Awaits
           </h1>
-          <p className="text-manduTertiary text-lg md:text-xl">
+          <p className="text-manduTertiary text-lg md:text-xl leading-7">
             Whether you&apos;re seeking new opportunities or hiring talent, we
             connect the right people with the right positions.
           </p>

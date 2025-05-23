@@ -7,7 +7,6 @@ import {
   Sliders,
   Plus,
   X,
-  MapPin,
   Clock,
   DollarSign,
   Heart,
@@ -57,7 +56,7 @@ import Footer from "@/components/footer";
 import { getFeaturedJobs, popularSearches } from "@/lib/constants";
 import { useApplication } from "@/lib/application-context";
 import useSWR from "swr";
-import { JobResponse } from "@/types/job-type";
+import { Job, JobResponse } from "@/types/job-type";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -66,7 +65,7 @@ import DataNavigation from "@/components/ui/data-navigation";
 import { useAuth } from "@/lib/auth-context";
 import { JobSkeletonMax, JobSkeletonMini } from "@/components/ui/job-skeleton";
 import { toast } from "@/hooks/use-toast";
-import { ClockIcon, MapPinIcon } from "@heroicons/react/24/solid";
+import { CalendarDaysIcon, ClockIcon, MapPinIcon } from "@heroicons/react/24/solid";
 
 export default function Page() {
   return (
@@ -108,7 +107,7 @@ const JobsPage = () => {
     error: errorFeatured,
     isLoading: featuredLoading,
     mutate: featuredMutate,
-  } = useSWR<JobResponse>("api/job/latest?label=featured", defaultFetcher);
+  } = useSWR<JobResponse>(searchParams.toString() === "" ? "api/job/latest?label=featured" : null, defaultFetcher);
 
   const {
     data: jobs,
@@ -151,7 +150,9 @@ const JobsPage = () => {
     if (e.key === "Enter") {
       e.preventDefault();
       urlSearchParams.set("search", e.currentTarget.value);
-      router.push(`/jobs?${urlSearchParams.toString()}`);
+      router.push(`/jobs?${urlSearchParams.toString()}`, {
+        scroll: false,
+      });
       jobMutate();
     }
   };
@@ -247,7 +248,9 @@ const JobsPage = () => {
       });
     }
     setActiveFilters(newActiveFilters);
-    router.push(`/jobs?${params.toString()}`);
+    router.push(`/jobs?${params.toString()}`, {
+      scroll: false,
+    });
 
     setIsFilterOpen(false);
 
@@ -275,7 +278,9 @@ const JobsPage = () => {
   //sort by recent, and salary
 
   const setSortBy = (value: string) => {
-    router.push(`/jobs?sort_by=${value}`);
+    router.push(`/jobs?sort_by=${value}`, {
+      scroll: false,
+    });
     jobMutate();
   };
 
@@ -326,7 +331,7 @@ const JobsPage = () => {
               <div className="max-w-5xl mx-auto rounded-2xl shadow-lg p-6 md:p-10">
                 <div className="flex flex-col md:flex-row gap-x-4 justify-start items-center rounded-[50px] shadow-sm md:bg-white p-x-[2px] p-y-[2px]">
                   {/* <div className="relative mb-6 flex gap-4"> */}
-                  <div className="flex-1 relative md:mb-0 mb-4">
+                  <div className="flex-1 relative md:mb-0 mb-4 w-full">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400 h-5 w-5" />
                     <input
                       onKeyDown={(e) => handleSearch(e)}
@@ -348,9 +353,9 @@ const JobsPage = () => {
 
                 <div className="mt-4">
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {activeFilters.map((filter) => (
+                    {activeFilters.map((filter, id) => (
                       <div
-                        key={filter}
+                        key={id}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-base"
                       >
                         <span>{filter}</span>
@@ -370,7 +375,9 @@ const JobsPage = () => {
                     {activeFilters.length != 0 && (
                       <button
                         onClick={() => {
-                          router.push("/jobs");
+                          router.push("/jobs", {
+                            scroll: false,
+                          });
                           setActiveFilters([]);
                         }}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-red-400 text-white rounded-full text-base hover:bg-red-200"
@@ -387,21 +394,22 @@ const JobsPage = () => {
                     <span className="text-base font-normal text-white">
                       Popular Searches:
                     </span>
-                    {popularSearches.map((search) => (
-                      <>
+                    {popularSearches.map((search, id) => (
+                      
                         <span
+                        key={id}
                           onClick={() => {
-                            router.push("/jobs?search=" + search);
+                            router.push("/jobs?search=" + search, {
+                              scroll: false,
+                            });
 
                             jobMutate();
                           }}
-                          key={search}
                           className="px-4 py-2 md:py-3 md:px-6 bg-white/10 text-white border border-white/20 rounded-full text-sm cursor-pointer"
                         >
                           <Briefcase className="inline-block align-middle h-4 w-4 mr-2 text-white" />
                           {search}
                         </span>
-                      </>
                     ))}
                   </div>
                 </div>
@@ -502,7 +510,7 @@ const JobsPage = () => {
               <div className="mb-8">
                 <h4 className="text-lg font-medium mb-4">Location</h4>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                  <MapPinIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                   <Input
                     name="location"
                     placeholder="City, State, or Country"
@@ -558,7 +566,9 @@ const JobsPage = () => {
             <DialogFooter className="flex gap-4 sm:gap-0">
               <Button
                 onClick={() => {
-                  router.push("/jobs");
+                  router.push("/jobs", {
+                    scroll: false,
+                  });
                   setIsFilterOpen(false);
                   setActiveFilters([]);
                 }}
@@ -585,12 +595,12 @@ const JobsPage = () => {
                 {featuredLoading || !featuredJobs?.data ? (
                   <JobSkeletonMax />
                 ) : featuredJobs?.data?.length === 0 ? (
-                  <div className="text-center text-lg  lg:col-span-2 col-span-1 text-manduSecondary">
+                  <div className="text-center text-lg w-full  lg:col-span-2 col-span-1 text-manduSecondary">
                     No featured jobs found
                   </div>
                 ) : (
-                  featuredJobs?.data?.map((job) => (
-                    <Link href={`/jobs/${job.id}`}>
+                  featuredJobs?.data?.map((job, index) => (
+                    <Link href={`/jobs/${job.id}`} key={index}>
                       <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
                         <div className="flex items-start flex-col gap-y-[10px] w-full">
                           <div className="flex items-start gap-x-4 w-full">
@@ -699,8 +709,8 @@ const JobsPage = () => {
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl text-manduSecondary font-nasalization">All Jobs</h2>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-neutral-600">Sort by:</span>
+              <div className="flex items-center gap-4 text-bluePrime">
+                {/* <span className="text-sm text-bluePrime">Sort by:</span> */}
                 <Select
                   onValueChange={(value) => setSortBy(value)}
                   defaultValue={searchParams.get("sort_by") || "posted_date"}
@@ -729,9 +739,9 @@ const JobsPage = () => {
                   No jobs found
                 </div>
               ) : (
-                jobs?.data?.map((job) => (
-                  <Link key={job.id} href={`/jobs/${job.id}`}>
-                    <div className="bg-white rounded-lg p-6 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                jobs?.data?.map((job: Job, index) => (
+                  <Link key={index} href={`/jobs/${job.id}`}>
+                    <div className="bg-white rounded-[15px] p-6 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 p-2 bg-white rounded-lg border-b-2 shadow-lg justify-center flex-shrink-0">
                           <div className="text-white text-xl">
@@ -744,81 +754,89 @@ const JobsPage = () => {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <div className="flex justify-between items-start mb-2">
+                          <div className="flex justify-between items-start mb-3">
                             <div>
-                              <h3 className="text-lg font-medium">
+                              <h3 className="text-[20px] font-semibold text-manduPrimary">
                                 {job.title}
                               </h3>
-                              <p className="text-neutral-600 text-sm">
+                              <p className="text-pureGray text-sm">
                                 {job.employer_name}
                               </p>
                             </div>
                             {job?.saved === true ? (
-                              <Button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleSaveJob(job?.id, job?.saved!);
-                                }}
-                                variant="ghost"
-                                size="icon"
-                                className="text-neutral-400 hover:text-neutral-600"
-                              >
-                                <Heart className={`text-blue-500 h-5 w-5`} />
-                              </Button>
-                            ) : job?.saved === false ? (
-                              <Button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleSaveJob(job?.id, job?.saved!);
-                                }}
-                                variant="ghost"
-                                size="icon"
-                                className="text-neutral-400 hover:text-neutral-600"
-                              >
-                                <Heart className="h-5 w-5" />
-                              </Button>
-                            ) : null}
+                                  <Button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleSaveJob(job?.id, job?.saved!);
+                                    }}
+                                    // variant="ghost"
+                                    size="icon"
+                                    className="bg-white border border-grayText rounded-full"
+                                  >
+                                    <HeartIcon fill="#D1D1D1" size={25} />
+                                  </Button>
+                                ) : job?.saved === false ? (
+                                  <Button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleSaveJob(job?.id, job?.saved!);
+                                    }}
+                                    variant="ghost"
+                                    size="icon"
+                                    className="border shadow-sm border-grayText rounded-full"
+                                  >
+                                    <HeartIcon size={20}/>
+                                  </Button>
+                                ) : null}
                           </div>
-                          <p className="text-neutral-600 text-sm mb-4 line-clamp-2">
+                          {/* <p className="text-neutral-600 text-sm mb-4 line-clamp-2">
                             {job.description}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mb-4">
+                          </p> */}
+                         
+                        <div className="flex items-center gap-4 text-sm text-grayColor mb-2.5">
+                                    <span className="flex items-center gap-2 capitalize">
+                                      <MapPinIcon className="h-4 w-4 text-grayColor" />
+                                      {job?.location}
+                                    </span>
+                                    <span className="flex items-center gap-2 capitalize">
+                                      <ClockIcon className="h-4 w-4 text-grayColor" />
+                                      {job?.employment_type}
+                                    </span>
+                                      <span className="text-sm text-neutral-500 flex items-center gap-2 capitalize">
+                                        <CalendarDaysIcon className="h-4 w-4 text-grayColor"/>
+                            Posted {job.posted_date_formatted}
+                          </span>
+                                   
+                                  </div>
+                                   <span className="flex items-center mb-4 text-manduSecondary text-[17px] font-bold">
+                                      {job?.salary_range?.formatted}
+                                    </span>
+                                    
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                       <div className="flex flex-wrap gap-2 mb-0">
                             {job.skills.slice(0, 3).map((skill, id) => (
                               <span
                                 key={id}
-                                className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm"
+                                className="px-5 py-2 bg-neutral-100 text-manduBorder font-semibold capitalize rounded-full text-sm"
                               >
                                 {skill?.name}
                               </span>
                             ))}
                             {job.skills.length > 3 && (
-                              <span className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm">
+                              <span className="px-5 py-2  bg-neutral-100 text-manduBorder font-semibold capitalize rounded-full text-sm">
                                 +{job.skills.length - 3} more
                               </span>
                             )}
                           </div>
-                        </div>
-                      </div>
-                      <div className="mt-auto pt-4 border-t border-neutral-100">
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="flex items-center gap-1 text-sm text-neutral-600">
-                            <MapPin className="h-4 w-4" />
-                            {job.location}
-                          </span>
-                          <span className="flex items-center gap-1 text-sm text-neutral-600">
-                            {/* <DollarSign className="h-4 w-4" /> */}
-                            {job.salary_range?.formatted}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-neutral-500">
-                            Posted {job.posted_date_formatted}
-                          </span>
-                          <Button
-                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-neutral-800"
-                            onClick={(e) => handleApply(e, job)}
+                        <div className="flex items-center justify-between w-auto md:w-[200px]">
+                        
+                           <Button
+                            className={`w-full bg-manduPrimary text-base rounded-[8px] font-semibold text-white hover:bg-neutral-800  ${isAuthenticated && !isEmployer ? job.is_applied ? "bg-manduSecondary hover:bg-manduSecondary/80 text-white font-semibold cursor-not-allowed" : "bg-manduSecondary hover:bg-manduSecondary/80": "bg-manduPrimary text-white"}`}
+                            onClick={(e)=>handleApply(e, job)}
                           >
                             {isAuthenticated && !isEmployer
                               ? job?.is_applied
@@ -826,7 +844,7 @@ const JobsPage = () => {
                                 : "Apply Now"
                               : "Sign in to Apply"}
                           </Button>
-                        </div>
+                        </div>  
                       </div>
                     </div>
                   </Link>
