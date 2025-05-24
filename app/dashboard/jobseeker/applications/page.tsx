@@ -242,7 +242,7 @@ const ApplicationsPage = () => {
   }
 
   return (
-    <section className="py-8">
+    <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold mb-1">My Applications</h1>

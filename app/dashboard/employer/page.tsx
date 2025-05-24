@@ -134,7 +134,7 @@ const EmployerDashboardPage = () => {
 
 
   return (
-    <section className="py-8">
+    <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">

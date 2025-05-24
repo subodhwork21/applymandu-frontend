@@ -25,7 +25,7 @@ const AboutPage = () => {
         </section>
 
         {/* Our Story */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="relative h-96 rounded-2xl overflow-hidden">
@@ -63,7 +63,7 @@ const AboutPage = () => {
         </section>
 
         {/* Mission & Values */}
-        <section className="py-16 bg-neutral-50">
+        <section className="py-16 bg-neutral-50 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl font-bold mb-4">Our Mission & Values</h2>

@@ -76,7 +76,7 @@ const JobDetailPageClient = ({
   return (
     <div className="min-h-screen bg-neutral-50">
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 2xl:px-0 lg:px-12 px-4">
         <Link
           href="/jobs"
           className="inline-flex items-center text-base gap-2 font-semibold mb-8 text-manduSecondary"

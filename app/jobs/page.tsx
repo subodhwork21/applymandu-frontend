@@ -690,7 +690,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
 
         {/* Featured Jobs Section */}
         {searchParams.toString() === "" ? (
-          <section className="py-8 bg-neutral-100">
+          <section className="py-8 bg-neutral-100 2xl:px-0 lg:px-12 px-4">
             <div className="container mx-auto px-4">
               <h2 className=" mb-6 text-manduSecondary uppercase font-nasalization font-normal text-3xl">
                 Featured Jobs
@@ -816,7 +816,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
         )}
 
         {/* All Jobs Section */}
-        <section className="py-8 bg-white">
+        <section className="py-8 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl uppercase text-manduSecondary font-nasalization">

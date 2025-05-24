@@ -79,7 +79,7 @@ const CompaniesPage = () => {
         </section>
 
         {/* Featured Companies */}
-        <section className="py-12 bg-white">
+        <section className="py-12 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-normal mb-8 font-nasalization text-manduSecondary uppercase">Featured Companies</h2>
 
@@ -155,7 +155,7 @@ const CompaniesPage = () => {
         </section>
 
         {/* Browse by Industry */}
-        <section className="py-12 bg-neutral-50">
+        <section className="py-12 bg-neutral-50 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl text-manduSecondary font-nasalization font-normal mb-8">Browse by Industry</h2>
 
@@ -221,7 +221,7 @@ const CompaniesPage = () => {
         </section>
 
         {/* Company Reviews */}
-        <section className="py-12 bg-white">
+        <section className="py-12 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-8">
               Latest Company Reviews

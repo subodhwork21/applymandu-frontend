@@ -437,7 +437,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   if (isLoading) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p>Loading your settings...</p>
@@ -449,7 +449,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   if (error) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p className="text-red-500">
@@ -462,7 +462,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   return (
-    <section className="py-8">
+    <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold mb-1">Settings</h1>

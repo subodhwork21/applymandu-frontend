@@ -38,7 +38,7 @@ const ResourcesPage = () => {
         </section>
 
         {/* Featured Articles */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-8">Featured Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -110,7 +110,7 @@ const ResourcesPage = () => {
         </section>
 
         {/* Career Resources */}
-        <section className="py-16 bg-neutral-50">
+        <section className="py-16 bg-neutral-50 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-8">Career Resources</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -165,7 +165,7 @@ const ResourcesPage = () => {
         </section>
 
         {/* Expert Advice */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-8">Expert Advice</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

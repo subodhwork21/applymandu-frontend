@@ -103,7 +103,7 @@ const PopularClosingJobs = () => {
   };
 
   return (
-    <section className="py-12 bg-white 2xl:px-0 px-4">
+    <section className="py-12 bg-white 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className={`grid grid-cols-1 ${closingJobsData?.expiring_jobs?.length === 0 ? "lg:grid-cols-1 gap-8" : "lg:grid-cols-2 gap-8"}`}>
           {/* Most Popular */}

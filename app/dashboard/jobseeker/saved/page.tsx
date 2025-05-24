@@ -135,7 +135,7 @@ const SavedJobsPage = () => {
 
   if (isLoading) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p>Loading saved jobs...</p>
@@ -147,7 +147,7 @@ const SavedJobsPage = () => {
 
   if (error) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p className="text-red-500">Error loading saved jobs. Please try again later.</p>
@@ -158,7 +158,7 @@ const SavedJobsPage = () => {
   }
 
   return (
-    <section className="py-8">
+    <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold mb-1">Saved Jobs</h1>

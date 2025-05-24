@@ -477,7 +477,7 @@ const prepareFormData = () => {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-50">
+    <main className="min-h-screen bg-neutral-50 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
           {/* Progress Section */}

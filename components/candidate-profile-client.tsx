@@ -175,7 +175,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
 
   if (isLoading) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p>Loading candidate profile...</p>
@@ -187,7 +187,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
 
   if (error) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p className="text-red-500">Error loading candidate profile. Please try again later.</p>
@@ -200,7 +200,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
   const candidate = data;
   if (!candidate) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p>Candidate not found.</p>
@@ -222,7 +222,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
     Object.keys(candidate.availability_date).length > 0;
 
   return (
-    <section className="py-8">
+    <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <Link
           href="/dashboard/employer/candidates"

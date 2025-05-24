@@ -22,7 +22,7 @@ const LatestJobs = () => {
   } = useSWR<JobResponse>("api/job/latest?label=new", defaultFetcher);
 
   return (
-    <section className="py-12 bg-white 2xl:px-0 px-4">
+    <section className="py-12 bg-white 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-normal text-manduSecondary uppercase font-nasalization">Latest Jobs</h2>

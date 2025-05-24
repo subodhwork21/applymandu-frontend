@@ -98,7 +98,7 @@ const ApplicationDetails = ({id}: {id: string}) => {
 
   if (isLoading) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p>Loading application details...</p>
@@ -110,7 +110,7 @@ const ApplicationDetails = ({id}: {id: string}) => {
 
   if (error || !data) {
     return (
-      <section className="py-8">
+      <section className="py-8 2xl:px-0 lg:px-12 px-4">
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p className="text-red-500">Error loading application details. Please try again later.</p>

@@ -291,7 +291,7 @@ const DashboardPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-50">
+    <main className="min-h-screen bg-neutral-50 2xl:px-0 lg:px-12 px-4">
       <section className="py-8">
         <div className="container mx-auto px-4">
           <div className="mb-8">
