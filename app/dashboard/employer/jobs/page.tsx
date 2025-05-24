@@ -293,8 +293,8 @@ const JobListingsPage = () => {
                         >
                           Edit
                         </Button>
-                        <Button onClick={() => handleToggleJobStatus(job.id)} variant="outline" size="sm">
-                          {job.status ? "Pause" : "Activate"}
+                        <Button onClick={() => handleToggleJobStatus(job?.id)} variant="outline" size="sm">
+                          {Number(job?.status) === 1 ? "Pause" : "Activate"}
                         </Button>
                         <Button
                           size="sm"
@@ -322,11 +322,12 @@ const JobListingsPage = () => {
                         className={link.active ? "bg-black text-white" : ""}
                         onClick={() => {
                           if (link.url) {
-                            // Extract page number from URL
                             const url = new URL(link.url);
                             const page = url.searchParams.get("page");
                             if (page) {
-                              router.push(`/dashboard/employer/jobs?page=${page}`);
+                              router.push(`/dashboard/employer/jobs?page=${page}`, {
+                                scroll: false,
+                              });
                               mutate();
                             }
                           }

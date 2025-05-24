@@ -704,7 +704,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                   </div>
                 ) : (
                   featuredJobs?.data?.map((job, index) => (
-                    <Link href={`/jobs/${job.id}`} key={index}>
+                    <Link href={`/jobs/${job?.slug}`} key={index}>
                       <div className="bg-white rounded-2xl shadow-lg md:p-6 p-4 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
                         <div className="flex items-start flex-col gap-y-[10px] w-full">
                           <div className="flex items-start gap-x-1 w-full">
@@ -853,7 +853,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                 </div>
               ) : (
                 jobs?.data?.map((job: Job, index) => (
-                  <Link key={index} href={`/jobs/${job.id}`}>
+                  <Link key={index} href={`/jobs/${job?.slug}`}>
                     <div className="bg-white rounded-[15px] md:p-6 p-4 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
                       <div className="flex items-start gap-1">
                         <div className="w-18 h-18 p-2">

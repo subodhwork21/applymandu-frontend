@@ -271,7 +271,7 @@ const EmployerDashboardPage = () => {
                           >
                             Edit
                           </Button>
-                          <Link href={`/jobs/${job.id}`}>
+                          <Link href={`/jobs/${job?.slug}`}>
                             <Button variant="outline" size="sm" className="w-full">
                               View
                             </Button>
@@ -303,7 +303,9 @@ const EmployerDashboardPage = () => {
                       // Extract page number from URL
                       const urlObj = new URL(url);
                       const page = urlObj.searchParams.get('page');
-                     router.push(`/dashboard/employer?page=${page}`);
+                     router.push(`/dashboard/employer?page=${page}`, {
+                      scroll: false,
+                     });
                       // Refresh job listings
                       mutateJobs();
                     }}

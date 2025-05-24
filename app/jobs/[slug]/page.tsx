@@ -22,10 +22,10 @@ const allJobs = [
 
 
 
-const Page = ({ params }: { params: { id: string } }) => {
+const Page = ({ params }: { params: { slug: string } }) => {
 
 
-  const {data: jobDesc, isLoading, error, mutate} = useSWR<JobDescription>("api/job/description/"+params?.id, defaultFetcher);
+  const {data: jobDesc, isLoading, error, mutate} = useSWR<JobDescription>("api/job/description/"+params?.slug, defaultFetcher);
 
   if (error) {
     // notFound();

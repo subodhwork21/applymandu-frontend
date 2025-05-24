@@ -27,6 +27,7 @@ export interface Job {
   viewed: boolean | null;
   saved: boolean | null;
   is_applied: boolean | null;
+  slug: string;
 }
 
 interface PaginationLink {

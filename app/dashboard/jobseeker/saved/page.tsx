@@ -46,6 +46,7 @@ interface SavedJob {
   requirements: string[];
   responsibilities: string[];
   benefits: string[];
+  slug: string;
   posted_date: string;
   posted_date_formatted: string;
   employer_id: number;
@@ -237,7 +238,7 @@ const SavedJobsPage = () => {
                             align="end"
                             className="w-[200px]"
                           >
-                            <Link href={`/jobs/${job.id}`}>
+                            <Link href={`/jobs/${job?.slug}`}>
                               <DropdownMenuItem>View Details</DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem

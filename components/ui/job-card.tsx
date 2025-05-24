@@ -78,7 +78,7 @@ const JobCard = ({
   }
 
   return (
-    <Link href={`/jobs/${id}`}>
+    <Link href={`/jobs/${job?.slug}`}>
       <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
         <div className="flex items-start flex-col gap-y-[10px] w-full">
           <div className="flex items-start gap-x-1.5 w-full">

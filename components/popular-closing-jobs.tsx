@@ -142,7 +142,7 @@ const PopularClosingJobs = () => {
                 popularJobsData?.popular_jobs.map((job) => (
                   <Link 
                     key={job.id} 
-                    href={`/jobs/${job.id}`} 
+                    href={`/jobs/${job?.slug}`} 
                     className="w-full"
                   >
                     <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-neutral-200">
