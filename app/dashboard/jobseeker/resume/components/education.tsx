@@ -97,15 +97,15 @@ const Education: React.FC<EducationProps> = ({
                     <SelectValue placeholder="Select degree" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bachelors_degree">
+                    <SelectItem value="Bachelors Degree">
                       Bachelors Degree
                     </SelectItem>
-                    <SelectItem value="masters_degree">
+                    <SelectItem value="Masters Degree">
                       Masters Degree
                     </SelectItem>
-                    <SelectItem value="phd">Ph.D.</SelectItem>
-                    <SelectItem value="diploma">Diploma</SelectItem>
-                    <SelectItem value="highschool">High School</SelectItem>
+                    <SelectItem value="PHD">Ph.D.</SelectItem>
+                    <SelectItem value="Diploma">Diploma</SelectItem>
+                    <SelectItem value="High School">High School</SelectItem>
                   </SelectContent>
                 </Select>
                 {getError(edu.id, "degree") && (

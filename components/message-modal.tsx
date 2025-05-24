@@ -39,6 +39,7 @@ interface MessageModalProps {
     name: string;
     position: string;
     avatar: string;
+    image_path: string;
   };
 }
 
@@ -205,11 +206,10 @@ useEffect(() => {
       const data = await response.json();
 
       if (data.success) {
-        const newMessages = data.data.data; // Pagination data structure
+        const newMessages = data.data.data; 
 
         if (pageNum === 1) {
-          // First page, replace all messages
-          setMessages(newMessages.reverse()); // Reverse to show oldest first
+          setMessages(newMessages.reverse()); 
         } else {
           // Subsequent pages, prepend to existing messages
           setMessages(prev => [...newMessages.reverse(), ...prev]);
@@ -435,7 +435,7 @@ useEffect(() => {
                         {/* Avatar for other user */}
                         {message?.sender_id?.toString() !== user?.id.toString() && (
                           <img
-                            src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
+                            src={candidate.image_path || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
                             alt={candidate.name}
                             className="w-8 h-8 rounded-full flex-shrink-0"
                           />
