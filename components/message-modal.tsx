@@ -39,7 +39,6 @@ interface MessageModalProps {
     name: string;
     position: string;
     avatar: string;
-    image_path: string;
   };
 }
 
@@ -435,7 +434,7 @@ useEffect(() => {
                         {/* Avatar for other user */}
                         {message?.sender_id?.toString() !== user?.id.toString() && (
                           <img
-                            src={candidate.image_path || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
+                            src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
                             alt={candidate.name}
                             className="w-8 h-8 rounded-full flex-shrink-0"
                           />

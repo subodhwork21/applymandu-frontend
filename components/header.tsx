@@ -53,6 +53,7 @@ interface ChatPreview {
   last_message: string;
   unread_count: number;
   updated_at: string;
+  image_path: string;
 }
 
 // Define types for the notification data
@@ -179,7 +180,7 @@ const Header = () => {
       id: chat.user_id.toString(),
       name: chat.name,
       position: chat.position || "User",
-      avatar: chat.avatar || "",
+      avatar: chat.image_path || "",
     });
     setIsMessageModalOpen(true);
   };
