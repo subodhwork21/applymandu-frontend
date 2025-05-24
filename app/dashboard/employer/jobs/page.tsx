@@ -281,8 +281,8 @@ const JobListingsPage = () => {
                             </p>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 ${job.status ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"} rounded-full text-sm`}>
-                          {job.status ? "Active" : "Inactive"}
+                        <span className={`px-3 py-1 ${Number(job.status) === 1 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"} rounded-full text-sm`}>
+                          {Number(job.status) === 1 ? "Active" : "Inactive"}
                         </span>
                       </div>
                       <div className="flex justify-end space-x-2 mt-4">
