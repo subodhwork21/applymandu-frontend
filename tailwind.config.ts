@@ -17,11 +17,13 @@ const config: Config = {
     extend: {
        fontFamily: {
         nasalization: ['var(--font-nasalization)'],
+        poppins: ['var(--font-poppins)'],
       },
       colors: {
         manduPrimary: {
           DEFAULT: "#001C4A",
         },
+        
         manduSecondary: {
           DEFAULT: "#DC143C",
       
@@ -55,6 +57,27 @@ const config: Config = {
         },
         grayTag: {
           DEFAULT: "#F1F1F1",
+        },
+        profileNameText: {
+          DEFAULT: "#00090F"
+        },
+        dashboardTitle: {
+          DEFAULT: "#001C4A",
+        },
+        dashboardTitleLight: {
+          DEFAULT: "#64748B",
+        },
+        activityText: {
+          DEFAULT: "#262626",
+        },
+        activityTextLight: {
+          DEFAULT: "#737373",
+        },
+        iconHeart: {
+          DEFAULT: "#F94545",
+        },  
+        iconCalendar: {
+            DEFAULT: "#D6D4FD",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

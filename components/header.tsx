@@ -323,10 +323,10 @@ const Header = () => {
                 {/* Notifications Dropdown with Messages Tab */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative">
+                    <Button variant="ghost" size="icon" className="relative shadow-2xl">
                       <Bell className="h-5 w-5 text-neutral-600" />
                       <span className="absolute -top-2 -right-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {totalUnread > 0 ? totalUnread + 3 : 3}
+                        {totalUnread > 0 ? totalUnread + 3 : 0}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -533,7 +533,7 @@ const Header = () => {
                           {user?.first_name?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium text-neutral-800 md:block hidden">
+                      <span className="text-sm font-medium text-profileNameText md:block hidden">
                         {user?.first_name
                           ? user?.first_name + " " + user?.last_name
                           : user?.company_name}
@@ -637,7 +637,7 @@ const Header = () => {
                 <Button
                   variant="outline"
                   className="hidden md:flex bg-manduSecondary border-manduSecondary hover:text-manduSecondary border-[1px] text-white  rounded-[24px]"
-                  onClick={() => openRegisterModal(false)}
+                  onClick={() => openRegisterModal()}
                 >
                   Register
                 </Button>
@@ -686,7 +686,7 @@ const Header = () => {
                     <Button
                       variant="outline"
                       className="flex-1 bg-white border-neutral-200 hover:bg-neutral-50"
-                      onClick={() => openRegisterModal(false)}
+                      onClick={() => openRegisterModal()}
                     >
                       Register
                     </Button>

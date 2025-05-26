@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -94,7 +95,7 @@
 }
 
 * {
-  font-family: "Poppins", sans-serif;
+  font-family: var(--font-poppins);
 }
 
 .feat-text{

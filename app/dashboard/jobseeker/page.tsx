@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Building,
   MapPin,
@@ -19,6 +19,10 @@ import {
   DollarSign,
   Linkedin,
   Github,
+  LayoutDashboardIcon,
+  CalendarCheck,
+  InfoIcon,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -34,17 +38,14 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/hooks/use-toast";
 import JobSeekerDashboardSkeleton from "@/components/ui/jobseeker-dashboard-skeleton";
 
-
-
-const isServer = () => typeof window === 'undefined';
-
-
+const isServer = () => typeof window === "undefined";
 
 const DashboardPage = () => {
   const { openApplicationPanel } = useApplication();
   const pathname = usePathname();
   // const profile = mockUserProfile;
   const { user, isAuthenticated, isEmployer, openLoginModal } = useAuth();
+  const router = useRouter();
 
   // const recentApplications = [
   //   {
@@ -61,23 +62,22 @@ const DashboardPage = () => {
   //   },
   // ];
 
-  const {data: profile, isLoading: profileLoading} = useSWR<Record<string,any>>(
-    "api/jobseeker/user-profile",
-    defaultFetcher
-  );
+  const { data: profile, isLoading: profileLoading } = useSWR<
+    Record<string, any>
+  >("api/jobseeker/user-profile", defaultFetcher);
 
   const { data: recentApplications } = useSWR<ApplicationResponse>(
     "api/dashboard/jobseeker/recent-applications",
     defaultFetcher
   );
 
-  const recentActivityIcons = {
-    profile_viewed: Eye,
-    interview_scheduled: Calendar,
-    application_status_update: Briefcase,
-    job_match_found: BookmarkCheck,
-    job_saved: Heart,
-    default: Calendar,
+const recentActivityIcons = {
+    profile_viewed: { icon: Eye, color: "text-manduSecondary", bg: "bg-iconHeart/40" },
+    interview_scheduled: { icon: Calendar, color: "text-manduPrimary" , bg: "bg-iconCalendar/40 " },
+    application_status_update: { icon: Briefcase, color: "text-purple-500" , bg: "bg-iconCalendar/40" },
+    job_match_found: { icon: BookmarkCheck, color: "text-amber-500", bg: "bg-iconCalendar/40" },
+    job_saved: { icon: Heart, color: "text-red-500",  bg: "bg-iconHeart/40"  },
+    default: { icon: Calendar, color: "text-gray-500", bg: "bg-iconCalendar/40" },
   };
 
   const {
@@ -138,21 +138,19 @@ const DashboardPage = () => {
   // }, []);
 
   const handleApply = (e: React.MouseEvent<HTMLButtonElement>, job: any) => {
-     if (isAuthenticated && !isEmployer) {
-          if (job?.is_applied) {
-            toast({
-              title: "Already Applied",
-              description: "You have already applied to this job.",
-            });
-            return;
-          }
-          openApplicationPanel(job);
-        } else {
-          openLoginModal();
-        }
+    if (isAuthenticated && !isEmployer) {
+      if (job?.is_applied) {
+        toast({
+          title: "Already Applied",
+          description: "You have already applied to this job.",
+        });
+        return;
+      }
+      openApplicationPanel(job);
+    } else {
+      openLoginModal();
+    }
   };
-
-
 
   // const calculateCompletion = () => {
   //   let total = 0;
@@ -286,17 +284,19 @@ const DashboardPage = () => {
     }
   };
 
-  if(activityLoading || isServer()){
-    return <JobSeekerDashboardSkeleton/>
+  if (activityLoading || isServer()) {
+    return <JobSeekerDashboardSkeleton />;
   }
 
   return (
     <main className="min-h-screen bg-neutral-50 2xl:px-0 lg:px-12 px-4">
       <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h1 className="text-2xl font-semibold mb-1">Dashboard</h1>
-            <p className="text-neutral-600">
+          <div className="mb-6">
+            <h1 className="text-3xl mb-5 text-manduSecondary font-nasalization font-normal">
+              Dashboard
+            </h1>
+            <p className="text-manduBorder text-sm font-poppins">
               Track your job search progress and activities
             </p>
           </div>
@@ -304,76 +304,106 @@ const DashboardPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="col-span-2 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg">Applications</h3>
-                    <span className="text-2xl">
+                <div className="bg-white py-6 border border-gray-400/40 rounded-[15.5px] duration-700 hover:shadow-xl">
+                  <div className="flex items-center justify-center gap-4 mb-2 pb-4 border-b border-manduBorder/40">
+                    <h3 className="text-2xl text-dashboardTitle font-medium">
+                      Applications
+                    </h3>
+                    <LayoutDashboardIcon className="w-5 h-5 text-manduPrimary" />
+                  </div>
+                  <div className="text-center">
+                    {" "}
+                    <span className="text-3xl text-dashboardTitle font-semibold mb-6">
                       {totalApplications?.count?.total_applications}
                     </span>
+                    <p className="text-lg text-dashboardTitleLight font-normal">
+                      Total jobs applied
+                    </p>
                   </div>
-                  <p className="text-sm text-neutral-600">Total jobs applied</p>
                 </div>
-                <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg">Interviews</h3>
-                    <span className="text-2xl">
+                <div className="bg-white py-6 rounded-[15.5px] border border-gray-400/40 duration-700 hover:shadow-xl">
+                  <div className="flex items-center justify-center gap-4 mb-2 pb-4 border-b border-manduBorder/40">
+                    <h3 className="text-2xl text-dashboardTitle font-medium">
+                      Interviews
+                    </h3>
+                    <CalendarCheck className="w-5 h-5 text-manduPrimary" />
+                  </div>
+                  <div className="text-center">
+                     <span className="text-3xl text-dashboardTitle font-semibold mb-6">
                       {totalApplications?.count?.total_interviews}
                     </span>
-                  </div>
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-lg text-dashboardTitleLight font-normal">
                     Scheduled this month
                   </p>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg">Saved</h3>
-                    <span className="text-2xl">
+                <div className="bg-white py-6 border border-gray-400/40 rounded-[15.5px] duration-700 hover:shadow-xl">
+                  <div className="flex items-center justify-center gap-4 mb-2 pb-4 border-b border-manduBorder/40">
+                    <h3 className="text-2xl text-dashboardTitle font-medium">
+                      Saved
+                    </h3>
+                    <InfoIcon className="w-5 h-5 text-manduPrimary" />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-3xl text-dashboardTitle font-semibold mb-6">
                       {totalApplications?.count?.saved_jobs}
                     </span>
+                  <p className="text-lg text-dashboardTitleLight font-normal">Bookmarked jobs</p>
                   </div>
-                  <p className="text-sm text-neutral-600">Bookmarked jobs</p>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                <h2 className="text-xl mb-4">Recent Applications</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentApplications && recentApplications?.data?.length > 0 ? recentApplications?.data?.map((application) => (
-                    <Link
-                      key={application.id}
-                      href={`/dashboard/jobseeker/applications/${application.id}`}
-                    >
-                      <div className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer">
-                        <div>
-                          <h3 className="font-medium">
-                            {application.job_title}
-                          </h3>
-                          <p className="text-sm text-neutral-600">
-                            {application.company_name}
-                          </p>
-                          <p className="text-xs text-neutral-500 mt-1">
-                            Applied on {application.formatted_applied_at}
-                          </p>
+              <div className="bg-white py-6 rounded-lg border border-neutral-200">
+                <h2 className="mb-4 pl-8 text-manduSecondary font-normal text-xl">Recent Applications</h2>
+                <div className="grid pl-8 pt-6  grid-cols-1 md:grid-cols-2 gap-4 border-t-[2px] border-grayText">
+                  {recentApplications &&
+                  recentApplications?.data?.length > 0 ? (
+                    recentApplications?.data?.map((application) => (
+                      // <Link
+                      //   key={application.id}
+                      //   href={`/dashboard/jobseeker/applications/${application.id}`}
+                      // >
+                        <div className="py-4 px-5 border border-neutral-200 rounded-lg transition-colors cursor-pointer">
+                          <div>
+                            <div className="font-semibold text-sm text-black mb-3 flex justify-between items-center w-full">
+                              <h3>
+                                {application.job_title}
+                              </h3>
+                              <span onClick={() => router.push(`/dashboard/jobseeker/applications/${application.id}`)} className="flex justify-end items-center gap-1 text-manduSecondary font-medium">
+                                  View Detail
+                                    <ArrowRight className="h-4 w-4 font-[900] text-base text-manduSecondary" />
+                              </span>
+                            </div>
+                            <p className="text-sm text-black font-medium mb-3 capitalize">
+                              {application.company_name}
+                            </p>
+                            <p className="text-sm text-black mt-1 font-normal">
+                              Applied on {application.formatted_applied_at}
+                            </p>
+                          </div>
+                         
                         </div>
-                        <ChevronRight className="h-4 w-4 text-neutral-400" />
-                      </div>
-                    </Link>
-                  )): <p>No recent applications</p>}
+                      // </Link>
+                    ))
+                  ) : (
+                    <p>No recent applications</p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl">Recent Activity</h2>
-                    <Button variant="ghost" size="sm">
+                <div className="bg-white py-6 rounded-lg border border-neutral-200">
+                  <div className="flex justify-between items-center mb-2 px-6">
+                    <h2 className="text-xl text-manduSecondary font-normal">Recent Activity</h2>
+                    <Button variant="ghost" size="sm" className="text-manduSecondary font-semibold hover:text-manduSecondary">
                       View All
+                      <ArrowRight className="ml-1 h-4 w-4 font-bold text-manduSecondary" />
                     </Button>
                   </div>
-                  <ScrollArea className="h-[200px] pr-4">
+                  <ScrollArea className="h-[200px] px-6 pt-[14px] border-t-[1px] ">
                     <div className="space-y-4">
                       {recentActivity?.data?.map((activity: Activity) => {
-                        let IconComponent =
+                        let {icon:IconComponent, color, bg} =
                           recentActivityIcons[
                             activity.type as keyof typeof recentActivityIcons
                           ] || recentActivityIcons.default;
@@ -382,14 +412,14 @@ const DashboardPage = () => {
                             key={activity.id}
                             className="flex items-start gap-3"
                           >
-                            <div className="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <IconComponent className="h-4 w-4 text-neutral-600" />
+                            <div className={`w-8 h-8 ${bg} rounded-full flex items-center justify-center flex-shrink-0`}>
+                             <IconComponent className={`h-5 w-5 ${color}`} />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-neutral-800">
+                              <p className="text-sm text-activityText">
                                 {activity.description}
                               </p>
-                              <span className="text-xs text-neutral-500">
+                              <span className="text-xs text-activityTextLight">
                                 {activity.created_at_formatted}
                               </span>
                             </div>
@@ -401,8 +431,8 @@ const DashboardPage = () => {
                 </div>
 
                 <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                  <h2 className="text-xl mb-6">Application Stats</h2>
-                  <div className="space-y-6">
+                  <h2 className="text-xl mb-4 text-manduSecondary font-normal">Application Stats</h2>
+                  <div className="space-y-6 border-t border-gray-200 pt-6">
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-neutral-600">
@@ -416,7 +446,9 @@ const DashboardPage = () => {
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
-                            width: `${applicationStats?.data?.success_rate || 0}%`,
+                            width: `${
+                              applicationStats?.data?.success_rate || 0
+                            }%`,
                           }}
                         />
                       </div>
@@ -434,7 +466,9 @@ const DashboardPage = () => {
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
-                            width: `${applicationStats?.data?.response_rate || 0}%`,
+                            width: `${
+                              applicationStats?.data?.response_rate || 0
+                            }%`,
                           }}
                         />
                       </div>
@@ -452,7 +486,9 @@ const DashboardPage = () => {
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
-                            width: `${applicationStats?.data?.interview_rate || 0}%`,
+                            width: `${
+                              applicationStats?.data?.interview_rate || 0
+                            }%`,
                           }}
                         />
                       </div>
@@ -536,7 +572,11 @@ const DashboardPage = () => {
                             </span>
                           </div>
                           <Button
-                            className={`w-full bg-black text-white hover:bg-neutral-800 ${job?.is_applied ? "bg-neutral-300 text-neutral-600 hover:bg-neutral-400 cursor-not-allowed" : ""}`}
+                            className={`w-full bg-black text-white hover:bg-neutral-800 ${
+                              job?.is_applied
+                                ? "bg-neutral-300 text-neutral-600 hover:bg-neutral-400 cursor-not-allowed"
+                                : ""
+                            }`}
                             onClick={(e) => handleApply(e, job)}
                           >
                             {isAuthenticated && !isEmployer
@@ -568,10 +608,17 @@ const DashboardPage = () => {
                     {user?.position_title}
                   </p>
                   <div className="flex justify-center gap-4 mt-4">
-                    
-                    {profile?.data?.social_links?.some((item: {platform: string, link: string})=> item?.platform === "linkedin") && (
+                    {profile?.data?.social_links?.some(
+                      (item: { platform: string; link: string }) =>
+                        item?.platform === "linkedin"
+                    ) && (
                       <a
-                        href={profile?.data?.social_links?.find((item: {platform: string, link: string})=> item?.platform === "linkedin").url}
+                        href={
+                          profile?.data?.social_links?.find(
+                            (item: { platform: string; link: string }) =>
+                              item?.platform === "linkedin"
+                          ).url
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-neutral-600 hover:text-neutral-900"
@@ -579,9 +626,17 @@ const DashboardPage = () => {
                         <Linkedin className="w-5 h-5" />
                       </a>
                     )}
-                    {profile?.data?.social_links?.some((item: {platform: string, link: string})=> item?.platform === "github") && (
+                    {profile?.data?.social_links?.some(
+                      (item: { platform: string; link: string }) =>
+                        item?.platform === "github"
+                    ) && (
                       <a
-                        href={profile?.data?.social_links?.find((item: {platform: string, link: string})=> item?.platform === "github").url}
+                        href={
+                          profile?.data?.social_links?.find(
+                            (item: { platform: string; link: string }) =>
+                              item?.platform === "github"
+                          ).url
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-neutral-600 hover:text-neutral-900"

@@ -67,10 +67,10 @@ export default function DashboardLayout({
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-sm px-4 py-2 rounded-full whitespace-nowrap cursor-pointer ${
+                className={`text-sm px-4 py-2 rounded-[8px] whitespace-nowrap cursor-pointer ${
                   isActive(item.href)
-                    ? "bg-black text-white"
-                    : "text-neutral-600 hover:bg-neutral-100"
+                    ? "bg-manduPrimary text-white"
+                    : "text-manduPrimary hover:bg-manduPrimary hover:text-white duration-700"
                 }`}
               >
                 {item.name}
