@@ -73,6 +73,7 @@ const DashboardPage = () => {
 
 const recentActivityIcons = {
     profile_viewed: { icon: Eye, color: "text-manduSecondary", bg: "bg-iconHeart/40" },
+    job_viewed: { icon: Eye, color: "text-manduSecondary", bg: "bg-iconHeart/40" },
     interview_scheduled: { icon: Calendar, color: "text-manduPrimary" , bg: "bg-iconCalendar/40 " },
     application_status_update: { icon: Briefcase, color: "text-purple-500" , bg: "bg-iconCalendar/40" },
     job_match_found: { icon: BookmarkCheck, color: "text-amber-500", bg: "bg-iconCalendar/40" },
