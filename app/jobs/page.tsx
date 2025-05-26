@@ -290,10 +290,6 @@ const JobsPage = () => {
 
     jobMutate();
 
-    // window.scrollTo({
-    //   top: 200,
-    //   behavior: 'smooth'
-    // });
   };
 
 const removeFilter = (filterkey: string, filterValue?: string) => {
