@@ -109,6 +109,20 @@ const Header = () => {
   const pathName = usePathname();
   const isActive = pathName;
 
+  const [seekFor, setSeekFor] = useState<string>("");
+
+  useEffect(()=>{
+    if(isAuthenticated && isEmployer){
+      setSeekFor("jobseeker");
+    }
+    else if(isAuthenticated && !isEmployer){
+      setSeekFor("employer");
+    }
+    else{
+      setSeekFor("");
+    }
+  }, [isAuthenticated, isEmployer])
+
   // Chat notifications state
   const [chats, setChats] = useState<ChatPreview[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
@@ -587,14 +601,14 @@ const Header = () => {
                         </>
                       )}
 
-                      {isEmployer ? (
-                        <p onClick={() => openRegisterModal(false)}>
+                      {seekFor === "jobseeker" ? (
+                        <p onClick={() => openRegisterModal()}>
                           <DropdownMenuItem>
                             <span>Sign up as JobSeeker</span>
                           </DropdownMenuItem>
                         </p>
                       ) : (
-                        <p onClick={() => openRegisterModal(true)}>
+                        <p onClick={() => openRegisterModal()}>
                           <DropdownMenuItem>
                             <span>Sign up as Employer</span>
                           </DropdownMenuItem>

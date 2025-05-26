@@ -153,7 +153,7 @@ const HighlightedJobs = () => {
             //   </div>
             // </Link>
              <Link key={job?.id} href={`/jobs/${job?.slug}`}>
-      <div className="bg-white rounded-xl shadow-lg p-6 border-[2px] border-manduSecondary/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+      <div className="bg-white rounded-xl shadow-xl p-6 border-[2px] border-manduSecondary/40 hover:shadow-[inset_1px_0_0_0_rgb(220,20,60,1),inset_0_1px_0_0_rgb(220,20,60,1),inset_0_-1px_0_0_rgb(220,20,60,1),inset_-1px_0_0_0_rgb(220,20,60,1)] transition-all duration-200 h-full flex flex-col">
         <div className="flex items-start flex-col gap-y-[10px] w-full">
           <div className="flex items-start gap-x-4 w-full">
           <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
@@ -161,8 +161,9 @@ const HighlightedJobs = () => {
               <Image
                 src={job?.image}
                 alt="Company Logo"
-                width={48}
-                height={48}
+                width={60}
+                height={60}
+                className="h-[60px] w-[60px]"
               />
             </div>
           </div>

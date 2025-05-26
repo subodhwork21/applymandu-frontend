@@ -99,6 +99,12 @@ const JobsPage = () => {
     searchParams.getAll("employment_type[]") || []
   );
 
+  const [skillsValue, setSkillsValue] = useState<string[]>([]);
+  const [skillValue, setSkillValue] = useState<string>(
+    searchParams.get("skills") || ""
+  );
+  //salary min and max
+
   // const featuredJobs = getFeaturedJobs();
 
   const router = useRouter();
@@ -107,7 +113,6 @@ const JobsPage = () => {
 
   const url = `api/job/latest?${urlSearchParams.toString()}`;
 
-  // const [filterObject, setFilterObject] = useState<Record<string,any>>({})
 
   const {
     data: featuredJobs,
@@ -169,17 +174,13 @@ const JobsPage = () => {
 
   const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Get form data
     const formData = new FormData(e.currentTarget);
 
-    // Get current search params and update them
     let params = new URLSearchParams(searchParams.toString());
 
-    // Track all active filters
     const newActiveFilters: string[] = [];
     const newActiveKeys: string[] = [];
 
-    // Job Type filters
     const selectedJobTypes = formData.getAll("employment_type");
     if (selectedJobTypes.length > 0) {
       params.delete("employment_type[]");
@@ -190,6 +191,7 @@ const JobsPage = () => {
         newActiveKeys.push("employment_type");
       });
     }
+    setSelectedJobTypes([...newActiveFilters]);
 
     const experienceLevels = formData.getAll("experienceLevel");
     if (experienceLevels.length > 0) {
@@ -208,29 +210,25 @@ const JobsPage = () => {
       });
     }
 
-    // Salary Range
     const minSalary = formData.get("min-salary");
     const maxSalary = formData.get("max-salary");
     if (minSalary && minSalary.toString().trim() !== "") {
       params.set("salary_min", minSalary.toString());
 
       if (maxSalary && maxSalary.toString().trim() !== "") {
-        // If both min and max are set, add a combined filter
-        newActiveFilters.push(`$${minSalary}-$${maxSalary}`);
+        params.set("salary_max", maxSalary.toString()); // Add this line
+        newActiveFilters.push(`${minSalary}-${maxSalary}`);
         newActiveKeys.push("salary-range");
       } else {
-        // If only min is set
-        newActiveFilters.push(`Min $${minSalary}`);
+        newActiveFilters.push(`Min ${minSalary}`);
         newActiveKeys.push("salary-min");
       }
     } else if (maxSalary && maxSalary.toString().trim() !== "") {
-      // If only max is set
       params.set("salary_max", maxSalary.toString());
-      newActiveFilters.push(`Max $${maxSalary}`);
+      newActiveFilters.push(`Max ${maxSalary}`);
       newActiveKeys.push("salary-max");
     }
 
-    // Location
     const location = formData.get("location");
     if (location && location.toString().trim() !== "") {
       params.set("location", location.toString());
@@ -238,7 +236,6 @@ const JobsPage = () => {
       newActiveKeys.push("location");
     }
 
-    // Remote work
     const isRemote = formData.get("remote");
     if (isRemote) {
       params.set("is_remote", "1");
@@ -248,10 +245,9 @@ const JobsPage = () => {
       params.delete("is_remote");
     }
 
-    // Skills - assuming skills are submitted as comma-separated values
-    const skillsInput = formData.get("skills");
+    const skillsInput = skillsValue;
     if (skillsInput && skillsInput.toString().trim() !== "") {
-      params.delete("skills");
+      params.delete("skills[]");
 
       // Add each skill
       const skills = skillsInput
@@ -260,7 +256,7 @@ const JobsPage = () => {
         .map((s) => s.trim());
       skills.forEach((skill) => {
         if (skill) {
-          params.append("skills", skill);
+          params.append("skills[]", skill);
           newActiveFilters.push(skill);
           newActiveKeys.push("skill");
         }
@@ -282,85 +278,84 @@ const JobsPage = () => {
     const urlObj = new URL(url);
     const queryParams = urlObj.search;
 
-    router.push(`/jobs${queryParams}`, {
+    // Update search params in the URL
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    // Remove existing page parameter
+    newSearchParams.delete("page");
+    // Add new page parameter
+    newSearchParams.append("page", urlObj.searchParams.get("page") || "1");
+
+    router.push(`/jobs?${newSearchParams}`, {
       scroll: false,
     });
 
-    const apiUrl = `api/job/latest${queryParams}`;
+    // const apiUrl = `api/job/latest${queryParams}`;
 
     jobMutate();
-
   };
 
-const removeFilter = (filterkey: string, filterValue?: string) => {
-  const urlSearchParams = new URLSearchParams(searchParams.toString());
-  
-  if (filterValue === undefined) {
-    urlSearchParams.delete(filterkey);
-  } else {
-    if (filterkey === "employment_type") {
-      const values = urlSearchParams.getAll("employment_type[]");
-      urlSearchParams.delete("employment_type[]");
-      
-      values.forEach(value => {
-        if (value !== filterValue) {
-          urlSearchParams.append("employment_type[]", value);
-        }
-      });
-    } 
-    else if (filterkey === "experience_level") {
-      const values = urlSearchParams.getAll("experience_level[]");
-      urlSearchParams.delete("experience_level[]");
-      
-      values.forEach(value => {
-        if (value !== filterValue) {
-          urlSearchParams.append("experience_level[]", value);
-        }
-      });
-    }
-    else if (filterkey === "salary-range") {
-      urlSearchParams.delete("salary_min");
-      urlSearchParams.delete("salary_max");
-    }
-    else if (filterkey === "salary-min") {
-      urlSearchParams.delete("salary_min");
-    }
-    else if (filterkey === "salary-max") {
-      urlSearchParams.delete("salary_max");
-    }
-    else if (filterkey === "location") {
-      urlSearchParams.delete("location");
-    }
-    else if (filterkey === "remote") {
-      urlSearchParams.delete("is_remote");
-    }
-    else if (filterkey === "skill") {
-      // For skills, we need to handle multiple values
-      const values = urlSearchParams.getAll("skills");
-      urlSearchParams.delete("skills");
-      
-      // Add back all values except the one to remove
-      values.forEach(value => {
-        if (value !== filterValue) {
-          urlSearchParams.append("skills", value);
-        }
-      });
-    }
-    else {
-      // For other parameters, just delete and re-add if needed
-      urlSearchParams.delete(filterkey);
-    }
-  }
-  
-  // Update the URL using Next.js router
-  router.push(`/jobs?${urlSearchParams.toString()}`, {
-    scroll: false,
-  });
-  
-  // Refresh the job data
-  jobMutate();
-};
+  const removeFilter = (filterkey: string, filterValue?: string) => {
+    const urlSearchParams = new URLSearchParams(searchParams.toString());
 
+    if (filterValue === undefined) {
+      urlSearchParams.delete(filterkey);
+      setSelectedJobTypes([]);
+    } else {
+      if (filterkey === "employment_type") {
+        const values = urlSearchParams.getAll("employment_type[]");
+        urlSearchParams.delete("employment_type[]");
+        setSelectedJobTypes([]);
+        values.forEach((value) => {
+          if (value !== filterValue) {
+            urlSearchParams.append("employment_type[]", value);
+          }
+        });
+        setSelectedJobTypes(values.filter((value) => value !== filterValue));
+      } else if (filterkey === "experience_level") {
+        const values = urlSearchParams.getAll("experience_level[]");
+        urlSearchParams.delete("experience_level[]");
+
+        values.forEach((value) => {
+          if (value !== filterValue) {
+            urlSearchParams.append("experience_level[]", value);
+          }
+        });
+      } else if (filterkey === "salary-range") {
+        urlSearchParams.delete("salary_min");
+        urlSearchParams.delete("salary_max");
+      } else if (filterkey === "salary-min") {
+        urlSearchParams.delete("salary_min");
+      } else if (filterkey === "salary-max") {
+        urlSearchParams.delete("salary_max");
+      } else if (filterkey === "location") {
+        urlSearchParams.delete("location");
+      } else if (filterkey === "remote") {
+        urlSearchParams.delete("is_remote");
+      } else if (filterkey === "skill") {
+        // For skills, we need to handle multiple values
+        const values = urlSearchParams.getAll("skills");
+        urlSearchParams.delete("skills");
+
+        // Add back all values except the one to remove
+        values.forEach((value) => {
+          if (value !== filterValue) {
+            urlSearchParams.append("skills", value);
+          }
+        });
+      } else {
+        // For other parameters, just delete and re-add if needed
+        urlSearchParams.delete(filterkey);
+      }
+    }
+
+    // Update the URL using Next.js router
+    router.push(`/jobs?${urlSearchParams.toString()}`, {
+      scroll: false,
+    });
+
+    // Refresh the job data
+    jobMutate();
+  };
 
   const setSortBy = (value: string) => {
     router.push(`/jobs?sort_by=${value}`, {
@@ -394,8 +389,6 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
     jobMutate();
     featuredMutate();
   };
-
-  console.log(activeFilters, activeKeys);
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -480,6 +473,8 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                             scroll: false,
                           });
                           setActiveFilters([]);
+                          setActiveKeys([]);
+                          setSelectedJobTypes([]);
                         }}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-red-400 text-white rounded-full text-base hover:bg-red-200"
                       >
@@ -588,7 +583,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                       id="min-salary"
                       type="number"
                       name="min-salary"
-                      placeholder="$30,000"
+                      placeholder="30,000"
                       defaultValue={searchParams.get("salary_min") || ""}
                     />
                   </div>
@@ -599,7 +594,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                       id="max-salary"
                       type="number"
                       name="max-salary"
-                      placeholder="$150,000"
+                      placeholder="150,000"
                       defaultValue={searchParams.get("salary_max") || ""}
                     />
                   </div>
@@ -637,22 +632,31 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                 <h4 className="text-lg font-medium mb-4">Skills</h4>
                 <Input
                   name="skills"
+                  onChange={(e) => setSkillValue(e.target.value)}
+                  value={skillValue}
                   placeholder="Enter skills separated by commas (e.g. JavaScript, React, Node.js)"
                   defaultValue={searchParams.getAll("skills")?.join(", ") || ""}
                 />
                 <div className="flex flex-wrap gap-2 mt-4">
-                  {["JavaScript", "React", "Node.js"].map((skill) => (
+                  {skillsValue && skillsValue.map((skill) => (
                     <div
                       key={skill}
                       className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white rounded-full text-sm"
                     >
                       <span>{skill}</span>
-                      <button type="button" className="hover:text-neutral-300">
+                      <button onClick={()=>{
+                        setSkillsValue(skillsValue.filter((s) => s !== skill));
+                      }} type="button" className="hover:text-neutral-300">
                         <X className="h-3 w-3" />
                       </button>
                     </div>
                   ))}
                   <button
+                  onClick={()=> {
+                    
+                    setSkillsValue([...skillsValue!, skillValue])
+                    setSkillValue("")
+                  }}
                     type="button"
                     className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm hover:bg-neutral-200"
                   >
@@ -701,7 +705,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
                 ) : (
                   featuredJobs?.data?.map((job, index) => (
                     <Link href={`/jobs/${job?.slug}`} key={index}>
-                      <div className="bg-white rounded-2xl shadow-lg md:p-6 p-4 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                      <div className="bg-white rounded-2xl shadow-lg md:p-6 p-4 border border-manduBorder/40 transition-all duration-200 h-full flex flex-col hover:shadow-l-[4px] hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)]">
                         <div className="flex items-start flex-col gap-y-[10px] w-full">
                           <div className="flex items-start gap-x-1 w-full">
                             <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
@@ -850,7 +854,7 @@ const removeFilter = (filterkey: string, filterValue?: string) => {
               ) : (
                 jobs?.data?.map((job: Job, index) => (
                   <Link key={index} href={`/jobs/${job?.slug}`}>
-                    <div className="bg-white rounded-[15px] md:p-6 p-4 border border-neutral-200 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                    <div className="bg-white shadow-2xl rounded-[15px] md:p-6 p-4 border-[2px] border-manduSecondary/40 hover:shadow-[inset_1px_0_0_0_rgb(220,20,60,1),inset_0_1px_0_0_rgb(220,20,60,1),inset_0_-1px_0_0_rgb(220,20,60,1),inset_-1px_0_0_0_rgb(220,20,60,1)]  transition-all duration-200 h-full flex flex-col">
                       <div className="flex items-start gap-1">
                         <div className="w-18 h-18 p-2">
                           <div className="text-sm">

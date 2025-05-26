@@ -45,7 +45,7 @@ interface AuthContextType {
   closeLoginModal: () => void;
   isEmployer: boolean | null;
   isLoginModalOpen: boolean;
-  openRegisterModal: (isEmployer?: boolean) => void;
+  openRegisterModal: () => void;
   isLoading: boolean;
   closeRegisterModal: () => void;
   isRegisterModalOpen: boolean;
@@ -397,7 +397,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
-  const openRegisterModal = (employer = false) => {
+  const openRegisterModal = () => {
     setIsLoginModalOpen(false);
     setIsForgotPasswordModalOpen(false);
     setIsRegisterModalOpen(true);

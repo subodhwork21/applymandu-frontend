@@ -145,7 +145,7 @@ const PopularClosingJobs = () => {
                     href={`/jobs/${job?.slug}`} 
                     className="w-full"
                   >
-                    <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-neutral-200">
+                    <div className="bg-white rounded-lg p-4 shadow-sm transition-shadow border border-neutral-200 hover:shadow-[inset_4px_0_0_0_rgb(220,20,60),inset_0_1px_0_0_rgb(220,20,60),inset_0_-1px_0_0_rgb(220,20,60),inset_-1px_0_0_0_rgb(220,20,60)]">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center">
                           <div className="text-sm">
@@ -242,7 +242,7 @@ const PopularClosingJobs = () => {
                     href={`/jobs/${job.id}`} 
                     className="w-full"
                   >
-                    <div className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border ${job.expiring_soon ? 'border-orange-300' : 'border-neutral-200'}`}>
+                    <div className={`bg-white hover:shadow-[inset_4px_0_0_0_rgb(220,20,60),inset_0_1px_0_0_rgb(220,20,60),inset_0_-1px_0_0_rgb(220,20,60),inset_-1px_0_0_0_rgb(220,20,60)] rounded-lg p-4 shadow-sm transition-shadow border ${job.expiring_soon ? 'border-orange-300' : 'border-neutral-200'}`}>
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center">
                           <div className="text-xl">

@@ -89,7 +89,7 @@ const JobDetailPageClient = ({
           {/* Main Content */}
           <div className="flex-1">
             {/* Job Header */}
-            <div className="bg-white rounded-lg p-6 shadow-xl border border-manduSecondary/20 mb-6">
+            <div className="bg-white shadow-2xl p-6 border border-manduSecondary/20 mb-6 rounded-[15px]">
               <div className="flex items-center gap-6">
                 <div className="w-20 h-20 rounded-lg flex items-center justify-center">
                   <Image
@@ -97,7 +97,7 @@ const JobDetailPageClient = ({
                     alt={job.image ?? "Company Logo"}
                     width={80}
                     height={80}
-                    className="object-contain"
+                    className="object-contain rounded-[4px]"
                   />
                 </div>
                 <div className="flex-1">
@@ -156,7 +156,7 @@ const JobDetailPageClient = ({
             </div>
 
             {/* Job Description */}
-            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/10">
+            <div className="bg-white rounded-[8px] p-6 shadow-lg mb-6 border border-patternPrimary/20">
               <h2 className="text-xl mb-4 text-bluePrime font-semibold">
                 Job Description
               </h2>
@@ -166,7 +166,7 @@ const JobDetailPageClient = ({
             </div>
 
             {/* Responsibilities */}
-            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/10">
+            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/20">
               <h2 className="text-xl mb-4 font-semibold text-bluePrime">
                 Key Responsibilities
               </h2>
@@ -184,7 +184,7 @@ const JobDetailPageClient = ({
             </div>
 
             {/* Requirements */}
-            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/10">
+            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/20">
               <h2 className="text-xl mb-4 font-semibold text-bluePrime">
                 Requirements
               </h2>
@@ -202,7 +202,7 @@ const JobDetailPageClient = ({
             </div>
 
             {/* Required Skills */}
-            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/10">
+            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/20">
               <h2 className="text-xl mb-4 font-semibold text-bluePrime">
                 Required Skills
               </h2>
@@ -211,7 +211,7 @@ const JobDetailPageClient = ({
                   {job.skills.map((skill, id) => (
                     <span
                       key={id}
-                      className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full"
+                      className="px-5 py-1.5 bg-manduPrimary text-white text-base rounded-full"
                     >
                       {skill?.name}
                     </span>
@@ -221,7 +221,7 @@ const JobDetailPageClient = ({
             </div>
 
             {/* Benefits */}
-            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/10">
+            <div className="bg-white rounded-lg p-6 shadow-lg mb-6 border border-patternPrimary/20">
               <h2 className="text-xl mb-4 font-semibold text-bluePrime">
                 Benefits
               </h2>

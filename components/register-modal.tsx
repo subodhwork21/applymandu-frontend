@@ -21,14 +21,16 @@ const RegisterModal = () => {
     isEmployer,
     isAuthenticated,
   } = useAuth();
-  const [accountType, setAccountType] = useState<"employer" | "jobseeker" | null>(null);
+  const [seekFor, setSeekFor] = useState<"employer" | "jobseeker" | null>(null);
 
   useEffect(() => {
-    // Set initial account type based on authentication status
-    if (isAuthenticated) {
-      setAccountType(isEmployer ? "employer" : "jobseeker");
-    } else {
-      setAccountType("jobseeker");
+    if (isAuthenticated && isEmployer) {
+      setSeekFor("jobseeker");
+    } else if(isAuthenticated && !isEmployer) {
+      setSeekFor("employer");
+    }
+    else{
+      setSeekFor(null);
     }
   }, [isAuthenticated, isEmployer]);
 
@@ -59,7 +61,7 @@ const RegisterModal = () => {
       return;
     }
 
-    if (!accountType) {
+    if (!seekFor) {
       setError("Please select an account type");
       return;
     }
@@ -68,26 +70,26 @@ const RegisterModal = () => {
     try {
       const { firstName, lastName, email, password, company_name, phone } = formData;
       const { response, result, errors } = await baseFetcher(
-        accountType === "employer" ? "api/employer/register" : "api/register", 
+        seekFor === "employer" ? "api/employer/register" : "api/register", 
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: accountType === "jobseeker" ? JSON.stringify({
+          body: seekFor === "jobseeker" ? JSON.stringify({
             first_name: firstName,
             last_name: lastName,
             email,
             password,
             password_confirmation: formData.password,
-            accountType,
+            seekFor,
           }) : JSON.stringify({
             company_name: company_name,
             email,
             password,
             phone,
             password_confirmation: formData.password,
-            accountType,
+            seekFor,
           })
         }
       );
@@ -131,27 +133,27 @@ const RegisterModal = () => {
             {!isAuthenticated ? (
               <>
                 <Button
-                  variant={accountType === "jobseeker" ? "default" : "outline"}
+                  variant={seekFor === "jobseeker" ? "default" : "outline"}
                   className={`flex-1 h-11 ${
-                    accountType === "jobseeker" ? "bg-black text-white" : ""
+                    seekFor === "jobseeker" ? "bg-black text-white" : ""
                   }`}
-                  onClick={() => setAccountType("jobseeker")}
+                  onClick={() => setSeekFor("jobseeker")}
                 >
                   <User className="h-5 w-5 mr-2" />
                   Job Seeker
                 </Button>
                 <Button
-                  variant={accountType === "employer" ? "default" : "outline"}
+                  variant={seekFor === "employer" ? "default" : "outline"}
                   className={`flex-1 h-11 ${
-                    accountType === "employer" ? "bg-black text-white" : ""
+                    seekFor === "employer" ? "bg-black text-white" : ""
                   }`}
-                  onClick={() => setAccountType("employer")}
+                  onClick={() => setSeekFor("employer")}
                 >
                   <Briefcase className="h-5 w-5 mr-2" />
                   Employer
                 </Button>
               </>
-            ) : isEmployer ? (
+            ) : seekFor === "employer" ? (
               <Button
                 variant="default"
                 className="flex-1 h-11 bg-black text-white"
@@ -220,7 +222,7 @@ const RegisterModal = () => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              {accountType === "jobseeker" ? (
+              {seekFor === "jobseeker" ? (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -336,7 +338,7 @@ const RegisterModal = () => {
             <Button
               type="submit"
               className="w-full h-11 bg-black text-white hover:bg-neutral-800"
-              disabled={isLoading || !accountType}
+              disabled={isLoading || !seekFor}
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>

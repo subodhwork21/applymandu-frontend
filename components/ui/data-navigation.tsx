@@ -90,7 +90,7 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
             href={prevLink?.url || "#"} 
             onClick={(e) => prevLink?.url && handlePageClick(e, prevLink.url)}
             aria-disabled={!prevLink?.url}
-            className={!prevLink?.url ? "pointer-events-none opacity-50" : ""}
+            className={!prevLink?.url ? "pointer-events-none opacity-50 text-manduPrimary" : "text-manduPrimary/20"}
           />
         </PaginationItem>
         
@@ -120,7 +120,7 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
               isActive={link.active}
               onClick={(e) => link.url && handlePageClick(e, link.url)}
               // Make the pagination links more compact
-              className="h-8 w-8 p-0 sm:h-9 sm:w-9"
+              className="h-8 w-8 p-0 sm:h-9 sm:w-9 text-manduPrimary"
             >
               {link.label}
             </PaginationLink>

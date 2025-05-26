@@ -79,7 +79,7 @@ const JobCard = ({
 
   return (
     <Link href={`/jobs/${job?.slug}`}>
-      <div className="bg-white rounded-2xl shadow-lg p-6 border border-manduBorder/40 hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+      <div className="bg-white rounded-2xl border-manduBorder/40 transition-all duration-200 h-full flex flex-col border border-gray-200 p-6 shadow-none hover:shadow-l-[4px] hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)]">
         <div className="flex items-start flex-col gap-y-[10px] w-full">
           <div className="flex items-start gap-x-1.5 w-full">
           <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
@@ -88,7 +88,7 @@ const JobCard = ({
                 src={job?.image || "/logo.png"}
                 alt="Company Logo"
                 width={52}
-                className="rounded-[6.8px]"
+                className="rounded-[6.8px] h-[35px] w-[52px]"
                 height={52}
               />
             </div>
