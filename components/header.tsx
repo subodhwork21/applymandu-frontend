@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Calendar,
   MessageSquare,
+  Verified,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import RegisterModal from "./register-modal";
@@ -34,14 +35,14 @@ import { cn } from "@/lib/utils";
 import AuthSkeleton from "./ui/auth-skeleton";
 import MessageModal from "./message-modal";
 import { employerToken, jobSeekerToken } from "@/lib/tokens";
-import { toast } from "react-toastify";
 import { initializeEcho } from "@/lib/echo-setup";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useSWR from "swr";
 import { formatDistanceToNow } from "date-fns";
-import { defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { echo } from "@/lib/echo-setup";
+import { toast } from "@/hooks/use-toast";
 
 
 interface ChatPreview {
@@ -61,6 +62,7 @@ interface NotificationData {
   description: string;
   subject_type: string;
   subject_id: number;
+  match_percentage: number;
   [key: string]: any;
 }
 
@@ -72,6 +74,7 @@ interface Notification {
   read_at: string | null;
   created_at: string;
   source: string;
+  notification_type: string;
 }
 
 interface NotificationsResponse {
@@ -108,6 +111,8 @@ const Header = () => {
 
   const pathName = usePathname();
   const isActive = pathName;
+  const router = useRouter();
+
 
   const [seekFor, setSeekFor] = useState<string>("");
 
@@ -280,6 +285,30 @@ const Header = () => {
     }
   };
 
+  const markAllAsRead = async () => {
+    const {response, errors, result} = await baseFetcher("api/notifications/read-all", {
+      method: "POST",
+
+    })
+
+    if(response?.ok){
+      toast({
+        title: "Success",
+        description: "All notifications marked as read",
+      });
+      refetchNotifications();
+    }
+    else{
+      toast({
+        title: "Error",
+        description: errors || "Failed to mark notifications as read",
+      });
+    }
+    }
+
+
+
+
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
       <div className="container mx-auto 2xl:px-4 lg:px-16 py-3">
@@ -323,10 +352,12 @@ const Header = () => {
                 {/* Notifications Dropdown with Messages Tab */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative shadow-2xl">
+                    <Button variant="ghost" size="icon" className="relative shadow-2xl border-[1px] p-2">
                       <Bell className="h-5 w-5 text-neutral-600" />
                       <span className="absolute -top-2 -right-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {totalUnread > 0 ? totalUnread + 3 : 0}
+                        {notificationsData && notificationsData?.data?.length > 0 ? totalUnread + notificationsData?.data?.filter((notification)=>{
+return notification?.read_at === null;
+                        }).length : 0}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -340,6 +371,7 @@ const Header = () => {
                         </p>
                         {activeTab === "notifications" ? (
                           <Button
+                          onClick={()=> markAllAsRead()}
                             variant="ghost"
                             className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
                           >
@@ -408,26 +440,34 @@ const Header = () => {
                           ) : (
                             notificationsData.data.map((notification) => (
                               <DropdownMenuItem
+
+                              onClick={()=> router.push("/jobs/"+ notification.data.slug)}
                                 key={notification.id}
-                                className="flex items-start p-4 cursor-pointer"
+                                className={`flex items-start p-4 cursor-pointer ${notification?.read_at ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white ": "bg-manduPrimary/40 text-white"}`}
                               >
                                 <div
                                   className={`h-8 w-8 rounded-full ${getNotificationBgColor(
-                                    notification.activity_type
+                                    notification.notification_type 
                                   )} flex items-center justify-center mr-3`}
                                 >
                                   {getNotificationIcon(
-                                    notification.activity_type
+                                    notification.notification_type
                                   )}
                                 </div>
                                 <div className="flex-1">
                                   <p className="text-sm font-medium">
-                                    {notification.activity_type
+                                    {notification.notification_type
                                       .replace("_", " ")
                                       .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                      <span>
+                                       {
+                                        notification?.read_at ? 
+                                        <Verified className="inline-block ml-1 h-4 w-4 text-green-500" /> : null
+                                       }
+                                      </span>
                                   </p>
                                   <p className="text-xs text-neutral-500 mt-1">
-                                    {notification.data.description}
+                                    {notification.data.job_title} job matches {notification?.data?.match_percentage}% of your job alert.
                                   </p>
                                   <p className="text-xs text-neutral-400 mt-2">
                                     {formatNotificationTime(
@@ -492,7 +532,7 @@ const Header = () => {
                     </div>
 
                     <DropdownMenuItem className="p-4 cursor-pointer">
-                      {activeTab === "notifications" ? (
+                      {/* {activeTab === "notifications" ? (
                         <>
                           {notificationsData && notificationsData.total > 0 && (
                             <DropdownMenuItem className="text-center p-3 border-t border-neutral-100">
@@ -512,7 +552,7 @@ const Header = () => {
                         >
                           View all messages
                         </Link>
-                      )}
+                      )} */}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

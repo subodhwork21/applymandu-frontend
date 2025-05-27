@@ -182,7 +182,7 @@ const AlertsPage = () => {
       };
 
       if (isEditMode) {
-        const { response, result } = await baseFetcher(`api/job-alert/update/${editingAlertId}`, {
+        const { response, result, errors } = await baseFetcher(`api/job-alert/update/${editingAlertId}`, {
           method: 'POST',
           body: JSON.stringify(alertData)
         });
@@ -193,15 +193,16 @@ const AlertsPage = () => {
             description: "Job alert updated successfully",
           });
           mutate(); // Refresh the data
+    setIsCreateAlertOpen(false);
+
         } else {
           toast({
             title: "Error",
-            description: result?.message || "Failed to update job alert",
-            variant: "destructive",
+            description: errors || "Failed to update job alert",
           });
         }
       } else {
-        const { response, result } = await baseFetcher('api/job-alert', {
+        const { response, result, errors } = await baseFetcher('api/job-alert', {
           method: 'POST',
           body: JSON.stringify(alertData)
         });
@@ -212,11 +213,12 @@ const AlertsPage = () => {
             description: "Job alert created successfully",
           });
           mutate(); // Refresh the data
+    setIsCreateAlertOpen(false);
+
         } else {
           toast({
             title: "Error",
-            description: result?.message || "Failed to create job alert",
-            variant: "destructive",
+            description: errors || "Failed to create job alert",
           });
         }
       }
@@ -225,11 +227,9 @@ const AlertsPage = () => {
       toast({
         title: "Error",
         description: "An unexpected error occurred",
-        variant: "destructive",
       });
     }
 
-    setIsCreateAlertOpen(false);
     setIsEditMode(false);
     setEditingAlertId(null);
     setNewAlert({
@@ -260,7 +260,6 @@ const AlertsPage = () => {
         toast({
           title: "Error",
           description: result?.message || "Failed to delete job alert",
-          variant: "destructive",
         });
       }
     } catch (error) {
@@ -268,7 +267,6 @@ const AlertsPage = () => {
       toast({
         title: "Error",
         description: "An unexpected error occurred",
-        variant: "destructive",
       });
     }
   };

@@ -88,7 +88,7 @@ const Education: React.FC<EducationProps> = ({
               <div className="space-y-2">
                 <Label className="text-sm font-medium pb-2 block">Degree <span className="text-red-500">*</span></Label>
                 <Select
-                  value={edu.degree.toLowerCase()}
+                  value={edu.degree}
                   onValueChange={(value) =>
                     updateEducation(edu.id, "degree", value)
                   }

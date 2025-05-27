@@ -114,14 +114,14 @@ const JobListingsPage = () => {
   };
 
   const searchParams = useSearchParams();
-  const page = searchParams.get("page");
+  const params = searchParams.toString();
 
   const handleViewApplications = (jobId: number) => {
     router.push(`/dashboard/employer/applications?jobId=${jobId}`);
   };
 
   const { data: jobsResponse, mutate } = useSWR<JobsResponse>(
-    `api/employer/job/all-employer-job${page ? `?page=${page}` : ""}`,
+    `api/employer/job/all-employer-job?${params ? `${params}` : ""}`,
     defaultFetcher
   );
 
@@ -236,6 +236,16 @@ const JobListingsPage = () => {
                     placeholder="Search jobs..."
                     className="pl-10 w-64"
                     value={searchQuery}
+                    onKeyDown={(e)=> {
+                      if (e.key === "Enter") {
+                        let searchParam = new URLSearchParams(searchParams).toString();
+                        searchParam = "";
+                          searchParam += `search=${searchQuery}`;
+                        router.push(`/dashboard/employer/jobs?${searchParam}`, {
+                          scroll: false,
+                        });
+                        mutate();
+                    }}}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>

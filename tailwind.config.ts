@@ -58,6 +58,9 @@ const config: Config = {
         grayTag: {
           DEFAULT: "#F1F1F1",
         },
+        grayBg: {
+          DEFAULT: "#D9D9D9",
+        },
         profileNameText: {
           DEFAULT: "#00090F"
         },
@@ -100,7 +103,12 @@ const config: Config = {
         interviewProgress: {
           DEFAULT: "#F1C21B", 
         },
+        borderLine:{
+          DEFAULT: "#E5E5E5",
+        },
+
       
+
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
