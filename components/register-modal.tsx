@@ -236,7 +236,7 @@ const RegisterModal = () => {
                 console.log("Google registration clicked");
               }}
             >
-              <Image src="/google.png" alt="Google" width={24} height={24} />
+              <Image src="/Google.png" alt="Google" width={24} height={24} />
               <span className="text-googleButtonText font-normal text-base">Sign in with Google</span>
             </Button>
 
@@ -300,7 +300,7 @@ const RegisterModal = () => {
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                         placeholder="John"
-                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                         required
                       />
                     </div>
@@ -313,7 +313,7 @@ const RegisterModal = () => {
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                         placeholder="Doe"
-                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                         required
                       />
                     </div>
@@ -329,7 +329,7 @@ const RegisterModal = () => {
                         value={formData.company_name}
                         onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                         placeholder="XYZ Company"
-                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                         required
                       />
                     </div>
@@ -343,7 +343,7 @@ const RegisterModal = () => {
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         type="tel"
                         placeholder="Phone number"
-                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                         required
                       />
                     </div>
@@ -362,7 +362,7 @@ const RegisterModal = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="john.doe@gmail.com"
-                  className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                   required
                 />
               </div>
@@ -379,7 +379,7 @@ const RegisterModal = () => {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="Create a password"
-                    className="w-full px-3 py-3 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    className="w-full px-3 py-3 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                     required
                   />
                   <Button
@@ -406,7 +406,7 @@ const RegisterModal = () => {
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                     placeholder="Confirm your password"
-                    className="w-full px-3 py-3 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    className="w-full px-3 py-3 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-manduPrimary outline-none transition-all"
                     required
                   />
                   <Button
@@ -427,7 +427,7 @@ const RegisterModal = () => {
                   id="terms"
                   checked={formData.agreeToTerms}
                   onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: checked as boolean })}
-                  className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 mt-0.5 text-manduPrimary border-gray-300 rounded focus:ring-manduPrimary/60 outline-none"
                 />
                 <Label htmlFor="terms" className="text-sm text-manduBorder">
                   I agree to all the{" "}
