@@ -36,7 +36,10 @@ import { Activity } from "@/types/activity-type";
 import { Job } from "@/types/job-type";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 import JobSeekerDashboardSkeleton from "@/components/ui/jobseeker-dashboard-skeleton";
+import { Label, PolarGrid, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 const isServer = () => typeof window === "undefined";
 
@@ -152,6 +155,16 @@ const recentActivityIcons = {
       openLoginModal();
     }
   };
+
+  const chartConfig = {
+  visitors: {
+    label: "completion",
+  },
+  safari: {
+    label: "Safari",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig
 
   // const calculateCompletion = () => {
   //   let total = 0;
@@ -356,7 +369,7 @@ const recentActivityIcons = {
 
               <div className="bg-white py-6 rounded-lg border border-neutral-200">
                 <h2 className="mb-4 pl-8 text-manduSecondary font-normal text-xl">Recent Applications</h2>
-                <div className="grid pl-8 pt-6  grid-cols-1 md:grid-cols-2 gap-4 border-t-[2px] border-grayText">
+                <div className="grid md:pl-8 pt-6 md:pr-0 px-4  grid-cols-1 md:grid-cols-2 gap-4 border-t-[2px] border-grayText">
                   {recentApplications &&
                   recentApplications?.data?.length > 0 ? (
                     recentApplications?.data?.map((application) => (
@@ -436,16 +449,16 @@ const recentActivityIcons = {
                   <div className="space-y-6 border-t border-gray-200 pt-6">
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-neutral-600">
+                        <span className="text-sm font-normal text-grayColor">
                           Success Rate
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-statsValue">
                           {applicationStats?.data?.success_rate || 0}%
                         </span>
                       </div>
-                      <div className="w-full bg-neutral-100 rounded-full h-2">
+                      <div className="w-full bg-[#A7F0BA] rounded-full h-2">
                         <div
-                          className="bg-black h-2 rounded-full"
+                          className="bg-successProgress h-2 rounded-full"
                           style={{
                             width: `${
                               applicationStats?.data?.success_rate || 0
@@ -456,14 +469,14 @@ const recentActivityIcons = {
                     </div>
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-neutral-600">
+                        <span className="text-sm font-normal text-grayColor">
                           Response Rate
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-statsValue">
                           {applicationStats?.data?.response_rate || 0}%
                         </span>
                       </div>
-                      <div className="w-full bg-neutral-100 rounded-full h-2">
+                      <div className="w-full bg-[#D0E2FF] rounded-full h-2">
                         <div
                           className="bg-black h-2 rounded-full"
                           style={{
@@ -476,16 +489,16 @@ const recentActivityIcons = {
                     </div>
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-neutral-600">
+                        <span className="text-sm font-normal text-grayColor">
                           Interview Rate
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-statsValue">
                           {applicationStats?.data?.interview_rate || 0}%
                         </span>
                       </div>
-                      <div className="w-full bg-neutral-100 rounded-full h-2">
+                      <div className="w-full bg-interviewProgress/30 rounded-full h-2">
                         <div
-                          className="bg-black h-2 rounded-full"
+                          className="bg-interviewProgress h-2 rounded-full"
                           style={{
                             width: `${
                               applicationStats?.data?.interview_rate || 0
@@ -499,25 +512,33 @@ const recentActivityIcons = {
               </div>
 
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                <h2 className="text-xl mb-4">Recommended Jobs</h2>
+                <h2 className="text-xl font-normal text-manduSecondary mb-4">Recommended Jobs</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recommendedJobs?.data?.map((job: Job) => (
+                  {recommendedJobs?.data?.length > 0 ? recommendedJobs?.data?.map((job: Job) => (
                     <div
                       key={job.id}
-                      className="bg-white rounded-lg border border-neutral-200"
+                      className="bg-white rounded-[14px] border border-manduSecondary/30"
                     >
                       <div className="flex items-start gap-4 p-4">
                         <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center">
-                          <div className="text-white text-2xl">
-                            {job.employer_name[0]}
-                          </div>
+                         {
+                          job?.image ? (
+                            <Image
+                              src={job?.image}
+                              alt={job?.employer_name}
+                              className="w-14 h-14 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <Building className="h-8 w-8 text-neutral-400" />
+                          )
+                         }
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="text-lg">{job.title}</h3>
-                              <p className="text-neutral-600">
-                                {job.employer_name}
+                              <h3 className="text-lg font-semibold text-manduPrimary">{job.title}</h3>
+                              <p className="text-pureGray font-semibold text-sm mt-1">
+                                {job.employer_name} 
                               </p>
                             </div>
                             {job?.saved === true ? (
@@ -552,7 +573,7 @@ const recentActivityIcons = {
                             {job.skills.slice(0, 3).map((skill, id) => (
                               <span
                                 key={id}
-                                className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-md text-sm"
+                                className="px-2 py-1 bg-grayTag text-manduBorder rounded-md text-sm"
                               >
                                 {skill?.name}
                               </span>
@@ -573,9 +594,9 @@ const recentActivityIcons = {
                             </span>
                           </div>
                           <Button
-                            className={`w-full bg-black text-white hover:bg-neutral-800 ${
+                            className={`w-full bg-manduSecondary text-white hover:bg-neutral-800 ${
                               job?.is_applied
-                                ? "bg-neutral-300 text-neutral-600 hover:bg-neutral-400 cursor-not-allowed"
+                                ? "bg-manduSecondary/40 text-white hover:bg-neutral-400 cursor-not-allowed"
                                 : ""
                             }`}
                             onClick={(e) => handleApply(e, job)}
@@ -589,7 +610,7 @@ const recentActivityIcons = {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ) ) : <h2>No Recommended Jobs Found...</h2>}
                 </div>
               </div>
             </div>
@@ -602,10 +623,10 @@ const recentActivityIcons = {
                     alt="Profile"
                     className="w-24 h-24 rounded-full mx-auto mb-4"
                   />
-                  <h2 className="text-xl font-medium">
+                  <h2 className="text-xl text-statsValue font-medium">
                     {user?.first_name} {user?.last_name}
                   </h2>
-                  <p className="text-neutral-600 mt-1">
+                  <p className="text-grayColor text-base font-normal mt-1">
                     {user?.position_title}
                   </p>
                   <div className="flex justify-center gap-4 mt-4">
@@ -622,7 +643,7 @@ const recentActivityIcons = {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-neutral-600 hover:text-neutral-900"
+                        className="text-white bg-patternText/30 hover:patternText/10"
                       >
                         <Linkedin className="w-5 h-5" />
                       </a>
@@ -640,7 +661,7 @@ const recentActivityIcons = {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-neutral-600 hover:text-neutral-900"
+                        className="text-white bg-patternText/30 hover:patternText/10"
                       >
                         <Github className="w-5 h-5" />
                       </a>
@@ -650,10 +671,10 @@ const recentActivityIcons = {
               </div>
 
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                <h2 className="text-xl mb-4">Profile Completion</h2>
+                <h2 className="text-xl mb-4 text-manduSecondary font-normal">Profile Completion</h2>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-neutral-600">
+                    <span className="text-base text-grayColor">
                       Completion Status
                     </span>
                     <span className="text-sm font-medium">
@@ -664,14 +685,64 @@ const recentActivityIcons = {
                       %
                     </span>
                   </div>
-                  <div className="w-full bg-neutral-200 rounded-full h-2">
-                    <div
+                  {/* <div className="w-full bg-neutral-200 rounded-full h-2"> */}
+                    {/* <div
                       className="h-2 rounded-full bg-black"
                       style={{
                         width: `${completionPercentage?.data?.profile_completion?.overall_percentage}%`,
                       }}
-                    />
-                  </div>
+                    /> */}
+                    <ChartContainer  config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]">
+                      <RadialBarChart
+            data={completionPercentage?.data?.profile_completion?.overall_percentage}
+            startAngle={0}
+            endAngle={250}
+            innerRadius={80}
+            outerRadius={110}
+          >
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              className="first:fill-muted last:fill-background"
+              polarRadius={[86, 74]}
+            />
+            <RadialBar dataKey="complete" background cornerRadius={10} />
+            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-4xl font-bold"
+                        >
+                          {completionPercentage?.data?.profile_completion?.overall_percentage} %
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          Profile Completion
+                        </tspan>
+                      </text>
+                    )
+                  }
+                }}
+              />
+            </PolarRadiusAxis>
+          </RadialBarChart>
+           </ChartContainer>
+                  {/* </div> */}
                   {completionPercentage?.data?.profile_completion
                     ?.overall_percentage === 100 ? (
                     <p className="text-sm text-green-600">
@@ -683,8 +754,8 @@ const recentActivityIcons = {
                         Complete your profile to increase visibility to
                         employers
                       </p>
-                      <Link href="/dashboard/jobseeker/resume/edit">
-                        <Button size="sm" className="w-full">
+                      <Link href="/dashboard/jobseeker/resume/edit" className="mt-6">
+                        <Button size="sm" className="w-full bg-manduSecondary text-white hover:bg-manduSecondary/60 mt-4">
                           Complete Profile
                         </Button>
                       </Link>

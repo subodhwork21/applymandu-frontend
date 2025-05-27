@@ -294,68 +294,72 @@ const JobsPage = () => {
     jobMutate();
   };
 
-  const removeFilter = (filterkey: string, filterValue?: string) => {
-    const urlSearchParams = new URLSearchParams(searchParams.toString());
+ const removeFilter = (filterkey: string, filterValue?: string) => {
+  const urlSearchParams = new URLSearchParams(searchParams.toString());
 
-    if (filterValue === undefined) {
-      urlSearchParams.delete(filterkey);
+  if (filterValue === undefined) {
+    urlSearchParams.delete(filterkey);
+    setSelectedJobTypes([]);
+  } else {
+    if (filterkey === "employment_type") {
+      const values = urlSearchParams.getAll("employment_type[]");
+      urlSearchParams.delete("employment_type[]");
       setSelectedJobTypes([]);
+      values.forEach((value) => {
+        if (value !== filterValue) {
+          urlSearchParams.append("employment_type[]", value);
+        }
+      });
+      setSelectedJobTypes(values.filter((value) => value !== filterValue));
+    } else if (filterkey === "experience_level") {
+      const values = urlSearchParams.getAll("experience_level[]");
+      urlSearchParams.delete("experience_level[]");
+
+      values.forEach((value) => {
+        if (value !== filterValue) {
+          urlSearchParams.append("experience_level[]", value);
+        }
+      });
+    } else if (filterkey === "salary-range") {
+      urlSearchParams.delete("salary_min");
+      urlSearchParams.delete("salary_max");
+    } else if (filterkey === "salary-min") {
+      urlSearchParams.delete("salary_min");
+    } else if (filterkey === "salary-max") {
+      urlSearchParams.delete("salary_max");
+    } else if (filterkey === "location") {
+      urlSearchParams.delete("location");
+    } else if (filterkey === "remote") {
+      urlSearchParams.delete("is_remote");
+    } else if (filterkey === "skill") {
+      // Fix: Handle skill removal correctly
+      const values = urlSearchParams.getAll("skills[]");
+      urlSearchParams.delete("skills[]");
+
+      // Add back all values except the one to remove
+      values.forEach((value) => {
+        if (value !== filterValue) {
+          urlSearchParams.append("skills[]", value);
+        }
+      });
+      
+      // Also update the skillsValue state
+      setSkillsValue(skillsValue.filter(skill => skill !== filterValue));
     } else {
-      if (filterkey === "employment_type") {
-        const values = urlSearchParams.getAll("employment_type[]");
-        urlSearchParams.delete("employment_type[]");
-        setSelectedJobTypes([]);
-        values.forEach((value) => {
-          if (value !== filterValue) {
-            urlSearchParams.append("employment_type[]", value);
-          }
-        });
-        setSelectedJobTypes(values.filter((value) => value !== filterValue));
-      } else if (filterkey === "experience_level") {
-        const values = urlSearchParams.getAll("experience_level[]");
-        urlSearchParams.delete("experience_level[]");
-
-        values.forEach((value) => {
-          if (value !== filterValue) {
-            urlSearchParams.append("experience_level[]", value);
-          }
-        });
-      } else if (filterkey === "salary-range") {
-        urlSearchParams.delete("salary_min");
-        urlSearchParams.delete("salary_max");
-      } else if (filterkey === "salary-min") {
-        urlSearchParams.delete("salary_min");
-      } else if (filterkey === "salary-max") {
-        urlSearchParams.delete("salary_max");
-      } else if (filterkey === "location") {
-        urlSearchParams.delete("location");
-      } else if (filterkey === "remote") {
-        urlSearchParams.delete("is_remote");
-      } else if (filterkey === "skill") {
-        // For skills, we need to handle multiple values
-        const values = urlSearchParams.getAll("skills");
-        urlSearchParams.delete("skills");
-
-        // Add back all values except the one to remove
-        values.forEach((value) => {
-          if (value !== filterValue) {
-            urlSearchParams.append("skills", value);
-          }
-        });
-      } else {
-        // For other parameters, just delete and re-add if needed
-        urlSearchParams.delete(filterkey);
-      }
+      // For other parameters, just delete and re-add if needed
+      urlSearchParams.delete(filterkey);
     }
+  }
 
-    // Update the URL using Next.js router
-    router.push(`/jobs?${urlSearchParams.toString()}`, {
-      scroll: false,
-    });
+  // Update the URL using Next.js router
+  router.push(`/jobs?${urlSearchParams.toString()}`, {
+    scroll: false,
+  });
 
-    // Refresh the job data
-    jobMutate();
-  };
+  // Refresh the job data
+  jobMutate();
+};
+
 
   const setSortBy = (value: string) => {
     router.push(`/jobs?sort_by=${value}`, {
@@ -653,9 +657,10 @@ const JobsPage = () => {
                   ))}
                   <button
                   onClick={()=> {
-                    
-                    setSkillsValue([...skillsValue!, skillValue])
-                    setSkillValue("")
+                    if(skillValue != ""){
+                      setSkillsValue([...skillsValue!, skillValue])
+                      setSkillValue("")
+                    }
                   }}
                     type="button"
                     className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm hover:bg-neutral-200"

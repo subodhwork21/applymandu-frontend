@@ -79,6 +79,28 @@ const config: Config = {
         iconCalendar: {
             DEFAULT: "#D6D4FD",
         },
+        googleButton: {
+          DEFAULT: "#F3F9FA",
+        },
+        googleButtonText: {
+          DEFAULT: "#313957",
+        },
+        labels: {
+          DEFAULT: "#1C1B1F", 
+        },
+        statsValue: {
+          DEFAULT: "#0A0A0A", 
+        },
+        successProgress: {
+          DEFAULT: "#0E6027", 
+        },
+        responseProgress: {
+          DEFAULT: "#0043CE", 
+        },
+        interviewProgress: {
+          DEFAULT: "#F1C21B", 
+        },
+      
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

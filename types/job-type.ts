@@ -28,6 +28,7 @@ export interface Job {
   saved: boolean | null;
   is_applied: boolean | null;
   slug: string;
+  
 }
 
 interface PaginationLink {
