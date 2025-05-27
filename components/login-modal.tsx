@@ -168,7 +168,7 @@ const LoginModal = () => {
                 className="w-full h-12 bg-manduSecondary text-white hover:bg-manduSecondary/80 rounded-lg font-medium mt-6"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Create account"}
+                {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </div>
