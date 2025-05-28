@@ -803,7 +803,7 @@ const DashboardPage = () => {
                                     {
                                       completionPercentage?.data
                                         ?.profile_completion?.overall_percentage
-                                    }{" "}
+                                    }
                                     %
                                   </tspan>
                                   <tspan

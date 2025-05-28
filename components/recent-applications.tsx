@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { employerToken } from '@/lib/tokens';
+import Image from 'next/image';
 
 interface StatusHistory {
   id: number;
@@ -90,15 +91,15 @@ const RecentApplications = () => {
   const getStatusColorClasses = (status: string) => {
     switch (status) {
       case 'Interview Scheduled':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-50 text-blue-300';
       case 'Shortlisted':
         return 'bg-green-100 text-green-800';
       case 'Rejected':
         return 'bg-red-100 text-red-800';
       case 'Hired':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-[#15FA244D]/30 text-[#3BB900]';
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-[#F2FA154D]/30 text-[#B99400]';
     }
   };
   
@@ -139,20 +140,22 @@ const RecentApplications = () => {
         const statusColorClasses = getStatusColorClasses(statusLabel);
         
         return (
-          <div key={application.id} className="flex items-center justify-between p-4 border border-neutral-200 rounded-md">
+          <div key={application.id} className="flex items-center md:flex-row flex-col md:gap-6 gap-4 justify-between md:p-4 px-2 pb-4 border border-neutral-200 rounded-md">
             <div className="flex items-center space-x-4">
-              <img
+              <Image
+              width={79}
+              height={79}
                 src={application.user_image || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${application.user_id}`}
                 alt={application.applied_user}
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-[79px] h-[79px] rounded-full object-cover"
                 onError={(e) => {
                   // Fallback if image fails to load
                   (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${application.user_id}`;
                 }}
               />
               <div>
-                <h3 className="text-lg">{application.applied_user}</h3>
-                <p className="text-sm text-neutral-600">
+                <h3 className="text-lg text-manduPrimary">{application.applied_user}</h3>
+                <p className="text-sm text-pureGray">
                   {application.job_title} • {application.year_of_experience} years experience
                 </p>
                 <span className={`inline-block px-2 py-1 ${statusColorClasses} rounded-full text-xs mt-2`}>
@@ -161,6 +164,7 @@ const RecentApplications = () => {
               </div>
             </div>
             <Button
+            className='bg-[#DC143C] px-3 py-4 rounded-[8px] text-white'
               variant="outline"
               size="sm"
               onClick={() =>

@@ -180,9 +180,9 @@ const JobListingsPage = () => {
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl">Job Listings</h1>
+          <h1 className="text-3xl text-manduSecondary font-nasalization">Job Listings</h1>
           <Button
-            className="bg-black text-white hover:bg-neutral-800"
+            className="bg-manduPrimary text-white hover:bg-neutral-800"
             onClick={() => setIsPostJobModalOpen(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -192,7 +192,7 @@ const JobListingsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-3">
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
+            <div className="bg-white p-6 rounded-lg border border-[#E5E7EB">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex space-x-4">
                   <Select 
@@ -200,7 +200,7 @@ const JobListingsPage = () => {
                     value={statusFilter}
                     onValueChange={setStatusFilter}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] border border-grayText">
                       <SelectValue placeholder="All Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -215,10 +215,10 @@ const JobListingsPage = () => {
                     value={departmentFilter}
                     onValueChange={setDepartmentFilter}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] border border-grayText ">
                       <SelectValue placeholder="All Departments" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="">
                       <SelectItem value="all">All Departments</SelectItem>
                       <SelectItem value="engineering">Engineering</SelectItem>
                       <SelectItem value="design">Design</SelectItem>

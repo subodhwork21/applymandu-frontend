@@ -11,6 +11,9 @@ import {
   Clock,
   Users,
   Loader,
+  LayoutDashboard,
+  CalendarCheck,
+  InfoIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PostJobModal from "@/components/post-job-modal";
@@ -138,35 +141,49 @@ const EmployerDashboardPage = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">
+              <h1 className="text-manduSecondary font-nasalization text-3xl mb-2.5">Dashboard</h1>
+              <p className="text-manduBorder text-sm font-medium">Track your job posting progress</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg">Active Jobs</h3>
-                  <span className="text-2xl">{statsData?.active_jobs || 0}</span>
+              <div className="bg-white rounded-lg border border-neutral-200 w-full">
+                <div className="flex items-center flex-col justify-between mb-2 w-full">
+                  <div className="flex pt-6 w-full pb-3 justify-center items-center gap-4 border-b-[1px] font-medium">
+
+                  <h3 className="text-lg text-manduBorder">Active Jobs</h3>
+                  <LayoutDashboard className="w-4 h-4 text-manduBorder" />
+                  </div>
+                  <span className="text-3xl font-semibold mt-2 text-darkGrey">{statsData?.active_jobs || 0}</span>
+                <p className="text-sm text-dashboardTitleLight">Currently posted</p>
                 </div>
-                <p className="text-sm text-neutral-600">Currently posted</p>
               </div>
-              <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg">Applications</h3>
-                  <span className="text-2xl">{statsData?.active_applications || 0}</span>
+              <div className="bg-white rounded-lg border border-neutral-200 w-full">
+                <div className="flex items-center flex-col justify-between mb-2 w-full">
+                  <div className="flex pt-6 w-full pb-3 justify-center items-center gap-4 border-b-[1px] font-medium">
+
+                  <h3 className="text-lg text-manduBorder">Applications</h3>
+                  <CalendarCheck className="w-4 h-4 text-manduBorder" />
+                  </div>
+                  <span className="text-3xl font-semibold mt-2 text-darkGrey">{statsData?.active_applications || 0}</span>
+                <p className="text-sm text-dashboardTitleLight">Total received</p>
                 </div>
-                <p className="text-sm text-neutral-600">Total received</p>
               </div>
-              <div className="bg-white p-6 rounded-lg border border-neutral-200">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg">Hired</h3>
-                  <span className="text-2xl">{statsData?.hired_applications || 0}</span>
+              <div className="bg-white rounded-lg border border-neutral-200 w-full">
+                <div className="flex items-center flex-col justify-between mb-2 w-full">
+                  <div className="flex pt-6 w-full pb-3 justify-center items-center gap-4 border-b-[1px] font-medium">
+
+                  <h3 className="text-lg text-manduBorder">Total received</h3>
+                  <InfoIcon className="w-4 h-4 text-manduBorder" />
+                  </div>
+                  <span className="text-3xl font-semibold mt-2 text-darkGrey">{statsData?.hired_applications || 0}</span>
+                <p className="text-sm text-dashboardTitleLight">This month</p>
                 </div>
-                <p className="text-sm text-neutral-600">This month</p>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl">Recent Applications</h2>
+            <div className="bg-white md:p-6 py-6 rounded-lg border border-neutral-200">
+              <div className="flex justify-between items-center mb-4 px-2 md:p-0">
+                <h2 className="md:text-xl text-md text-manduSecondary">Recent Applications</h2>
                 <Button
-                  className="bg-black text-white hover:bg-neutral-800"
+                  className="bg-manduPrimary text-white hover:bg-manduPrimary/80 rounded-[9px]"
                   onClick={() => setIsPostJobModalOpen(true)}
                 >
                   Post New Job
@@ -204,8 +221,8 @@ const EmployerDashboardPage = () => {
               <RecentApplications/>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Active Job Listings</h2>
+            <div className="bg-white py-6 px-2 md:p-6  rounded-lg border border-neutral-200">
+              <h2 className="text-xl mb-4 font-medium text-manduSecondary">Active Job Listings</h2>
               {jobsLoading ? (
                 <div className="text-center py-4">Loading job listings...</div>
               ) : jobsData?.active_jobs?.data?.length === 0 ? (
@@ -218,34 +235,35 @@ const EmployerDashboardPage = () => {
                     <div key={job.id} className="p-4 border border-neutral-200 rounded-md">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="text-lg mb-2">
+                          <h3 className="text-lg mb-2 text-bluePrime font-medium">
                             {job.title}
                           </h3>
                           <div className="space-y-2 text-sm text-neutral-600">
-                            <p className="flex items-center gap-2">
-                              <Users className="h-4 w-4" />
+                            <p className="flex items-center gap-2 text-manduBorder text-sm">
+                              <Users className="h-6 w-6 bg-patternText rounded-full p-1 text-white" />
                               {job.applicants_count} Applicants
                             </p>
-                            <p className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
+                            <p className="flex items-center gap-2 text-manduBorder">
+                              <Clock className="h-6 w-6 bg-patternText rounded-full p-1 text-white"/>
                               Posted {getPostedTimeAgo(job.posted)}
                             </p>
-                            <p className="flex items-center gap-2">
-                              <Eye className="h-4 w-4" />
+                            <p className="flex items-center gap-2 text-manduBorder">
+                              <Eye className="h-6 w-6 bg-patternText rounded-full p-1 text-white"/>
                               {job.views_count} Views
                             </p>
-                            <p className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
+                            <p className="flex items-center gap-2 text-manduBorder">
+                              <MapPin className="h-6 w-6 bg-patternText rounded-full p-1 text-white"/>
                               {job?.location_type +" : "+ job.location}
                             </p>
-                            <p className="flex items-center gap-2">
-                              <Briefcase className="h-4 w-4" />
+                            <p className="flex items-center gap-2 text-manduBorder">
+                              <Briefcase className="h-6 w-6 bg-patternText rounded-full p-1 text-white"/>
                               {job.employment_type}
                             </p>
                           </div>
                         </div>
                         <div className="flex flex-col space-y-2">
                           <Button
+                          className="bg-manduSecondary text-white"
                             variant="outline"
                             size="sm"
                             onClick={() =>
@@ -272,11 +290,11 @@ const EmployerDashboardPage = () => {
                             Edit
                           </Button>
                           <Link href={`/jobs/${job?.slug}`}>
-                            <Button variant="outline" size="sm" className="w-full">
+                            <Button variant="outline" size="sm" className="w-full bg-manduSecondary text-white">
                               View
                             </Button>
                           </Link>
-                          <Button onClick={() => handleCloseJob(job.id)} variant="outline" size="sm">
+                          <Button className="bg-manduSecondary text-white" onClick={() => handleCloseJob(job.id)} variant="outline" size="sm">
                             Close
                           </Button>
                         </div>

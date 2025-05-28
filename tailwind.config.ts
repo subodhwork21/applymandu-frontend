@@ -58,6 +58,9 @@ const config: Config = {
         grayTag: {
           DEFAULT: "#F1F1F1",
         },
+        darkGrey: {
+          DEFAULT: "#020617",
+        },  
         grayBg: {
           DEFAULT: "#D9D9D9",
         },
