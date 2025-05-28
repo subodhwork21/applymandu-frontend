@@ -271,6 +271,53 @@ const SettingsPage = () => {
                         <SelectItem value="healthcare">Healthcare</SelectItem>
                         <SelectItem value="finance">Finance</SelectItem>
                         <SelectItem value="education">Education</SelectItem>
+                        <SelectItem value="manufacturing">
+                          Manufacturing
+                        </SelectItem>
+                        <SelectItem value="retail">Retail</SelectItem>
+                        <SelectItem value="hospitality">
+                          Hospitality & Tourism
+                        </SelectItem>
+                        <SelectItem value="construction">
+                          Construction
+                        </SelectItem>
+                        <SelectItem value="agriculture">Agriculture</SelectItem>
+                        <SelectItem value="transportation">
+                          Transportation & Logistics
+                        </SelectItem>
+                        <SelectItem value="media">
+                          Media & Entertainment
+                        </SelectItem>
+                        <SelectItem value="telecom">
+                          Telecommunications
+                        </SelectItem>
+                        <SelectItem value="energy">
+                          Energy & Utilities
+                        </SelectItem>
+                        <SelectItem value="real_estate">Real Estate</SelectItem>
+                        <SelectItem value="consulting">
+                          Consulting & Professional Services
+                        </SelectItem>
+                        <SelectItem value="legal">Legal Services</SelectItem>
+                        <SelectItem value="nonprofit">
+                          Non-Profit & NGO
+                        </SelectItem>
+                        <SelectItem value="government">
+                          Government & Public Sector
+                        </SelectItem>
+                        <SelectItem value="pharma">
+                          Pharmaceuticals & Biotechnology
+                        </SelectItem>
+                        <SelectItem value="automotive">Automotive</SelectItem>
+                        <SelectItem value="aerospace">
+                          Aerospace & Defense
+                        </SelectItem>
+                        <SelectItem value="ecommerce">E-commerce</SelectItem>
+                        <SelectItem value="food">Food & Beverage</SelectItem>
+                        <SelectItem value="insurance">Insurance</SelectItem>
+                        <SelectItem value="marketing">
+                          Marketing & Advertising
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -413,7 +460,9 @@ const SettingsPage = () => {
                   </Label>
                   <Switch
                     id="2fa"
-                    defaultChecked={!!Number(settingsData?.data?.profile?.two_fa)}
+                    defaultChecked={
+                      !!Number(settingsData?.data?.profile?.two_fa)
+                    }
                     onCheckedChange={handleTwoFactorAuth}
                   />
                 </div>

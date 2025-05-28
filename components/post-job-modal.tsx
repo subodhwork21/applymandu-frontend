@@ -415,6 +415,7 @@ const PostJobModal = ({ isOpen, onClose, editJob, mutate }: PostJobModalProps) =
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="it">IT</SelectItem>
                     <SelectItem value="engineering">Engineering</SelectItem>
                     <SelectItem value="design">Design</SelectItem>
                     <SelectItem value="marketing">Marketing</SelectItem>
