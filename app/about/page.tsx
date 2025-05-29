@@ -6,6 +6,7 @@ import { Target, Eye, Star, Users, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import Image from "next/image";
 
 const AboutPage = () => {
   return (
@@ -29,7 +30,8 @@ const AboutPage = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="relative h-96 rounded-2xl overflow-hidden">
-                <img
+                <Image
+                  fill={true}
                   src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg"
                   alt="Team Collaboration"
                   className="absolute inset-0 w-full h-full object-cover"
@@ -150,7 +152,8 @@ const AboutPage = () => {
                 <div key={index} className="text-center group">
                   <div className="relative mb-6 inline-block">
                     <div className="w-32 h-32 mx-auto rounded-full overflow-hidden">
-                      <img
+                      <Image
+                      fill={true}
                         src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${member.avatar}`}
                         alt={member.name}
                         className="w-full h-full object-cover"

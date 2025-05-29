@@ -50,7 +50,6 @@
     "date-fns": "^3.3.1",
     "embla-carousel-react": "^8.0.0",
     "input-otp": "^1.2.2",
-    "laravel-echo": "^2.1.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.330.0",
     "lucide-solid": "^0.511.0",
@@ -76,10 +75,12 @@
   "devDependencies": {
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.11.17",
+    "@types/pusher-js": "^4.2.2",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.3",
+    "laravel-echo": "^2.1.4",
     "typescript": "^5.3.3"
   }
 }

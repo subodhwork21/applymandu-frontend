@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,10 @@ interface SavedJob {
   viewed: boolean;
   saved: boolean;
   is_applied: boolean;
+  year_of_experience: string;
+  expected_salary: string;
+  notice_period: string;
+  cover_letter: string;
 }
 
 interface SavedJobsResponse {
@@ -116,21 +121,36 @@ const SavedJobsPage = () => {
 
   const handleApply = (e: React.MouseEvent, job: SavedJob) => {
     e.preventDefault();
-    openApplicationPanel({
-      id: job.id,
-      title: job.title,
-      employer_name: job.employer_name,
-      location: job.location,
-      employment_type: job.employment_type,
-      salary_range: job.salary_range.formatted,
-      shortDescription: job.description,
-      requirements: job.requirements,
-      responsibilities: job.responsibilities,
-      benefits: job.benefits,
-      postedTime: job.posted_date_formatted,
-      is_remote: job.is_remote,
-      skills: job.skills
-    });
+   openApplicationPanel({
+  id: job.id,
+  title: job.title,
+  employer_name: job.employer_name,
+  location: job.location,
+  employment_type: job.employment_type,
+  
+  salary_range: job.salary_range,  
+  description: job.description,     
+  requirements: job.requirements,
+  responsibilities: job.responsibilities,
+  benefits: job.benefits,
+  posted_date_formatted: job.posted_date_formatted, 
+  is_remote: job.is_remote,
+  skills: job.skills,
+  
+  experience_level: job.experience_level || "",
+  year_of_experience: job.year_of_experience || "",
+  expected_salary: job.expected_salary || "",
+  notice_period: job.notice_period || "",
+  cover_letter: job.cover_letter || "",
+  posted_date: job.posted_date || "",
+  employer_id: job.employer_id || 0,
+  image: job.image || "",
+  created_at: job.created_at || "",
+  updated_at: job.updated_at || "",
+  viewed: job.viewed || false,
+  saved: true, // Since this is from saved jobs
+  is_applied: job.is_applied || false
+});
   };
 
   if (isLoading) {
@@ -209,7 +229,7 @@ const SavedJobsPage = () => {
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center overflow-hidden">
                       {job.image ? (
-                        <img src={job.image} alt={job.employer_name} className="w-full h-full object-cover" />
+                        <Image fill={true} src={job.image} alt={job.employer_name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="text-white text-xl">{job.employer_name[0]}</div>
                       )}

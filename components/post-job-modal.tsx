@@ -234,7 +234,7 @@ const PostJobModal = ({ isOpen, onClose, editJob, mutate }: PostJobModalProps) =
       
       setIsCheckingSlug(false);
     }, 2000), 
-    []
+    [editJob]
   );
   
 

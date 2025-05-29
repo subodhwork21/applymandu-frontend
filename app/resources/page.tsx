@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import Image from "next/image";
 
 const ResourcesPage = () => {
   return (
@@ -73,7 +74,8 @@ const ResourcesPage = () => {
               ].map((article, index) => (
                 <div key={index} className="group cursor-pointer">
                   <div className="relative h-48 mb-4 rounded-xl overflow-hidden">
-                    <img
+                    <Image
+                    fill={true}
                       src={article.image}
                       alt={article.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -200,7 +202,9 @@ const ResourcesPage = () => {
                   className="flex gap-6 bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg transition-all duration-200"
                 >
                   <div className="flex-shrink-0">
-                    <img
+                    <Image
+                      width={64}
+                      height={64}
                       src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${expert.avatar}`}
                       alt={expert.name}
                       className="w-16 h-16 rounded-full"

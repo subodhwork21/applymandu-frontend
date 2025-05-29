@@ -68,34 +68,34 @@ interface Skill {
 }
 
 export interface JobDescription {
-  data: {
-    id: number | null;
-    title: string | null;
-    experience_level: string | null;
-    year_of_experience: string | null;
-    expected_salary: string | null;
-    location: string | null;
-    description: string | null;
-    is_remote: boolean | null;
-    employment_type: string | null;
-    salary_range: SalaryRange | null;
-    requirements: string[] | null;
-    responsibilities: string[] | null;
-    benefits: string[] | null;
-    posted_date: string | null;
-    posted_date_formatted: string | null;
-    employer_id: number | null;
-    employer_name: string | null;
-    image: string | null;
-    skills: Skill[] | null;
-    created_at: string | null;
-    updated_at: string | null;
-    viewed: boolean | null;
-    saved: boolean | null;
+  data: JobDescriptionData | null;
+}
+
+export interface JobDescriptionData {
+id: number ;
+    title: string ;
+    experience_level: string ;
+    year_of_experience: string ;
+    expected_salary: string ;
+    location: string ;
+    description: string ;
+    is_remote: boolean ;
+    employment_type: string ;
+    salary_range: SalaryRange ;
+    requirements: string[] ;
+    responsibilities: string[] ;
+    benefits: string[] ;
+    posted_date: string ;
+    posted_date_formatted: string ;
+    employer_id: number ;
+    employer_name: string ;
+    image: string ;
+    skills: Skill[] ;
+    created_at: string ;
+    updated_at: string ;
+    viewed: boolean ;
+    saved: boolean ;
     notice_period: string;
-    coverLetter: string | null;
-    cover_letter:string | null;
-    is_applied: boolean | null;
-    
-  };
+    cover_letter:string ;
+    is_applied: boolean ;
 }

@@ -1,5 +1,5 @@
 "use client"
-import { JobDescription } from '@/types/job-type';
+import { JobDescription, JobDescriptionData } from '@/types/job-type';
 // import { Job } from '@/types/job-type';
 import React, { createContext, useContext, useState } from 'react';
 // import { Job } from './constants';
@@ -7,7 +7,7 @@ import React, { createContext, useContext, useState } from 'react';
 interface ApplicationContextType {
   isApplyOpen: boolean;
   selectedJob: JobDescription['data'] | null;
-  openApplicationPanel: (job: JobDescription['data']) => void;
+  openApplicationPanel: (job: JobDescriptionData) => void;
   closeApplicationPanel: () => void;
 }
 

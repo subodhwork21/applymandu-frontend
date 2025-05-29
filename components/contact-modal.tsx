@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import Image from "next/image";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -43,7 +44,9 @@ const ContactModal = ({ isOpen, onClose, candidate }: ContactModalProps) => {
 
         <div className="p-6">
           <div className="flex items-center gap-4 mb-6">
-            <img
+            <Image
+              width={48}
+              height={48}
               src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.avatar}`}
               alt={candidate.name}
               className="w-12 h-12 rounded-full"

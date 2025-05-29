@@ -26,6 +26,7 @@ import { DropdownWithAddOption } from "./ui/dropdown-with-add-option";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { toast } from "@/hooks/use-toast";
 import useSWR from "swr";
+import Image from "next/image";
 
 interface InterviewScheduleModalProps {
   isOpen: boolean;
@@ -127,7 +128,9 @@ const InterviewScheduleModal = ({
 
         <div className="p-6">
           <div className="flex items-center space-x-4 mb-6">
-            <img
+            <Image
+              width={48}
+              height={48}
               src={`${candidate.avatar}`}
               alt={candidate.name}
               className="w-12 h-12 rounded-full"

@@ -9,6 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/lib/auth-context";
 import { employerToken, jobSeekerToken } from "@/lib/tokens";
 import { echo } from "@/lib/echo-setup";
+import Image from "next/image";
+
 
 interface Message {
   id: number;
@@ -120,7 +122,7 @@ useEffect(() => {
   // Clean up function
   return () => {
     console.log(`Unsubscribing from private-chat.${chatId} channel`);
-    echo.leave(`chat.${chatId}`);
+    echo?.leave(`chat.${chatId}`);
   };
 }, [chatId, user?.id]);
 
@@ -351,7 +353,9 @@ useEffect(() => {
       <DialogContent className="sm:max-w-2xl p-0">
         <div className="border-b border-neutral-200 p-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <img
+            <Image
+            width={40}
+            height={40}
               src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
               alt={candidate.name}
               className="w-10 h-10 rounded-full"
@@ -399,7 +403,9 @@ useEffect(() => {
                         }`}>
                         {/* Avatar for current user */}
                         {message?.sender_id?.toString() === user?.id.toString() && (
-                          <img
+                          <Image
+                          width={32}
+                          height={32}
                             src={user.image_path || "https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=company"}
                             alt="You"
                             className="w-8 h-8 rounded-full flex-shrink-0"
@@ -433,7 +439,9 @@ useEffect(() => {
 
                         {/* Avatar for other user */}
                         {message?.sender_id?.toString() !== user?.id.toString() && (
-                          <img
+                          <Image
+                          width={32}
+                          height={32}
                             src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
                             alt={candidate.name}
                             className="w-8 h-8 rounded-full flex-shrink-0"
@@ -484,7 +492,9 @@ useEffect(() => {
   <div className="border-b border-neutral-200 p-4 flex justify-between items-center">
     <div className="flex items-center space-x-3">
       <div className="relative">
-        <img
+        <Image
+          width={40}
+          height={40}
           src={candidate.avatar || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
           alt={candidate.name}
           className="w-10 h-10 rounded-full"

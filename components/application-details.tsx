@@ -265,16 +265,16 @@ const ApplicationDetails = ({id}: {id: string}) => {
                                 <p className="text-neutral-600 text-sm mt-1">Your application was successfully submitted</p>
                               )}
                               {!status.remarks && status.status === "shortlisted" && (
-                                <p className="text-neutral-600 text-sm mt-1">Congratulations! You've been shortlisted for the next round</p>
+                                <p className="text-neutral-600 text-sm mt-1">Congratulations! You have been shortlisted for the next round</p>
                               )}
                               {!status.remarks && status.status === "interview_scheduled" && (
-                                <p className="text-neutral-600 text-sm mt-1">You've been selected for an interview</p>
+                                <p className="text-neutral-600 text-sm mt-1">You have been selected for an interview</p>
                               )}
                               {!status.remarks && status.status === "rejected" && (
                                 <p className="text-neutral-600 text-sm mt-1">Unfortunately, your application was not selected</p>
                               )}
                               {!status.remarks && status.status === "hired" && (
-                                <p className="text-neutral-600 text-sm mt-1">Congratulations! You've been hired for this position</p>
+                                <p className="text-neutral-600 text-sm mt-1">Congratulations! You have been hired for this position</p>
                               )}
                             </div>
                           </div>

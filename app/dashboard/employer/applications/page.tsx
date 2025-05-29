@@ -26,6 +26,7 @@ import { defaultFetcher } from "@/lib/fetcher";
 import { format } from "date-fns";
 import InterviewWithdrawModal from "@/components/interview-withdraw-modal";
 import DataNavigation from "@/components/ui/data-navigation";
+import Image from "next/image";
 
 interface SalaryRange {
   min: string;
@@ -348,7 +349,9 @@ function ApplicationsContent() {
                               <div key={application.id} className="p-4">
                                 <div className="flex items-start justify-between">
                                   <div className="flex gap-4">
-                                    <img
+                                    <Image
+                                    width={48}
+                                    height={48}
                                       src={application?.avatar}
                                       alt="Candidate"
                                       className="w-12 h-12 rounded-full"

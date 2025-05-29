@@ -19,14 +19,14 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
-import { JobDescription } from "@/types/job-type";
+import { JobDescription, JobDescriptionData } from "@/types/job-type";
 import { baseFetcher } from "@/lib/fetcher";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 // import { Job } from "@/types/job-type";
 
 interface JobDetailPageClientProps {
-  job: JobDescription["data"];
+  job: JobDescriptionData;
 }
 
 const JobDetailPageClient = ({

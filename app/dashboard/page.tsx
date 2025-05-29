@@ -10,5 +10,5 @@ export default function DashboardPage() {
     if(user){
       router.push('/dashboard/jobseeker');
     }
-  }, [user])
+  }, [user, router]);
 }

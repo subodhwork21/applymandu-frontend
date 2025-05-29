@@ -28,7 +28,7 @@ const CTASection = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <p
-            onClick={()=> openRegisterModal(false)}
+            onClick={()=> openRegisterModal()}
               className="px-6 py-3 bg-white text-patternText hover:text-patternText/60 rounded-md transition-colors inline-flex items-center justify-center"
             >
               <UserPlusIcon />

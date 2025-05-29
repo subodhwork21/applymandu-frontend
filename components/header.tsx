@@ -192,7 +192,7 @@ const Header = () => {
         }
       };
     }
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, fetchChatPreviews]);
 
   const handleOpenMessageModal = (chat: ChatPreview) => {
     setSelectedChat({

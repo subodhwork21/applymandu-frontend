@@ -22,6 +22,7 @@ import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { useAuth } from "@/lib/auth-context";
 import { jobSeekerToken } from "@/lib/tokens";
+import Image from "next/image";
 
 const ResumeView = () => {
   const { user } = useAuth();
@@ -467,8 +468,10 @@ const ResumeView = () => {
             {/* Profile Card */}
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <div className="text-center mb-6">
-                <img
-                  src={user?.image_path}
+                <Image
+                  width={96}
+                  height={96}
+                  src={user?.image_path!}
                   alt="Profile"
                   className="w-24 h-24 rounded-full mx-auto mb-4"
                 />

@@ -2,22 +2,61 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { employerToken, jobSeekerToken } from './tokens';
 
+interface EchoChannel {
+  listen(event: string, callback: (data: any) => void): EchoChannel;
+  stopListening(event: string): EchoChannel;
+  subscribed(callback: () => void): EchoChannel;
+  error(callback: (error: any) => void): EchoChannel;
+}
+
+interface EchoPrivateChannel extends EchoChannel {
+  whisper(eventName: string, data: any): EchoPrivateChannel;
+}
+
+interface EchoPresenceChannel extends EchoPrivateChannel {
+  here(callback: (users: any[]) => void): EchoPresenceChannel;
+  joining(callback: (user: any) => void): EchoPresenceChannel;
+  leaving(callback: (user: any) => void): EchoPresenceChannel;
+}
+
+interface EchoInstance {
+  channel(name: string): EchoChannel;
+  private(name: string): EchoPrivateChannel;
+  presence(name: string): EchoPresenceChannel;
+  leave(name: string): void;
+  leaveChannel(name: string): void;
+  disconnect(): void;
+}
+
+// Define the options interface for Echo constructor
+interface EchoOptions {
+  broadcaster: string;
+  key: string;
+  cluster: string;
+  forceTLS: boolean;
+  auth?: {
+    headers: Record<string, string>;
+  };
+  authEndpoint?: string;
+  // Add any other options that Echo constructor accepts
+}
+
 declare global {
   interface Window {
-    Echo: Echo;
+    Echo: EchoInstance;
     Pusher: typeof Pusher;
   }
 }
 
 // Create a singleton instance of Echo
-let echo: Echo | null = null;
+let echo: EchoInstance | null = null;
 
 export const initializeEcho = () => {
   // If Echo is already initialized, return the existing instance
   if (echo) return echo;
   
   if (typeof window !== 'undefined') {
-    window.Pusher = Pusher; // Required for Echo
+    window.Pusher = Pusher as any; // Required for Echo
     
     // Check if Pusher environment variables are available
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
@@ -41,7 +80,8 @@ export const initializeEcho = () => {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const baseUrl = apiUrl.endsWith('/') ? apiUrl : `${apiUrl}/`;
       
-      echo = new Echo({
+      // Create Echo options object with proper typing
+      const echoOptions: EchoOptions = {
         broadcaster: 'pusher',
         key: pusherKey,
         cluster: pusherCluster,
@@ -55,7 +95,10 @@ export const initializeEcho = () => {
           }
         },
         authEndpoint: `${baseUrl}api/broadcasting/auth`
-      });
+      };
+      
+      // Create Echo instance with proper type casting
+      echo = new Echo(echoOptions as any) as unknown as EchoInstance;
       
       window.Echo = echo;
       console.log('Echo initialized successfully with Pusher');

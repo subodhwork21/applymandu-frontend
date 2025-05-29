@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 const TwoFactorModal = () => {
   const { isTwoFactorModalOpen, closeTwoFactorModal, twoFactorSession, verifyTwoFactorCode } = useAuth();
@@ -58,7 +59,9 @@ useEffect(() => {
           {twoFactorSession?.qr_code && (
             <div className="border p-2 rounded-md">
               {/* Use the otpauth URL for the QR code if available, otherwise use the provided QR code */}
-              <img 
+              <Image
+                width={192}
+                height={192}
                 src={ twoFactorSession.qr_code} 
                 alt="QR Code for 2FA" 
                 className="w-48 h-48"

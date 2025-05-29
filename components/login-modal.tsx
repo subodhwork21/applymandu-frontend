@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/lib/auth-context";
 import TwoFactorModal from "./TwoFactorModal";
+import Image from "next/image";
 import { X, Eye, EyeOff } from "lucide-react";
 
 const LoginModal = () => {
@@ -73,7 +74,9 @@ const LoginModal = () => {
               }}
             >
               <div className="w-5 h-5 mr-3 bg-googleButton rounded-full flex items-center justify-center shadow-sm">
-                <img
+                <Image
+                width={16}
+                height={16}
                   src="/Google.png"
                   alt="Google Icon"
                   className="w-4 h-4"

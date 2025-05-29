@@ -24,6 +24,7 @@ import { useAuth } from "@/lib/auth-context";
 import { jobSeekerToken } from "@/lib/tokens";
 import { Router } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface UserProfile {
   id: number;
@@ -480,7 +481,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             >
               <h3 className="text-lg mb-4">Profile Photo</h3>
               <div className="flex items-center space-x-4">
-                <img
+                <Image
+                  width={80}
+                  height={80}
                   src={
                     formData.image_path ||
                     "https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=789"

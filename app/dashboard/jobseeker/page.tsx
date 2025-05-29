@@ -188,7 +188,7 @@ const DashboardPage = () => {
 
   const chartConfig = {
     visitors: {
-      label: "completion",
+      label: "completionLoading",
     },
     safari: {
       label: "Safari",
@@ -683,8 +683,10 @@ const DashboardPage = () => {
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border border-neutral-200">
                 <div className="text-center mb-6">
-                  <img
-                    src={user?.image_path}
+                  <Image
+                    width={100}
+                    height={100}
+                    src={user?.image_path!}
                     alt="Profile"
                     className="w-24 h-24 rounded-full mx-auto mb-4"
                   />

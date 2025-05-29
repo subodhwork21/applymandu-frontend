@@ -7,7 +7,7 @@ export default function BannerSignup(){
             <h2>
                 Ready to Find Your Next Opportunity? 
             </h2>
-            <p>Join thousands of professionals who've found their dream jobs through Applymandu</p>
+            <p>Join thousands of professionals who have found their dream jobs through Applymandu</p>
             <div>
 
             <Button>

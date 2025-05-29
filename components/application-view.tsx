@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InterviewScheduleModal from "@/components/interview-schedule-modal";
+import Image from "next/image";
 
 interface ApplicationViewProps {
   onBack: () => void;
@@ -25,6 +26,8 @@ const ApplicationView = ({ onBack }: ApplicationViewProps) => {
     name: "Sarah Smith",
     position: "Frontend Developer",
     avatar: "456",
+    application_id: "123",
+    mutate: () => {},
   };
 
   return (
@@ -42,7 +45,9 @@ const ApplicationView = ({ onBack }: ApplicationViewProps) => {
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center gap-4">
-                  <img
+                  <Image
+                    width={48}
+                    height={48}
                     src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.avatar}`}
                     alt={candidate.name}
                     className="w-12 h-12 rounded-full"
@@ -196,6 +201,9 @@ const ApplicationView = ({ onBack }: ApplicationViewProps) => {
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
         candidate={candidate}
+        application_id={candidate?.application_id || ""}
+        mutate={() => {}}
+
       />
     </section>
   );

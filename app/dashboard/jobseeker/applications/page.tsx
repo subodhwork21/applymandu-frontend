@@ -34,7 +34,7 @@ interface Application {
   notice_period: number;
   status: number;
   applied_at: string;
-  cover_letter: string | null;
+  cover_letter: string;
   created_at: string;
   updated_at: string;
   application_status_history: {
@@ -91,7 +91,7 @@ interface ProcessedApplication {
   year_of_experience: number;
   expected_salary: number;
   notice_period: number;
-  cover_letter: string | null;
+  cover_letter: string;
 }
 
 const ApplicationsPage = () => {
@@ -122,7 +122,11 @@ const ApplicationsPage = () => {
             location:
               job.location || (job.is_remote ? "Remote" : "Not specified"),
             appliedDate: format(new Date(app.applied_at), "MMM dd, yyyy"),
-            status: (app.application_status_history[0]?.status === "interview_scheduled" ? "Shortlisted": app.application_status_history[0]?.status) || "Applied",
+            status:
+              (app.application_status_history[0]?.status ===
+              "interview_scheduled"
+                ? "Shortlisted"
+                : app.application_status_history[0]?.status) || "Applied",
             employmentType: job.employment_type,
             salaryRange: `${job.salary_min} - ${job.salary_max}`,
             year_of_experience: app.year_of_experience,
@@ -171,7 +175,7 @@ const ApplicationsPage = () => {
 
   const handleWithdraw = async (id: number) => {
     const { response, result } = await baseFetcher(
-      "api/jobseeker/application/delete/"+id,
+      "api/jobseeker/application/delete/" + id,
       {
         method: "DELETE",
       }
@@ -212,6 +216,22 @@ const ApplicationsPage = () => {
       expected_salary: application.expected_salary.toString(),
       notice_period: application.notice_period.toString(),
       cover_letter: application.cover_letter,
+      description: "",
+      is_remote: false,
+      salary_range: { min: "0", max: "0", formatted: "0" },
+      requirements: [],
+      responsibilities: [],
+      benefits: [],
+      posted_date: "",
+      posted_date_formatted: "",
+      employer_id: 0,
+      image: "",
+      skills: [],
+      created_at: "",
+      updated_at: "",
+      viewed: false,
+      saved: false,
+      is_applied: true,
     });
   };
 

@@ -119,7 +119,7 @@ const DropdownWithAddOption = React.forwardRef<
         ? newOption 
         : { value: newOption, label: newOption, id: `new-${Date.now()}` };
       
-      setOptions([...options, newOptionObj]);
+      setOptions([...options, newOptionObj] as any);
       
       // Select the newly added option
       onChange(typeof newOptionObj === 'string' ? newOptionObj : newOptionObj.id);

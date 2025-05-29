@@ -452,7 +452,9 @@ const CompaniesPage = () => {
                   className="bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-md transition-all duration-200"
                 >
                   <div className="flex items-center mb-4">
-                    <img
+                    <Image
+                    width={40}
+                    height={40}
                       src={`https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${review.avatar}`}
                       alt="Reviewer"
                       className="w-10 h-10 rounded-full mr-3"

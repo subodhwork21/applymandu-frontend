@@ -20,6 +20,7 @@ import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { toast } from "@/hooks/use-toast";
 import { employerToken } from "@/lib/tokens";
+import Image from "next/image";
 
 // Define the types for our API response
 interface EmployerProfile {
@@ -387,13 +388,17 @@ const SettingsPage = () => {
                   <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center overflow-hidden">
                       {logoPreview ? (
-                        <img
+                        <Image
+                          width={64}
+                          height={64}
                           src={logoPreview}
                           alt="Company Logo"
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : settingsData?.data?.image_path ? (
-                        <img
+                        <Image
+                          width={64}
+                          height={64}
                           src={settingsData?.data?.image_path}
                           alt="Company Logo"
                           className="w-full h-full object-cover rounded-lg"

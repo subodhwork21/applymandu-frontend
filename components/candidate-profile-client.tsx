@@ -22,6 +22,7 @@ import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { format } from "date-fns";
 import { employerToken } from "@/lib/tokens";
+import Image from "next/image";
 
 interface Skill {
   id: number;
@@ -235,7 +236,9 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
         <div className="bg-white rounded-lg border border-neutral-200">
           <div className="relative h-48 bg-neutral-100 rounded-t-lg">
             <div className="absolute -bottom-16 left-8">
-              <img
+              <Image
+                width={128}
+                height={128}
                 src={candidate.image_path || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
                 alt={`${candidate.first_name} ${candidate.last_name}`}
                 className="w-32 h-32 rounded-full border-4 border-white object-cover"

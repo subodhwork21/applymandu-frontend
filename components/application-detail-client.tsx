@@ -22,6 +22,7 @@ import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { format, parseISO } from "date-fns";
 import { employerToken } from "@/lib/tokens";
 import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 interface ApplicationStatus {
   id: number;
@@ -356,7 +357,9 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
               <div className="p-6">
                 <h3 className="text-lg font-medium mb-4">Candidate Details</h3>
                 <div className="flex items-center gap-4 mb-6">
-                  <img
+                  <Image
+                    width={48}
+                    height={48}
                     src={application?.user_image}
                     alt={application.applied_user}
                     className="w-12 h-12 rounded-full"

@@ -10,6 +10,7 @@ import ContactModal from "@/components/contact-modal";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface Skill {
   name: string;
@@ -147,7 +148,9 @@ const CandidatesPage = () => {
                       className="border border-neutral-200 rounded-lg p-4"
                     >
                       <div className="flex items-start gap-4">
-                        <img
+                        <Image
+                        width={48}
+                        height={48}
                           src={`${candidate?.image_path}`}
                           alt={`${candidate.first_name} ${candidate.last_name}`}
                           className="w-12 h-12 rounded-full"
