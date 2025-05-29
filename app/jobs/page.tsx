@@ -161,15 +161,15 @@ const JobsPage = () => {
     { value: "Senior Level", label: "Senior Level (5+ years)" },
   ];
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // if (e.key === "Enter") {
       e.preventDefault();
       urlSearchParams.set("search", e.currentTarget.value);
       router.push(`/jobs?${urlSearchParams.toString()}`, {
         scroll: false,
       });
       jobMutate();
-    }
+    // }
   };
 
   const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
@@ -418,7 +418,7 @@ const JobsPage = () => {
                   <div className="flex-1 relative md:mb-0 mb-4 w-full">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400 h-5 w-5" />
                     <input
-                      onKeyDown={(e) => handleSearch(e)}
+                      onChange={(e) => handleSearch(e)}
                       type="text"
                       defaultValue={searchParams.get("search") || ""}
                       placeholder="Search jobs, skills, or companies"
@@ -935,7 +935,7 @@ const JobsPage = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <div className="flex flex-wrap gap-2 mb-0">
-                          {job.skills.slice(0, 3).map((skill, id) => (
+                          {job?.skills?.slice(0, 3).map((skill, id) => (
                             <span
                               key={id}
                               className="px-5 py-2 bg-neutral-100 text-manduBorder font-semibold capitalize rounded-full text-sm"
@@ -943,7 +943,7 @@ const JobsPage = () => {
                               {skill?.name}
                             </span>
                           ))}
-                          {job.skills.length > 3 && (
+                          {job?.skills?.length > 3 && (
                             <span className="px-5 py-2  bg-neutral-100 text-manduBorder font-semibold capitalize rounded-full text-sm">
                               +{job.skills.length - 3} more
                             </span>
