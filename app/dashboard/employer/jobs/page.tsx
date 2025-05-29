@@ -28,6 +28,9 @@ import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { format, parseISO } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 interface Skill {
   id: number;
@@ -251,70 +254,158 @@ const JobListingsPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 flex flex-col gap-6">
                 {filteredJobs.length === 0 ? (
                   <div className="text-center py-8 text-neutral-500">
                     No job listings found matching your criteria.
                   </div>
                 ) : (
                   filteredJobs.map((job) => (
-                    <div
-                      key={job.id}
-                      className="border border-neutral-200 rounded-lg p-4"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-medium mb-2">{job.title}</h3>
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                              {job.employment_type}
-                            </span>
-                            <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                              {job.location_type}
-                            </span>
-                            <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                              {job.salary_range.formatted}
-                            </span>
-                          </div>
-                          <div className="space-y-2 text-sm text-neutral-600">
-                            <p className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              {job.location}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Briefcase className="h-4 w-4" />
-                              {job.experience_level}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              Deadline: {format(new Date(job.application_deadline), "MMM dd, yyyy")}
-                            </p>
-                          </div>
-                        </div>
-                        <span className={`px-3 py-1 ${Number(job.status) === 1 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"} rounded-full text-sm`}>
-                          {Number(job.status) === 1 ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                      <div className="flex justify-end space-x-2 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditJob(job)}
-                        >
-                          Edit
-                        </Button>
-                        <Button onClick={() => handleToggleJobStatus(job?.id)} variant="outline" size="sm">
-                          {Number(job?.status) === 1 ? "Pause" : "Activate"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-black text-white hover:bg-neutral-800"
-                          onClick={() => handleViewApplications(job.id)}
-                        >
-                          View Applications
-                        </Button>
-                      </div>
-                    </div>
+                    <Card 
+  key={job.id} 
+  className="w-full h-[197px] rounded-[15px] border-[0.5px] border-manduSecondary/30 shadow-[0px_2px_5px_#00000040] relative"
+>
+  <CardContent className="p-0">
+    <div className="p-8">
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+            {job.title}
+          </h2>
+
+          <div className="flex items-center gap-[11px] mt-5">
+            {/* <img
+              className="w-[17.5px] h-3.5"
+              alt="Applicants icon"
+              src="/frame-1.svg"
+            /> */}
+            {/* <span className="font-['Poppins'] font-normal text-neutral-600 text-sm leading-5">
+              {job.applicants || "0"} Applicants
+            </span> */}
+
+            <div className="w-4 h-4">
+              <Calendar className="h-4 w-4 text-grayColor" />
+            </div>
+
+            <span className="font-['Poppins'] font-normal text-grayColor text-sm leading-5">
+              Deadline: {job.application_deadline ? format(new Date(job.application_deadline), "MMM dd, yyyy") : "Not set"}
+            </span>
+          </div>
+        </div>
+
+        <Badge className={`${Number(job.status) === 1 ? "bg-[#14dc14]/10 text-[#006B24] hover:text-[#006B24] hover:bg-[#14dc14]/10 " : "bg-red-100 text-manduSecondary hover:bg-red-100 hover:text-manduSecondary"} font-semibold text-sm px-4 py-0.5 rounded-full hover:text-white hover:bg-`}>
+          {Number(job.status) === 1 ? "Active" : "Inactive"}
+        </Badge>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-between items-center">
+        <div className="flex items-center gap-[5px]">
+          <Badge
+            variant="outline"
+            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+          >
+            {job.employment_type}
+          </Badge>
+          <Badge
+            variant="outline"
+            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+          >
+            {job.location_type }
+          </Badge>
+          <Badge
+            variant="outline"
+            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+          >
+            {job.salary_range?.formatted}
+          </Badge>
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-manduSecondary text-manduSecondary font-semibold"
+            onClick={() => handleEditJob(job)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            className="border-manduSecondary text-manduSecondary font-semibold"
+            onClick={() => handleToggleJobStatus(job?.id)}
+          >
+            {Number(job?.status) === 1 ? "Pause" : "Activate"}
+          </Button>
+          <Button 
+            className="bg-manduSecondary text-white font-semibold"
+            onClick={() => handleViewApplications(job.id)}
+          >
+            View Applications
+          </Button>
+        </div>
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
+
+
+                    // <div
+                    //   key={job.id}
+                    //   className="border border-neutral-200 rounded-lg p-4"
+                    // >
+                    //   <div className="flex justify-between items-start">
+                    //     <div>
+                    //       <h3 className="text-lg font-medium mb-2">{job.title}</h3>
+                    //       <div className="flex flex-wrap gap-2 mb-3">
+                    //         <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
+                    //           {job.employment_type}
+                    //         </span>
+                    //         <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
+                    //           {job.location_type}
+                    //         </span>
+                    //         <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
+                    //           {job.salary_range.formatted}
+                    //         </span>
+                    //       </div>
+                    //       <div className="space-y-2 text-sm text-neutral-600">
+                    //         <p className="flex items-center gap-2">
+                    //           <MapPin className="h-4 w-4" />
+                    //           {job.location}
+                    //         </p>
+                    //         <p className="flex items-center gap-2">
+                    //           <Briefcase className="h-4 w-4" />
+                    //           {job.experience_level}
+                    //         </p>
+                    //         <p className="flex items-center gap-2">
+                    //           <Calendar className="h-4 w-4" />
+                    //           Deadline: {format(new Date(job.application_deadline), "MMM dd, yyyy")}
+                    //         </p>
+                    //       </div>
+                    //     </div>
+                    //     <span className={`px-3 py-1 ${Number(job.status) === 1 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"} rounded-full text-sm`}>
+                    //       {Number(job.status) === 1 ? "Active" : "Inactive"}
+                    //     </span>
+                    //   </div>
+                    //   <div className="flex justify-end space-x-2 mt-4">
+                    //     <Button
+                    //       variant="outline"
+                    //       size="sm"
+                    //       onClick={() => handleEditJob(job)}
+                    //     >
+                    //       Edit
+                    //     </Button>
+                    //     <Button onClick={() => handleToggleJobStatus(job?.id)} variant="outline" size="sm">
+                    //       {Number(job?.status) === 1 ? "Pause" : "Activate"}
+                    //     </Button>
+                    //     <Button
+                    //       size="sm"
+                    //       className="bg-black text-white hover:bg-neutral-800"
+                    //       onClick={() => handleViewApplications(job.id)}
+                    //     >
+                    //       View Applications
+                    //     </Button>
+                    //   </div>
+                    // </div>
                   ))
                 )}
               </div>
@@ -329,7 +420,7 @@ const JobListingsPage = () => {
                         variant={link.active ? "default" : "outline"}
                         size="sm"
                         disabled={!link.url}
-                        className={link.active ? "bg-black text-white" : ""}
+                        className={link.active ? "bg-manduPrimary text-white" : ""}
                         onClick={() => {
                           if (link.url) {
                             const url = new URL(link.url);
@@ -353,28 +444,39 @@ const JobListingsPage = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Listings Overview</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Active Jobs</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.active_jobs}</span>
+             <Card className="w-full rounded-[15.54px] border-[1.94px] border-solid border-slate-200">
+        <CardHeader className="p-0">
+          <div className="bg-[#fcfcfc] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 p-[13px_29px]">
+            <CardTitle className="font-medium text-brand-colorsecondary-color text-xl leading-[30px]">
+              Listings Overview
+            </CardTitle>
+          </div>
+          <Separator className="w-full" />
+        </CardHeader>
+        <CardContent className="p-[30px_31px]">
+          <div className="flex flex-col gap-[30px]">
+   
+              <div className="flex justify-between items-center">
+                  <span className="text-sm text-grayColor font-normal leading-[21.4px]">Active Jobs</span>
+                  <span className="text-sm text-grayColor font-bold">{listingOverview && listingOverview?.active_jobs}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Paused</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.paused_jobs}</span>
+                  <span className="text-sm text-grayColor font-normal leading-[21.4px]">Paused</span>
+                  <span className="text-sm text-grayColor font-bold">{listingOverview && listingOverview?.paused_jobs}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Closed</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.closed_jobs}</span>
+                  <span className="text-sm text-grayColor font-normal leading-[21.4px]">Closed</span>
+                  <span className="text-sm text-grayColor font-bold">{listingOverview && listingOverview?.closed_jobs}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Total Views</span>
-                  <span className="text-sm">{listingOverview && listingOverview?.total_views}</span>
+                  <span className="text-sm text-grayColor font-normal leading-[21.4px]">Total Views</span>
+                  <span className="text-sm text-grayColor font-bold">{listingOverview && listingOverview?.total_views}</span>
                 </div>
+          </div>
+        </CardContent>
+      </Card>
 
-              </div>
-            </div>
+           
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-4">Quick Actions</h2>

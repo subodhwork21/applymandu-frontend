@@ -10,6 +10,8 @@ import {
   MapPin,
   Briefcase,
   AlertTriangle,
+  RefreshCwIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +36,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Separator } from "./ui/separator";
 
 interface Skill {
   id: number;
@@ -329,8 +333,68 @@ const TrashedJobsPage = () => {
               )}
             </div>
           </div>
-
           <div className="space-y-6">
+<Card className="w-full border-slate-200 border-[1.94px] rounded-[15.54px]">
+        <CardHeader className="bg-[#fdfdfd] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 px-[29px] py-[13px]">
+          <CardTitle className="font-medium text-manduSecondary text-xl ">
+            Trashed Jobs Info
+          </CardTitle>
+        </CardHeader>
+        <Separator className="w-full" />
+        <CardContent className="p-[31px]">
+          <div className="flex flex-col gap-[30px]">
+            <div className="flex items-center justify-between w-full">
+              <div className=" font-semibold text-grayColor  text-base">
+                Total Trash Jobs
+              </div>
+              <div className=" font-semibold text-brand-colorsecondary-color text-base text-right">
+               {jobsResponse.meta.total}
+              </div>
+            </div>
+
+            <div className="flex items-center w-full">
+              <div className=" font-normal text-grayColor  text-base">
+                 Trashed jobs are kept for 30 days before being permanently deleted. You can restore them anytime during this period.
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bulk Actions Card */}
+      <Card className="w-full border-slate-200 border-[1.94px] rounded-[15.54px]">
+        <CardHeader className="bg-[#fcfcfc] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 px-[29px] py-[13px]">
+          <CardTitle className="font-medium text-manduSecondary text-xl ">
+            Bulk Actions
+          </CardTitle>
+        </CardHeader>
+        <Separator className="w-full" />
+        <CardContent className="p-[31px]">
+          <div className="flex flex-col gap-[30px]">
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-center gap-[9px] py-2.5 bg-white border-[2.04px] border-[#006a23] rounded-[6.13px] text-colorcard-box-color-g"
+            >
+              <RefreshCwIcon className="w-4 h-4" />
+              <span className=" font-normal text-[14.3px]">
+                Restore All Jobs
+              </span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-center gap-[9px] py-2.5 bg-white border-[2.04px] border-[#dc143c] rounded-[6.13px] text-brand-colorsecondary-color"
+            >
+              <Trash2Icon className="w-4 h-4" />
+              <span className=" font-normal text-[14.3px]">
+                Delete All Jobs
+              </span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      </div>
+          {/* <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
               <h2 className="text-xl mb-4">Trashed Jobs Info</h2>
               <div className="space-y-4">
@@ -390,7 +454,7 @@ const TrashedJobsPage = () => {
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
