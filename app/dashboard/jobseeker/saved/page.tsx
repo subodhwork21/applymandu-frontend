@@ -229,7 +229,7 @@ const SavedJobsPage = () => {
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center overflow-hidden">
                       {job.image ? (
-                        <Image fill={true} src={job.image} alt={job.employer_name} className="w-full h-full object-cover" />
+                        <Image width={48} height={48} src={job.image} alt={job.employer_name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="text-white text-xl">{job.employer_name[0]}</div>
                       )}
