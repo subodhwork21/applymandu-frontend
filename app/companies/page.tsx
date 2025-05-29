@@ -384,7 +384,7 @@ const CompaniesPage = () => {
                     return (
                       <div
                         key={industry}
-                        className={`bg-white p-6 rounded-xl border ${borderColor} ${hoverColor} transition-all duration-600 cursor-pointer group`}
+                        className={`bg-white p-6 rounded-[27px] border ${borderColor} ${hoverColor} transition-all duration-600 cursor-pointer group`}
                       >
                         <div  
                           className={`w-10 h-10 ${color} rounded-full flex items-center justify-center mb-4 group-hover:scale-[1.3] duration-700 transition-transform`}
