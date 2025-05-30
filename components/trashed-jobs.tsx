@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   RefreshCwIcon,
   Trash2Icon,
+  BuildingIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
+import { Badge } from "./ui/badge";
+import { BriefcaseIcon, MapPinIcon } from "@heroicons/react/24/solid";
 
 interface Skill {
   id: number;
@@ -184,27 +187,28 @@ const TrashedJobsPage = () => {
   return (
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-2xl">Trashed Job Listings</h1>
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/employer/jobs")}
+            className="w-full sm:w-auto"
           >
             Back to Active Jobs
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="md:col-span-3">
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex space-x-4">
+          <div className="md:col-span-3 lg:col-span-3">
+            <div className="bg-white p-4 sm:p-6 rounded-lg border border-neutral-200">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div className="w-full sm:w-auto">
                   <Select 
                     defaultValue="all"
                     value={departmentFilter}
                     onValueChange={setDepartmentFilter}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="All Departments" />
                     </SelectTrigger>
                     <SelectContent>
@@ -218,12 +222,12 @@ const TrashedJobsPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                   <Input
                     type="text"
                     placeholder="Search trashed jobs..."
-                    className="pl-10 w-64"
+                    className="pl-10 w-full sm:w-64"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -237,75 +241,90 @@ const TrashedJobsPage = () => {
                   </div>
                 ) : (
                   filteredJobs.map((job) => (
-                    <div
+                    <Card
                       key={job.id}
-                      className="border border-neutral-200 rounded-lg p-4"
+                      className="w-full border-[0.5px] border-solid border-[#dc143c]/30 rounded-[15px] shadow-[0px_2px_5px_#00000040]"
                     >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-medium mb-2">{job.title}</h3>
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                              {job.employment_type}
-                            </span>
-                            <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                              {job.location_type}
-                            </span>
-                            <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                              {job.salary_range.formatted}
-                            </span>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col gap-5">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+                            <h2 className="text-xl font-semibold text-manduPrimary">
+                              {job.title}
+                            </h2>
+                            <Badge className="bg-manduSecondary/30 hover:bg-manduSecondary/60 text-manduSecondary font-semibold px-4 py-2 rounded-full">
+                              Trashed
+                            </Badge>
                           </div>
-                          <div className="space-y-2 text-sm text-neutral-600">
-                            <p className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              {job.location}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Briefcase className="h-4 w-4" />
-                              {job.experience_level}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              Deleted on: {format(new Date(job.deleted_at), "MMM dd, yyyy")}
-                            </p>
+
+                          <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <MapPinIcon className="h-4 w-4" />
+                              <span className="text-sm text-grayColor font-normal font-['Poppins']">
+                                {job.location}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <BriefcaseIcon className="h-4 w-4" />
+                              <span className="text-sm text-grayColor font-['Poppins']">
+                                {job.experience_level}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <BuildingIcon className="h-4 w-4" />
+                              <span className="text-sm text-grayColor font-['Poppins']">
+                                {job.employment_type}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div className="flex flex-wrap gap-2">
+                              <Badge className="px-5 py-2 bg-grayTag text-manduBorder hover:bg-grayTag/80 rounded-[50px] text-xs">
+                                {job.employment_type}
+                              </Badge>
+                              <Badge className="px-5 py-2 bg-grayTag text-manduBorder hover:bg-grayTag/80 rounded-[50px] text-xs">
+                                {job.location_type}
+                              </Badge>
+                              <Badge className="px-5 py-2 bg-grayTag text-manduBorder hover:bg-grayTag/80 rounded-[50px] text-xs">
+                                {job.salary_range.formatted}
+                              </Badge>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                              <Button
+                                onClick={() => handleRestoreJob(job.id)}
+                                variant="outline"
+                                className="border-[2px] border-[#006b24] text-[#006b24] rounded-md flex items-center gap-2 w-full sm:w-auto"
+                              >
+                                <RefreshCwIcon className="h-4 w-4" />
+                                Restore
+                              </Button>
+
+                              <Button 
+                                onClick={() => {
+                                  setJobToDelete(job);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                                className="bg-manduSecondary rounded-[6px] text-white border-[2px] flex items-center gap-2 w-full sm:w-auto"
+                              >
+                                <Trash2Icon className="h-4 w-4" />
+                                Delete Permanently
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm">
-                          Trashed
-                        </span>
-                      </div>
-                      <div className="flex justify-end space-x-2 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRestoreJob(job.id)}
-                          className="text-green-600 border-green-600 hover:bg-green-50"
-                        >
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Restore
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 border-red-600 hover:bg-red-50"
-                          onClick={() => {
-                            setJobToDelete(job);
-                            setIsDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Permanently
-                        </Button>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))
                 )}
               </div>
 
               {/* Pagination */}
               {jobsResponse.meta.last_page > 1 && (
-                <div className="flex justify-center mt-6">
-                  <div className="flex space-x-1">
+                <div className="flex justify-center mt-6 overflow-x-auto">
+                  <div className="flex flex-wrap space-x-1">
                     {jobsResponse.meta.links.map((link, i) => (
                       <Button
                         key={i}
@@ -334,32 +353,32 @@ const TrashedJobsPage = () => {
             </div>
           </div>
           <div className="space-y-6">
-<Card className="w-full border-slate-200 border-[1.94px] rounded-[15.54px]">
-        <CardHeader className="bg-[#fdfdfd] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 px-[29px] py-[13px]">
-          <CardTitle className="font-medium text-manduSecondary text-xl ">
-            Trashed Jobs Info
-          </CardTitle>
-        </CardHeader>
-        <Separator className="w-full" />
-        <CardContent className="p-[31px]">
-          <div className="flex flex-col gap-[30px]">
-            <div className="flex items-center justify-between w-full">
-              <div className=" font-semibold text-grayColor  text-base">
-                Total Trash Jobs
-              </div>
-              <div className=" font-semibold text-brand-colorsecondary-color text-base text-right">
-               {jobsResponse.meta.total}
-              </div>
-            </div>
+            <Card className="w-full border-slate-200 border-[1.94px] rounded-[15.54px]">
+              <CardHeader className="bg-[#fdfdfd] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 px-[29px] py-[13px]">
+                <CardTitle className="font-medium text-manduSecondary text-xl ">
+                  Trashed Jobs Info
+                </CardTitle>
+              </CardHeader>
+              <Separator className="w-full" />
+              <CardContent className="p-[31px]">
+                <div className="flex flex-col gap-[30px]">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="font-semibold text-grayColor text-base">
+                      Total Trash Jobs
+                    </div>
+                    <div className="font-semibold text-brand-colorsecondary-color text-base text-right">
+                      {jobsResponse.meta.total}
+                    </div>
+                  </div>
 
-            <div className="flex items-center w-full">
-              <div className=" font-normal text-grayColor  text-base">
-                 Trashed jobs are kept for 30 days before being permanently deleted. You can restore them anytime during this period.
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                  <div className="flex items-center w-full">
+                    <div className="font-normal text-grayColor text-base">
+                      Trashed jobs are kept for 30 days before being permanently deleted. You can restore them anytime during this period.
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
       {/* Bulk Actions Card */}
       <Card className="w-full border-slate-200 border-[1.94px] rounded-[15.54px]">
@@ -372,49 +391,7 @@ const TrashedJobsPage = () => {
         <CardContent className="p-[31px]">
           <div className="flex flex-col gap-[30px]">
             <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-[9px] py-2.5 bg-white border-[2.04px] border-[#006a23] rounded-[6.13px] text-colorcard-box-color-g"
-            >
-              <RefreshCwIcon className="w-4 h-4" />
-              <span className=" font-normal text-[14.3px]">
-                Restore All Jobs
-              </span>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-[9px] py-2.5 bg-white border-[2.04px] border-[#dc143c] rounded-[6.13px] text-brand-colorsecondary-color"
-            >
-              <Trash2Icon className="w-4 h-4" />
-              <span className=" font-normal text-[14.3px]">
-                Delete All Jobs
-              </span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      </div>
-          {/* <div className="space-y-6">
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Trashed Jobs Info</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Total Trashed Jobs</span>
-                  <span className="text-sm">{jobsResponse.meta.total}</span>
-                </div>
-                <p className="text-sm text-neutral-600">
-                  Trashed jobs are kept for 30 days before being permanently deleted. You can restore them anytime during this period.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Bulk Actions</h2>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={async () => {
+             onClick={async () => {
                     const { response, result, errors } = await baseFetcher("api/job/batch-restore", {
                       method: "POST",
                       body: JSON.stringify({
@@ -436,25 +413,33 @@ const TrashedJobsPage = () => {
                       });
                     }
                   }}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Restore All Jobs
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={() => {
-                    // Show confirmation dialog for emptying trash
-                    setJobToDelete({ id: -1 } as Job); // Use -1 as a special ID to indicate "all jobs"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-[9px] py-2.5 bg-white border-[2.04px] border-[#006a23] rounded-[6.13px] text-colorcard-box-color-g"
+            >
+              <RefreshCwIcon className="w-4 h-4" />
+              <span className=" font-normal text-[14.3px]">
+                Restore All Jobs
+              </span>
+            </Button>
+
+            <Button
+             onClick={() => {
+                    setJobToDelete({ id: -1 } as Job);
                     setIsDeleteDialogOpen(true);
                   }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Empty Trash
-                </Button>
-              </div>
-            </div>
-          </div> */}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-[9px] py-2.5 bg-white border-[2.04px] border-[#dc143c] rounded-[6.13px] text-brand-colorsecondary-color"
+            >
+              <Trash2Icon className="w-4 h-4" />
+              <span className=" font-normal text-[14.3px]">
+                Delete All Jobs
+              </span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      </div>
+        
         </div>
       </div>
 
@@ -480,7 +465,7 @@ const TrashedJobsPage = () => {
               onClick={async () => {
                 if (jobToDelete?.id === -1) {
                   // Empty trash (delete all trashed jobs)
-                  const { response, result, errors } = await baseFetcher("api/job/batch-delete", {
+                  const { response, result, errors } = await baseFetcher("api/job/batch-force-delete", {
                     method: "POST",
                     body: JSON.stringify({
                       ids: jobsResponse.data.map((job) => job.id),

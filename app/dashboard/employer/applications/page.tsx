@@ -247,7 +247,7 @@ function ApplicationsContent() {
           <div className="md:col-span-3">
             <div className="bg-white p-6 rounded-lg border border-neutral-200 mb-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl">All Applications</h2>
+                <h2 className="text-3xl text-manduSecondary font-normal font-nasalization">All Applications</h2>
                 <div className="flex space-x-2">
                   <Select
                     value={jobIdParam || "all"}
@@ -264,7 +264,7 @@ function ApplicationsContent() {
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="All Jobs" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent >
                       <SelectItem value="all">All Jobs</SelectItem>
                       {jobApplications.map((job) => (
                         <SelectItem

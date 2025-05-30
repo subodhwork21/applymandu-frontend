@@ -102,7 +102,7 @@ const JobListingsPage = () => {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-    const {data: listingOverview, isLoading, mutate:listingOverviewMutate} = useSWR<Record<string,any>>(
+  const {data: listingOverview, isLoading, mutate:listingOverviewMutate} = useSWR<Record<string,any>>(
     "api/job/listing-overview/all", defaultFetcher
   );
 
@@ -176,16 +176,13 @@ const JobListingsPage = () => {
     return true;
   });
 
-
-
-
   return (
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">Job Listings</h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800"
+            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => setIsPostJobModalOpen(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -193,17 +190,17 @@ const JobListingsPage = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="md:col-span-3">
-            <div className="bg-white p-6 rounded-lg border border-[#E5E7EB">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex space-x-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 gap-6">
+          <div className="lg:col-span-4 md:col-span-2">
+            <div className="bg-white p-4 sm:p-6 rounded-lg border border-[#E5E7EB]">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div className="flex flex-col sm:flex-row md:flex-row space-y-4 sm:space-y-0 md:space-y-0 space-x-0 sm:space-x-4 md:space-x-4 w-full md:w-auto">
                   <Select 
                     defaultValue="all" 
                     value={statusFilter}
                     onValueChange={setStatusFilter}
                   >
-                    <SelectTrigger className="w-[180px] border border-grayText">
+                    <SelectTrigger className="w-full md:w-[180px] border border-grayText">
                       <SelectValue placeholder="All Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -218,7 +215,7 @@ const JobListingsPage = () => {
                     value={departmentFilter}
                     onValueChange={setDepartmentFilter}
                   >
-                    <SelectTrigger className="w-[180px] border border-grayText ">
+                    <SelectTrigger className="w-full md:w-[180px] border border-grayText">
                       <SelectValue placeholder="All Departments" />
                     </SelectTrigger>
                     <SelectContent className="">
@@ -232,12 +229,12 @@ const JobListingsPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="relative">
+                <div className="relative w-full md:w-auto">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                   <Input
                     type="text"
                     placeholder="Search jobs..."
-                    className="pl-10 w-64"
+                    className="pl-10 w-full md:w-64"
                     value={searchQuery}
                     onKeyDown={(e)=> {
                       if (e.key === "Enter") {
@@ -262,158 +259,91 @@ const JobListingsPage = () => {
                 ) : (
                   filteredJobs.map((job) => (
                     <Card 
-  key={job.id} 
-  className="w-full h-[197px] rounded-[15px] border-[0.5px] border-manduSecondary/30 shadow-[0px_2px_5px_#00000040] relative"
->
-  <CardContent className="p-0">
-    <div className="p-8">
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
-            {job.title}
-          </h2>
+                      key={job.id} 
+                      className="w-full h-auto sm:h-auto md:h-[197px] rounded-[15px] border-[0.5px] border-manduSecondary/30 shadow-[0px_2px_5px_#00000040] relative"
+                    >
+                      <CardContent className="p-0">
+                        <div className="p-4 sm:p-6 md:p-8">
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0">
+                            <div>
+                              <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+                                {job.title}
+                              </h2>
 
-          <div className="flex items-center gap-[11px] mt-5">
-            {/* <img
-              className="w-[17.5px] h-3.5"
-              alt="Applicants icon"
-              src="/frame-1.svg"
-            /> */}
-            {/* <span className="font-['Poppins'] font-normal text-neutral-600 text-sm leading-5">
-              {job.applicants || "0"} Applicants
-            </span> */}
+                              <div className="flex flex-wrap items-center gap-[11px] mt-5">
+                                <div className="flex items-center gap-[11px]">
+                                  <div className="w-4 h-4">
+                                    <Calendar className="h-4 w-4 text-grayColor" />
+                                  </div>
+                                  <span className="font-['Poppins'] font-normal text-grayColor text-sm leading-5">
+                                    Deadline: {job.application_deadline ? format(new Date(job.application_deadline), "MMM dd, yyyy") : "Not set"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
 
-            <div className="w-4 h-4">
-              <Calendar className="h-4 w-4 text-grayColor" />
-            </div>
+                            <Badge className={`${Number(job.status) === 1 ? "bg-[#14dc14]/10 text-[#006B24] hover:text-[#006B24] hover:bg-[#14dc14]/10 " : "bg-red-100 text-manduSecondary hover:bg-red-100 hover:text-manduSecondary"} font-semibold text-sm px-4 py-0.5 rounded-full hover:text-white hover:bg-`}>
+                              {Number(job.status) === 1 ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
 
-            <span className="font-['Poppins'] font-normal text-grayColor text-sm leading-5">
-              Deadline: {job.application_deadline ? format(new Date(job.application_deadline), "MMM dd, yyyy") : "Not set"}
-            </span>
-          </div>
-        </div>
+                          {/* Bottom section with badges and buttons */}
+                          <div className="mt-6 sm:mt-6 md:mt-0 md:absolute md:bottom-0 md:left-0 md:right-0 p-0 md:p-6 flex flex-col sm:flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
+                            <div className="flex flex-wrap items-center gap-[5px]">
+                              <Badge
+                                variant="outline"
+                                className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px] mb-2 md:mb-0"
+                              >
+                                {job.employment_type}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px] mb-2 md:mb-0"
+                              >
+                                {job.location_type}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px] mb-2 md:mb-0"
+                              >
+                                {job.salary_range?.formatted}
+                              </Badge>
+                            </div>
 
-        <Badge className={`${Number(job.status) === 1 ? "bg-[#14dc14]/10 text-[#006B24] hover:text-[#006B24] hover:bg-[#14dc14]/10 " : "bg-red-100 text-manduSecondary hover:bg-red-100 hover:text-manduSecondary"} font-semibold text-sm px-4 py-0.5 rounded-full hover:text-white hover:bg-`}>
-          {Number(job.status) === 1 ? "Active" : "Inactive"}
-        </Badge>
-      </div>
-
-      <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-between items-center">
-        <div className="flex items-center gap-[5px]">
-          <Badge
-            variant="outline"
-            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-          >
-            {job.employment_type}
-          </Badge>
-          <Badge
-            variant="outline"
-            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-          >
-            {job.location_type }
-          </Badge>
-          <Badge
-            variant="outline"
-            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-          >
-            {job.salary_range?.formatted}
-          </Badge>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="border-manduSecondary text-manduSecondary font-semibold"
-            onClick={() => handleEditJob(job)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            className="border-manduSecondary text-manduSecondary font-semibold"
-            onClick={() => handleToggleJobStatus(job?.id)}
-          >
-            {Number(job?.status) === 1 ? "Pause" : "Activate"}
-          </Button>
-          <Button 
-            className="bg-manduSecondary text-white font-semibold"
-            onClick={() => handleViewApplications(job.id)}
-          >
-            View Applications
-          </Button>
-        </div>
-      </div>
-    </div>
-  </CardContent>
-</Card>
-
-
-
-                    // <div
-                    //   key={job.id}
-                    //   className="border border-neutral-200 rounded-lg p-4"
-                    // >
-                    //   <div className="flex justify-between items-start">
-                    //     <div>
-                    //       <h3 className="text-lg font-medium mb-2">{job.title}</h3>
-                    //       <div className="flex flex-wrap gap-2 mb-3">
-                    //         <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                    //           {job.employment_type}
-                    //         </span>
-                    //         <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                    //           {job.location_type}
-                    //         </span>
-                    //         <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs">
-                    //           {job.salary_range.formatted}
-                    //         </span>
-                    //       </div>
-                    //       <div className="space-y-2 text-sm text-neutral-600">
-                    //         <p className="flex items-center gap-2">
-                    //           <MapPin className="h-4 w-4" />
-                    //           {job.location}
-                    //         </p>
-                    //         <p className="flex items-center gap-2">
-                    //           <Briefcase className="h-4 w-4" />
-                    //           {job.experience_level}
-                    //         </p>
-                    //         <p className="flex items-center gap-2">
-                    //           <Calendar className="h-4 w-4" />
-                    //           Deadline: {format(new Date(job.application_deadline), "MMM dd, yyyy")}
-                    //         </p>
-                    //       </div>
-                    //     </div>
-                    //     <span className={`px-3 py-1 ${Number(job.status) === 1 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"} rounded-full text-sm`}>
-                    //       {Number(job.status) === 1 ? "Active" : "Inactive"}
-                    //     </span>
-                    //   </div>
-                    //   <div className="flex justify-end space-x-2 mt-4">
-                    //     <Button
-                    //       variant="outline"
-                    //       size="sm"
-                    //       onClick={() => handleEditJob(job)}
-                    //     >
-                    //       Edit
-                    //     </Button>
-                    //     <Button onClick={() => handleToggleJobStatus(job?.id)} variant="outline" size="sm">
-                    //       {Number(job?.status) === 1 ? "Pause" : "Activate"}
-                    //     </Button>
-                    //     <Button
-                    //       size="sm"
-                    //       className="bg-black text-white hover:bg-neutral-800"
-                    //       onClick={() => handleViewApplications(job.id)}
-                    //     >
-                    //       View Applications
-                    //     </Button>
-                    //   </div>
-                    // </div>
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                              <Button
+                                variant="outline"
+                                className="border-manduSecondary text-manduSecondary font-semibold w-full sm:w-auto"
+                                onClick={() => handleEditJob(job)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="border-manduSecondary text-manduSecondary font-semibold w-full sm:w-auto"
+                                onClick={() => handleToggleJobStatus(job?.id)}
+                              >
+                                {Number(job?.status) === 1 ? "Pause" : "Activate"}
+                              </Button>
+                              <Button 
+                                className="bg-manduSecondary text-white font-semibold w-full sm:w-auto"
+                                onClick={() => handleViewApplications(job.id)}
+                              >
+                                View Applications
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))
                 )}
               </div>
 
               {/* Pagination */}
               {jobsResponse.meta.last_page > 1 && (
-                <div className="flex justify-center mt-6">
-                  <div className="flex space-x-1">
+                <div className="flex justify-center mt-6 overflow-x-auto">
+                  <div className="flex flex-wrap space-x-1">
                     {jobsResponse.meta.links.map((link, i) => (
                       <Button
                         key={i}
@@ -425,6 +355,7 @@ const JobListingsPage = () => {
                           if (link.url) {
                             const url = new URL(link.url);
                             const page = url.searchParams.get("page");
+
                             if (page) {
                               router.push(`/dashboard/employer/jobs?page=${page}`, {
                                 scroll: false,
@@ -443,18 +374,18 @@ const JobListingsPage = () => {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="lg:col-span-1 md:col-span-1  space-y-6">
              <Card className="w-full rounded-[15.54px] border-[1.94px] border-solid border-slate-200">
         <CardHeader className="p-0">
           <div className="bg-[#fcfcfc] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 p-[13px_29px]">
-            <CardTitle className="font-medium text-brand-colorsecondary-color text-xl leading-[30px]">
+            <CardTitle className="font-medium text-manduSecondary text-xl leading-[30px]">
               Listings Overview
             </CardTitle>
           </div>
           <Separator className="w-full" />
         </CardHeader>
-        <CardContent className="p-[30px_31px]">
-          <div className="flex flex-col gap-[30px]">
+        <CardContent className="p-[10px_30px]">
+          <div className="flex flex-col gap-[26px]">
    
               <div className="flex justify-between items-center">
                   <span className="text-sm text-grayColor font-normal leading-[21.4px]">Active Jobs</span>
@@ -478,26 +409,29 @@ const JobListingsPage = () => {
 
            
 
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Quick Actions</h2>
-              <div className="space-y-2">
+            <div className="bg-white p-0 rounded-lg border border-neutral-200">
+              <div className="bg-[#fcfcfc] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 p-[13px_29px]">
+              <h2 className="font-medium mb-0 text-manduSecondary  text-xl leading-[30px]">Quick Actions</h2>
+              </div>
+              <div className="space-y-0 px-[16px]">
+                 <div className="flex flex-col items-start justify-start gap-[20px] pb-4">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduBorder hover:text-neutral-900"
                 >
                   <Copy className="h-4 w-4 mr-2" />
                   Duplicate Job
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduBorder hover:text-neutral-900"
                 >
                   <Share className="h-4 w-4 mr-2" />
                   Share Job
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduBorder hover:text-neutral-900"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Export Report
@@ -505,11 +439,12 @@ const JobListingsPage = () => {
                  <Button
                  onClick={()=> router.push("/dashboard/employer/trashed-jobs")}
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduBorder hover:text-neutral-900"
                 >
                   <Recycle className="h-4 w-4 mr-2" />
                   Restore Trash Jobs
                 </Button>
+                </div>
               </div>
             </div>
           </div>
