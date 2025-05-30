@@ -149,21 +149,21 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      setIsLoading(true);
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     setIsLoading(true);
       
-      // Check for admin token
-      const adminTokenValue = adminToken();
-      if (adminTokenValue) {
-        await checkAdminToken(adminTokenValue);
-      } else {
-        setIsLoading(false);
-      }
-    };
+  //     // Check for admin token
+  //     const adminTokenValue = adminToken();
+  //     if (adminTokenValue) {
+  //       await checkAdminToken(adminTokenValue);
+  //     } else {
+  //       setIsLoading(false);
+  //     }
+  //   };
     
-    checkAuth();
-  }, []);
+  //   checkAuth();
+  // }, []);
 
   return (
     <AdminAuthContext.Provider

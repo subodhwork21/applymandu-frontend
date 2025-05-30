@@ -8,11 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
-import { useAdminAuth } from "../context/auth-context";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { login } = useAdminAuth();
+  const { adminLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -22,8 +22,8 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      // If successful, login will redirect to admin dashboard
+      await adminLogin(email, password);
+      // If successful, adminLogin will redirect to admin dashboard
     } catch (error) {
       toast({
         title: "Login failed",

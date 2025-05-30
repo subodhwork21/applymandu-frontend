@@ -5,7 +5,6 @@ import Link from "next/link";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { initializeEcho } from "@/lib/echo-setup";
 import { Loader2Icon } from "lucide-react";
 import { AdminAuthProvider, useAdminAuth } from "../context/auth-context";
 
@@ -16,6 +15,7 @@ export default function AdminDashboardLayout({
 }) {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useAdminAuth();
+  const router = useRouter();
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard/admin/" },
@@ -23,8 +23,12 @@ export default function AdminDashboardLayout({
     { name: "Users", href: "/dashboard/admin/users" },
     { name: "Employers", href: "/dashboard/admin/employers" },
     { name: "Applications", href: "/dashboard/admin/applications" },
+    {
+      name: "Blogs", href: "/dashboard/admin/blogs",
+    },
     { name: "Reports", href: "/dashboard/admin/reports" },
     { name: "Settings", href: "/dashboard/admin/settings" },
+
   ];
 
   const isActive = (path: string) => {
@@ -34,21 +38,13 @@ export default function AdminDashboardLayout({
     return pathname.startsWith(path);
   };
 
-  const [echoInitialized, setEchoInitialized] = useState(false);
-      
-  useEffect(() => {
-    try {
-      initializeEcho();
-      setEchoInitialized(true);
-    } catch (error) {
-      console.error("Failed to initialize Echo:", error);
-    }
-  }, []);
 
-  // Check if user is authenticated and redirect if not
-  if (!isLoading && !isAuthenticated) {
-    redirect("/dashboard/admin/login");
-  }
+  useEffect(()=>{
+    if (!isAuthenticated) {
+      router.push("login");
+    }
+  }, [pathname, user, isAuthenticated, router])
+
   
   if(isLoading || !user){
     return (
@@ -58,8 +54,9 @@ export default function AdminDashboardLayout({
     );
   }
 
+  
+
   return (
-        <AdminAuthProvider>
 
     <section className="min-h-screen flex flex-col">
       <Header/>
@@ -85,6 +82,5 @@ export default function AdminDashboardLayout({
       {children}
       <Footer />
     </section>
-    </AdminAuthProvider>
   );
 }

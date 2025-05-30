@@ -27,6 +27,15 @@ interface User {
   two_fa_enabled?: boolean;
 }
 
+interface AdminUser {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  image_path?: string;
+  role: 'admin';
+}
+
 interface TwoFactorSession {
   qr_code: string;
   verification_url: string;
@@ -38,9 +47,13 @@ interface TwoFactorSession {
 
 interface AuthContextType {
   user: User | null;
+  adminUser: AdminUser | null;
   isAuthenticated: boolean;
+  isAdminAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void | { requires2FA: boolean, email: string }>;
+  adminLogin: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  adminLogout: () => void;
   openLoginModal: () => void;
   closeLoginModal: () => void;
   isEmployer: boolean | null;
@@ -63,9 +76,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  adminUser: null,
   isAuthenticated: false,
+  isAdminAuthenticated: false,
   login: async () => {},
+  adminLogin: async () => {},
   logout: () => {},
+  adminLogout: () => {},
   openLoginModal: () => {},
   closeLoginModal: () => {},
   isEmployer: false,
@@ -86,10 +103,19 @@ const AuthContext = createContext<AuthContextType>({
   generateTwoFactorSession: async () => {},
 });
 
+// Helper function to get admin token
+export function adminToken(): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem("ADMIN_TOKEN") || "";
+  }
+  return "";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [token2fa ,setToken] = useState<string | null>(null);
   const [isEmployer, setIsEmployer] = useState<boolean | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -102,6 +128,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [pendingLoginPassword, setPendingLoginPassword] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  // Regular user login
   const login = async (email: string, password: string) => {
     const { response, result, errors, message } = await baseFetcher(
       "api/login",
@@ -152,6 +180,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Admin login
+  const adminLogin = async (email: string, password: string) => {
+    const { response, result, errors, message } = await baseFetcher(
+      "api/admin/login",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      }
+    );
+
+    if (response?.ok) {
+      deleteCookie("JOBSEEKER_TOKEN");
+      deleteCookie("EMPLOYER_TOKEN");
+      localStorage.setItem("ADMIN_TOKEN", result?.token);
+      setAdminUser({
+        id: result?.user?.id,
+        email: result?.user?.email,
+        first_name: result?.user?.first_name,
+        last_name: result?.user?.last_name,
+        image_path: result?.user?.image_path,
+        role: 'admin'
+      });
+      
+      toast({
+        title: "Success",
+        description: result?.message || "Admin login successful",
+      });
+      
+      router.push("/admin");
+    } else {
+      throw new Error(errors || result?.message || "Admin login failed");
+    }
+  };
 
   const generateTwoFactorSession = async (email: string, token: string) => {
     try {
@@ -246,6 +310,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Check admin token and fetch admin user data
+  const checkAdminToken = async (token: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}api/login-with-token`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response?.json();
+      if (response.ok && result.success) {
+        setAdminUser({
+          id: result.data.id,
+          email: result.data.email,
+          first_name: result.data.first_name,
+          last_name: result.data.last_name,
+          image_path: result.data.image_path,
+          role: 'admin'
+        });
+        return true;
+      }
+      
+      // If token is invalid, clear it
+      localStorage.removeItem("ADMIN_TOKEN");
+      setAdminUser(null);
+      return false;
+    } catch (error) {
+      console.error("Admin token check error:", error);
+      localStorage.removeItem("ADMIN_TOKEN");
+      setAdminUser(null);
+      return false;
+    }
+  };
+
    const verifyTwoFactorCode = async (code: string) => {
     if (!twoFactorSession) {
       toast({
@@ -315,6 +418,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     }
   };
+
   const completeLoginAfter2FA = async () => {
     if (!pendingLoginEmail || !pendingLoginPassword) return;
     
@@ -360,7 +464,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-
+  // Regular user logout
   const logout = async() => {
    const {response, result, error} = await baseFetcher("api/logout", {
       method: "POST",
@@ -387,6 +491,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     }
    
+  };
+
+  // Admin logout
+  const adminLogout = async() => {
+    const {response, result, error} = await baseFetcher("api/admin/logout", {
+      method: "POST",
+    });
+    
+    if(response?.ok){
+      setAdminUser(null);
+      localStorage.removeItem("ADMIN_TOKEN");
+      
+      toast({
+        title: "Success!",
+        description: "Logout successful",
+        variant: "default",
+        className: "bg-blue",
+      });
+      
+      router.push("/admin/login");
+    }
+    else{
+      toast({
+        title: "Error!",
+        description: "Something went wrong",
+        variant: "destructive",
+        className: "bg-red",
+      });
+    }
   };
 
   const openLoginModal = () => {
@@ -416,25 +549,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const token = getCookie("JOBSEEKER_TOKEN") || getCookie("EMPLOYER_TOKEN");
 
   useEffect(() => {
-    if (token) {
-      fetchUserByToken(token);
-    }
+    const checkAuth = async () => {
+      setIsLoading(true);
+      
+      // Check for regular user token
+      if (token) {
+        await fetchUserByToken(token);
+      }
+      
+      // Check for admin token
+      const adminTokenValue = adminToken();
+      if (adminTokenValue) {
+        await checkAdminToken(adminTokenValue);
+      }
+      
+      setIsLoading(false);
+    };
+    
+    checkAuth();
   }, [token]);
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  
-
-  
   return (
     <AuthContext.Provider
       value={{
         user,
+        adminUser,
         isAuthenticated: !!user,
+        isAdminAuthenticated: !!adminUser,
         login,
+        adminLogin,
         logout,
+        adminLogout,
         openLoginModal,
         closeLoginModal,
         isEmployer,
@@ -458,8 +603,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-
-
 }
 
 export function useAuth() {
@@ -470,3 +613,20 @@ export function useAuth() {
    
   return context;
 }
+
+// Legacy hook for admin auth - now uses the unified context
+export function useAdminAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAdminAuth must be used within an AuthProvider");
+  }
+  
+  return {
+    user: context.adminUser,
+    isAuthenticated: context.isAdminAuthenticated,
+    login: context.adminLogin,
+    logout: context.adminLogout,
+    isLoading: context.isLoading,
+  };
+}
+
