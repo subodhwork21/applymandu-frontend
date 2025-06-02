@@ -94,7 +94,7 @@ const RegisterModal = () => {
                   email,
                   password,
                   password_confirmation: formData.password,
-                  seekFor,
+                  accountType: seekFor,
                 })
               : JSON.stringify({
                   company_name: company_name,
@@ -102,7 +102,7 @@ const RegisterModal = () => {
                   password,
                   phone,
                   password_confirmation: formData.password,
-                  seekFor,
+                  accountType: seekFor,
                 }),
         }
       );
