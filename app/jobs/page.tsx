@@ -53,7 +53,7 @@ import {
 } from "@/components/ui/pagination";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { getFeaturedJobs, popularSearches } from "@/lib/constants";
+// import { getFeaturedJobs, popularSearches } from "@/lib/constants";
 import { useApplication } from "@/lib/application-context";
 import useSWR from "swr";
 import { Job, JobResponse } from "@/types/job-type";
@@ -98,6 +98,11 @@ const JobsPage = () => {
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>(
     searchParams.getAll("employment_type[]") || []
   );
+
+  const {data: popularSearches, isLoading: popularLoading, mutate: popularSearchesMutate} = useSWR<Record<string,any>>("api/job/search", defaultFetcher);
+
+
+
 
   const [skillsValue, setSkillsValue] = useState<string[]>([]);
   const [skillValue, setSkillValue] = useState<string>(
@@ -161,15 +166,15 @@ const JobsPage = () => {
     { value: "Senior Level", label: "Senior Level (5+ years)" },
   ];
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // if (e.key === "Enter") {
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       urlSearchParams.set("search", e.currentTarget.value);
       router.push(`/jobs?${urlSearchParams.toString()}`, {
         scroll: false,
       });
       jobMutate();
-    // }
+    }
   };
 
   const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
@@ -418,7 +423,7 @@ const JobsPage = () => {
                   <div className="flex-1 relative md:mb-0 mb-4 w-full">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400 h-5 w-5" />
                     <input
-                      onChange={(e) => handleSearch(e)}
+                      onKeyDown={(e) => handleSearch(e)}
                       type="text"
                       defaultValue={searchParams.get("search") || ""}
                       placeholder="Search jobs, skills, or companies"
@@ -494,11 +499,11 @@ const JobsPage = () => {
                     <span className="text-base font-normal text-white">
                       Popular Searches:
                     </span>
-                    {popularSearches.map((search, id) => (
+                    {popularSearches && popularSearches?.popular_searches?.map((item:{query: string}, id: number) => (
                       <span
                         key={id}
                         onClick={() => {
-                          router.push("/jobs?search=" + search, {
+                          router.push("/jobs?search=" + item?.query, {
                             scroll: false,
                           });
 
@@ -507,7 +512,7 @@ const JobsPage = () => {
                         className="px-4 py-2 md:py-3 md:px-6 bg-white/10 text-white border border-white/20 rounded-full text-sm cursor-pointer"
                       >
                         <Briefcase className="inline-block align-middle h-4 w-4 mr-2 text-white" />
-                        {search}
+                        {item?.query}
                       </span>
                     ))}
                   </div>

@@ -12,7 +12,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">
               <Image src={"./inverted-main-logo.svg"} alt="logo" width={73} height={49} />
             </h3>
-            <p className="text-manduTertiary mb-4 text-base">
+            <p className="text-manduTertiary mb-4 text-base text-transparent">
               Your gateway to career opportunities in Nepal and beyond.
             </p>
             <div className="flex space-x-4">

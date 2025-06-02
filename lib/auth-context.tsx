@@ -574,7 +574,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const closeForgotPasswordModal = () => setIsForgotPasswordModalOpen(false);
 
   const token = getCookie("JOBSEEKER_TOKEN") || getCookie("EMPLOYER_TOKEN") || getCookie("IMP_TOKEN");
-  const adminToken = getCookie("ADMIN_TOKEN");
+  const adminToken = getCookie("ADMIN_TOKEN") as string;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -584,8 +584,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (token) {
         await fetchUserByToken(token, adminToken);
       }
-      
-     
       
       setIsLoading(false);
     };
