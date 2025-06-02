@@ -1,4 +1,4 @@
-import { jobSeekerToken, employerToken } from "./tokens";
+import { jobSeekerToken, employerToken, adminToken } from "./tokens";
 
 export class FetchError extends Error {
     status: number;
@@ -14,7 +14,7 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
-        "Authorization": `Bearer ${jobSeekerToken() || employerToken()}`,
+        "Authorization": `Bearer ${jobSeekerToken() || employerToken() || adminToken()}`,
         ...options.headers,
       },
       ...options,
@@ -143,7 +143,7 @@ const defaultFetcher = async <T>(url: string): Promise<T> => {
   const response = await fetch(baseUrl + url, {
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${jobSeekerToken() || employerToken()}`
+      "Authorization": `Bearer ${jobSeekerToken() || employerToken() || adminToken()}`
     }
   });
   

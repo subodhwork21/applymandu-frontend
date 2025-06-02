@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { MenuIcon } from "./ui/icons";
@@ -108,6 +107,7 @@ const Header = () => {
     openLoginModal,
     openRegisterModal,
   } = useAuth();
+
 
   const pathName = usePathname();
   const isActive = pathName;
@@ -712,9 +712,7 @@ return notification?.read_at === null;
                   {item.label}
                 </Link>
               ))}
-              {isLoading ? (
-                <AuthSkeleton />
-              ) : (
+              {(
                 !isAuthenticated && (
                   <div className="flex space-x-4 pt-2">
                     <Button

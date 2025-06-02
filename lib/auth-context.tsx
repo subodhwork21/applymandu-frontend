@@ -106,7 +106,7 @@ const AuthContext = createContext<AuthContextType>({
 // Helper function to get admin token
 export function adminToken(): string {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem("ADMIN_TOKEN") || "";
+    return getCookie("ADMIN_TOKEN") || "";
   }
   return "";
 }
@@ -196,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (response?.ok) {
       deleteCookie("JOBSEEKER_TOKEN");
       deleteCookie("EMPLOYER_TOKEN");
-      localStorage.setItem("ADMIN_TOKEN", result?.token);
+      setCookie("ADMIN_TOKEN", result?.token);
       setAdminUser({
         id: result?.user?.id,
         email: result?.user?.email,
@@ -314,7 +314,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAdminToken = async (token: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}api/login-with-token`,
+        `${process.env.NEXT_PUBLIC_API_URL}api/admin/login-with-token`,
         {
           method: "GET",
           headers: {
@@ -325,7 +325,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       const result = await response?.json();
-      if (response.ok && result.success) {
+      if (response.ok) {
         setAdminUser({
           id: result.data.id,
           email: result.data.email,
@@ -334,16 +334,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           image_path: result.data.image_path,
           role: 'admin'
         });
+        setCookie("ADMIN_TOKEN", result?.token);
+        setIsLoading(false);
         return true;
       }
       
       // If token is invalid, clear it
-      localStorage.removeItem("ADMIN_TOKEN");
-      setAdminUser(null);
+      // deleteCookie("ADMIN_TOKEN");
+      // setAdminUser(null);
+        setIsLoading(false);
+
       return false;
     } catch (error) {
+        setIsLoading(false);
+
       console.error("Admin token check error:", error);
-      localStorage.removeItem("ADMIN_TOKEN");
+      // deleteCookie("ADMIN_TOKEN");
       setAdminUser(null);
       return false;
     }
@@ -501,7 +507,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     if(response?.ok){
       setAdminUser(null);
-      localStorage.removeItem("ADMIN_TOKEN");
+      deleteCookie("ADMIN_TOKEN");
       
       toast({
         title: "Success!",
@@ -546,7 +552,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const closeForgotPasswordModal = () => setIsForgotPasswordModalOpen(false);
 
-  const token = getCookie("JOBSEEKER_TOKEN") || getCookie("EMPLOYER_TOKEN");
+  const token = getCookie("JOBSEEKER_TOKEN") || getCookie("EMPLOYER_TOKEN") || getCookie("IMP_TOKEN");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -557,17 +563,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await fetchUserByToken(token);
       }
       
-      // Check for admin token
-      const adminTokenValue = adminToken();
-      if (adminTokenValue) {
-        await checkAdminToken(adminTokenValue);
-      }
+     
       
       setIsLoading(false);
     };
     
     checkAuth();
   }, [token]);
+
+  const adminToken = getCookie("ADMIN_TOKEN");
+
+  useEffect(()=>{
+      setIsLoading(true);
+
+    const checkAuth = async () => {
+
+      if (adminToken) {
+        await checkAdminToken(adminToken);
+      }
+      setIsLoading(false);
+    }
+    checkAuth();
+  }, [adminToken])
 
   return (
     <AuthContext.Provider

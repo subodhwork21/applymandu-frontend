@@ -259,7 +259,7 @@ const AdminJobsPage = () => {
           <h1 className="text-3xl text-manduSecondary font-nasalization">Manage Jobs</h1>
           <Button
             className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
-            onClick={() => router.push("/dashboard/admin/jobs/export")}
+            onClick={() => router.push("/admin/jobs/export")}
           >
             <Download className="h-4 w-4 mr-2" />
             Export Jobs
@@ -330,7 +330,7 @@ const AdminJobsPage = () => {
                         let searchParam = new URLSearchParams(searchParams).toString();
                         searchParam = "";
                         searchParam += `search=${searchQuery}`;
-                        router.push(`/dashboard/admin/jobs?${searchParam}`, {
+                        router.push(`/admin/jobs?${searchParam}`, {
                           scroll: false,
                         });
                         mutate();
@@ -482,7 +482,7 @@ const AdminJobsPage = () => {
                             const page = url.searchParams.get("page");
 
                             if (page) {
-                              router.push(`/dashboard/admin/jobs?page=${page}`, {
+                              router.push(`/admin/jobs?page=${page}`, {
                                 scroll: false,
                               });
                               mutate();
@@ -543,7 +543,7 @@ const AdminJobsPage = () => {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-manduBorder hover:text-neutral-900"
-                    onClick={() => router.push("/dashboard/admin/jobs/pending")}
+                    onClick={() => router.push("/admin/jobs/pending")}
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Review Pending Jobs
@@ -551,7 +551,7 @@ const AdminJobsPage = () => {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-manduBorder hover:text-neutral-900"
-                    onClick={() => router.push("/dashboard/admin/jobs/featured")}
+                    onClick={() => router.push("/admin/jobs/featured")}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Manage Featured Jobs
@@ -559,7 +559,7 @@ const AdminJobsPage = () => {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-manduBorder hover:text-neutral-900"
-                    onClick={() => router.push("/dashboard/admin/jobs/export")}
+                    onClick={() => router.push("/admin/jobs/export")}
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Export Jobs Report
@@ -567,7 +567,7 @@ const AdminJobsPage = () => {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-manduBorder hover:text-neutral-900"
-                    onClick={() => router.push("/dashboard/admin/jobs/trashed")}
+                    onClick={() => router.push("/admin/jobs/trashed")}
                   >
                     <Recycle className="h-4 w-4 mr-2" />
                     View Trashed Jobs

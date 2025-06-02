@@ -6,7 +6,7 @@ import { redirect, usePathname, useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Loader2Icon } from "lucide-react";
-import { AdminAuthProvider, useAdminAuth } from "../context/auth-context";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AdminDashboardLayout({
   children,
@@ -14,54 +14,55 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading } = useAdminAuth();
   const router = useRouter();
+  const {isAdminAuthenticated, adminUser} = useAuth();
 
   const navigation = [
-    { name: "Dashboard", href: "/dashboard/admin/" },
-    { name: "Jobs", href: "/dashboard/admin/jobs" },
-    { name: "Users", href: "/dashboard/admin/users" },
-    { name: "Employers", href: "/dashboard/admin/employers" },
-    { name: "Applications", href: "/dashboard/admin/applications" },
+    { name: "Dashboard", href: "/admin/" },
+    { name: "Jobs", href: "/admin/jobs" },
+    { name: "Users", href: "/admin/users" },
+    { name: "Employers", href: "/admin/employers" },
+    {name: "JobSeekers", href: "/admin/jobseekers"},
+    { name: "Applications", href: "/admin/applications" },
     {
-      name: "Blogs", href: "/dashboard/admin/blogs",
+      name: "Blogs", href: "/admin/blogs",
     },
-    { name: "Reports", href: "/dashboard/admin/reports" },
-    { name: "Settings", href: "/dashboard/admin/settings" },
+    { name: "Reports", href: "/admin/reports" },
+    { name: "Settings", href: "/admin/settings" },
 
   ];
 
   const isActive = (path: string) => {
-    if (path === "/dashboard/admin/") {
+    if (path === "/admin") {
       return pathname === path;
     }
     return pathname.startsWith(path);
   };
 
 
-  useEffect(()=>{
-    if (!isAuthenticated) {
-      router.push("login");
-    }
-  }, [pathname, user, isAuthenticated, router])
+  // useEffect(()=>{
+  //   if (!isAdminAuthenticated) {
+  //     router.push("admin-login");
+  //   }
+  // }, [pathname, adminUser, isAdminAuthenticated, router])
 
   
-  if(isLoading || !user){
-    return (
-      <section className="w-screen h-screen flex justify-center items-center relative">
-        <Loader2Icon className="animate-spin h-10 w-10 absolute" />
-      </section>
-    );
-  }
+  // if(!isAdminAuthenticated){
+  //   return (
+  //     <section className="w-screen h-screen flex justify-center items-center relative">
+  //       <Loader2Icon className="animate-spin h-10 w-10 absolute" />
+  //     </section>
+  //   );
+  // }
 
   
 
   return (
 
     <section className="min-h-screen flex flex-col">
-      <Header/>
-      <div className="bg-white border-b border-neutral-200">
-        <div className="container mx-auto px-4">
+      {/* <Header/> */}
+      <div className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+        <div className="container mx-auto px-2">
           <nav className="flex justify-center space-x-6 overflow-x-auto py-4 mb-5">
             {navigation.map((item) => (
               <Link
@@ -80,7 +81,7 @@ export default function AdminDashboardLayout({
         </div>
       </div>
       {children}
-      <Footer />
+      {/* <Footer /> */}
     </section>
   );
 }

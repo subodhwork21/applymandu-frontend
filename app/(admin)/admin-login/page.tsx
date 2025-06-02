@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,11 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
+import { adminToken } from "@/lib/tokens";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { adminLogin } = useAuth();
+  const { adminLogin, isAdminAuthenticated, isLoading : loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +36,19 @@ export default function AdminLoginPage() {
     }
   };
 
+  useEffect(()=>{
+    if( isAdminAuthenticated){
+      router.push("/admin");
+    }
+  }, [adminLogin])
+
+  if(loading){
+    return (
+      <>
+        Redirecting to admin dashboard...
+      </>
+    );
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">

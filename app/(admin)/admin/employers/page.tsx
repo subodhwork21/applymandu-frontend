@@ -41,6 +41,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Toast } from "@/components/ui/toast";
+import { Cookie } from "next/font/google";
+import { deleteCookie, setCookie } from "cookies-next";
 
 // Updated interface to match the Laravel API response
 interface EmployerProfile {
@@ -152,8 +155,7 @@ const AdminEmployersPage = () => {
         title: "Success",
         description:
           result.message ||
-          `Employer ${
-            blockAction === "block" ? "blocked" : "unblocked"
+          `Employer ${blockAction === "block" ? "blocked" : "unblocked"
           } successfully`,
       });
       setIsBlockDialogOpen(false);
@@ -225,6 +227,27 @@ const AdminEmployersPage = () => {
   if (!employersResponse) {
     return <div className="p-8 text-center">Loading employers...</div>;
   }
+
+  const handleImpersonateEmployer = async(employerId: number) => {
+    const {response, result, errors} = await baseFetcher("api/admin/impersonate/"+employerId,{
+      method: "POST",
+    });
+    if(response?.ok){
+      toast({
+        title: "Success",
+        description: result.message || "You are now impersonating this employer",
+      });
+      setCookie("IMP_TOKEN", result?.token);
+      // deleteCookie("ADMIN_TOKEN");
+      router.push(`/dashboard/employer/`);
+    }
+   else{
+    toast({
+      title: "Error",
+      description: errors || "Something went wrong"
+    })
+   }
+  };
 
   return (
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
@@ -362,11 +385,10 @@ const AdminEmployersPage = () => {
                               <div className="flex items-center gap-3 mt-2 md:mt-0">
                                 <Badge
                                   className={`
-                                  ${
-                                    employer.email_verified_at
+                                  ${employer.email_verified_at
                                       ? "bg-[#14dc14]/10 text-[#006B24]"
                                       : "bg-red-100 text-red-800"
-                                  } 
+                                    } 
                                   font-semibold text-sm px-4 py-0.5 rounded-full
                                 `}
                                 >
@@ -374,11 +396,10 @@ const AdminEmployersPage = () => {
                                 </Badge>
                                 <Badge
                                   className={`
-                                  ${
-                                    employer.email_verified_at
+                                  ${employer.email_verified_at
                                       ? "bg-blue-100 text-blue-800"
                                       : "bg-yellow-100 text-yellow-800"
-                                  } 
+                                    } 
                                   font-semibold text-sm px-4 py-0.5 rounded-full
                                 `}
                                 >
@@ -411,7 +432,7 @@ const AdminEmployersPage = () => {
                                     >
                                       View Jobs
                                     </DropdownMenuItem>
-                                                                        <DropdownMenuItem
+                                    <DropdownMenuItem
                                       onClick={() =>
                                         handleToggleEmployerVerification(
                                           employer.id
@@ -438,6 +459,19 @@ const AdminEmployersPage = () => {
                                       {employer.email_verified_at
                                         ? "Block Employer"
                                         : "Unblock Employer"}
+                                    </DropdownMenuItem>
+                                     <DropdownMenuItem
+                                      className={
+                                        "text-manduPrimary"
+                                      }
+                                      onClick={() =>
+                                        handleImpersonateEmployer(
+                                          employer.id,
+                                        )
+                                      }
+                                    >
+                                      {employer.id
+                                        && "Impersonate Employer"}
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -664,4 +698,4 @@ const AdminEmployersPage = () => {
 };
 
 export default AdminEmployersPage;
-    
+

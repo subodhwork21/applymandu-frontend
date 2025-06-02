@@ -5,7 +5,7 @@ export function jobSeekerToken(): string{
 }
 
 export function employerToken(): string{
-    return getCookie("EMPLOYER_TOKEN") as string;
+    return getCookie("EMPLOYER_TOKEN") as string || getCookie("IMP_TOKEN") as string;
 }
 
 export function adminToken(): string{

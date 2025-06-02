@@ -21,7 +21,7 @@ export const initializeEcho = () => {
     
     // Check if Pusher environment variables are available
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
-    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER;
 
     if (!pusherKey || !pusherCluster) {
       console.error('Pusher configuration is missing. Make sure NEXT_PUBLIC_PUSHER_APP_KEY and NEXT_PUBLIC_PUSHER_APP_CLUSTER are set in your environment.');
