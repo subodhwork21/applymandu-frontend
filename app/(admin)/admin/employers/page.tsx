@@ -22,7 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useSWR from "swr";
-import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import {
+  baseFetcher,
+  baseFetcherAdmin,
+  defaultFetcher,
+  defaultFetcherAdmin,
+} from "@/lib/fetcher";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -118,17 +123,17 @@ const AdminEmployersPage = () => {
 
   const { data: employersResponse, mutate } = useSWR<EmployersResponse>(
     `api/admin/employers?${params ? `${params}` : ""}`,
-    defaultFetcher
+    defaultFetcherAdmin
   );
 
   const { data: industries } = useSWR<string[]>(
     "api/admin/industries",
-    defaultFetcher
+    defaultFetcherAdmin
   );
 
   const { data: stats } = useSWR<Record<string, any>>(
     "api/admin/employers/stats",
-    defaultFetcher
+    defaultFetcherAdmin
   );
 
   const handleToggleEmployerStatus = (
@@ -155,7 +160,8 @@ const AdminEmployersPage = () => {
         title: "Success",
         description:
           result.message ||
-          `Employer ${blockAction === "block" ? "blocked" : "unblocked"
+          `Employer ${
+            blockAction === "block" ? "blocked" : "unblocked"
           } successfully`,
       });
       setIsBlockDialogOpen(false);
@@ -197,17 +203,24 @@ const AdminEmployersPage = () => {
       // For status filter, we need to determine status from email_verified_at
       if (statusFilter !== "all") {
         // Assuming an employer is active if they have a verified email
-        const employerStatus = employer.email_verified_at ? "active" : "blocked";
+        const employerStatus = employer.email_verified_at
+          ? "active"
+          : "blocked";
         if (statusFilter !== employerStatus) return false;
       }
 
       if (verificationFilter !== "all") {
         // Assuming an employer is verified if they have a verified email
-        const employerVerification = employer.email_verified_at ? "verified" : "unverified";
+        const employerVerification = employer.email_verified_at
+          ? "verified"
+          : "unverified";
         if (verificationFilter !== employerVerification) return false;
       }
 
-      if (industryFilter !== "all" && employer.employer_profile?.industry !== industryFilter) {
+      if (
+        industryFilter !== "all" &&
+        employer.employer_profile?.industry !== industryFilter
+      ) {
         return false;
       }
 
@@ -228,25 +241,29 @@ const AdminEmployersPage = () => {
     return <div className="p-8 text-center">Loading employers...</div>;
   }
 
-  const handleImpersonateEmployer = async(employerId: number) => {
-    const {response, result, errors} = await baseFetcher("api/admin/impersonate/"+employerId,{
-      method: "POST",
-    });
-    if(response?.ok){
-      toast({
+  const handleImpersonateEmployer = async (employerId: number) => {
+    const { response, result, errors } = await baseFetcherAdmin(
+      "api/admin/impersonate/" + employerId,
+      {
+        method: "POST",
+      }
+    );
+    if (response?.ok) {
+     
+      deleteCookie("IMP_TOKEN");
+      setCookie("IMP_TOKEN", result.token);
+       toast({
         title: "Success",
-        description: result.message || "You are now impersonating this employer",
+        description:
+          result.message || "You are now impersonating this employer",
       });
-      setCookie("IMP_TOKEN", result?.token);
-      // deleteCookie("ADMIN_TOKEN");
       router.push(`/dashboard/employer/`);
+    } else {
+      toast({
+        title: "Error",
+        description: errors || "Something went wrong",
+      });
     }
-   else{
-    toast({
-      title: "Error",
-      description: errors || "Something went wrong"
-    })
-   }
   };
 
   return (
@@ -378,28 +395,33 @@ const AdminEmployersPage = () => {
                                   {employer.company_name}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">
-                                  {employer.employer_profile?.industry} • {employer.employer_profile?.address}
+                                  {employer.employer_profile?.industry} •{" "}
+                                  {employer.employer_profile?.address}
                                 </p>
                               </div>
 
                               <div className="flex items-center gap-3 mt-2 md:mt-0">
                                 <Badge
                                   className={`
-                                  ${employer.email_verified_at
+                                  ${
+                                    employer.email_verified_at
                                       ? "bg-[#14dc14]/10 text-[#006B24]"
                                       : "bg-red-100 text-red-800"
-                                    } 
+                                  } 
                                   font-semibold text-sm px-4 py-0.5 rounded-full
                                 `}
                                 >
-                                  {employer.email_verified_at ? "Active" : "Blocked"}
+                                  {employer.email_verified_at
+                                    ? "Active"
+                                    : "Blocked"}
                                 </Badge>
                                 <Badge
                                   className={`
-                                  ${employer.email_verified_at
+                                  ${
+                                    employer.email_verified_at
                                       ? "bg-blue-100 text-blue-800"
                                       : "bg-yellow-100 text-yellow-800"
-                                    } 
+                                  } 
                                   font-semibold text-sm px-4 py-0.5 rounded-full
                                 `}
                                 >
@@ -460,18 +482,13 @@ const AdminEmployersPage = () => {
                                         ? "Block Employer"
                                         : "Unblock Employer"}
                                     </DropdownMenuItem>
-                                     <DropdownMenuItem
-                                      className={
-                                        "text-manduPrimary"
-                                      }
+                                    <DropdownMenuItem
+                                      className={"text-manduPrimary"}
                                       onClick={() =>
-                                        handleImpersonateEmployer(
-                                          employer.id,
-                                        )
+                                        handleImpersonateEmployer(employer.id)
                                       }
                                     >
-                                      {employer.id
-                                        && "Impersonate Employer"}
+                                      {employer.id && "Impersonate Employer"}
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -698,4 +715,3 @@ const AdminEmployersPage = () => {
 };
 
 export default AdminEmployersPage;
-

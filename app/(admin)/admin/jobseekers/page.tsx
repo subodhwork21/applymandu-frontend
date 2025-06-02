@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useSWR from "swr";
-import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, baseFetcherAdmin, defaultFetcher, defaultFetcherAdmin } from "@/lib/fetcher";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,21 +32,47 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { deleteCookie, setCookie } from "cookies-next";
+
+interface JobSeekerProfile {
+  id: number;
+  user_id: number;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  district: string;
+  municipality: string;
+  city_tole: string;
+  date_of_birth: string;
+  mobile: string;
+  preferred_job_type: string;
+  gender: string;
+  has_driving_license: boolean;
+  has_vehicle: boolean;
+  career_objectives: string;
+  created_at: string;
+  updated_at: string;
+  looking_for: string;
+  salary_expectations: string;
+  industry: string;
+}
 
 interface Jobseeker {
   id: number;
   first_name: string;
   last_name: string;
+  company_name: string | null;
   email: string;
-  phone: string;
-  profile_picture: string;
-  resume: string;
-  skills: string[];
-  experience_level: string;
-  location: string;
-  status: boolean;
-  created_at: string;
-  updated_at: string;
+  phone: string | null;
+  image_path: string | null;
+  profile: JobSeekerProfile | null;
+  status?: boolean;
+  verified?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  applications_count?: number;
+  saved_jobs_count?: number;
+  resume?: string;
 }
 
 interface JobseekersResponse {
@@ -86,13 +112,13 @@ const AdminJobseekersPage = () => {
   const params = searchParams.toString();
 
   const { data: jobseekersResponse, mutate } = useSWR<JobseekersResponse>(
-    `api/admin/jobseekers?${params ? `${params}` : ""}`,
-    defaultFetcher
+    `api/admin/job-seekers?${params ? `${params}` : ""}`,
+    defaultFetcherAdmin
   );
 
   const { data: stats } = useSWR<Record<string, any>>(
     "api/admin/jobseekers/stats", 
-    defaultFetcher
+    defaultFetcherAdmin
   );
 
   const handleToggleJobseekerStatus = async (jobseekerId: number, currentStatus: boolean) => {
@@ -123,6 +149,28 @@ const AdminJobseekersPage = () => {
     }
   };
 
+  const handleImpersonateJobseeker = async(jobseekerId: number) => {
+    const {response, result, errors} = await baseFetcherAdmin("api/admin/impersonate/"+jobseekerId, {
+      method: "POST",
+    });
+    if(response?.ok){
+     
+      deleteCookie("IMP_TOKEN");
+      setCookie("IMP_TOKEN", result.token);
+       toast({
+        title: "Success",
+        description: result.message || "You are now impersonating this jobseeker",
+      });
+      router.push(`/dashboard/jobseeker/`);
+    }
+    else{
+      toast({
+        title: "Error",
+        description: errors || "Something went wrong"
+      });
+    }
+  };
+
   // Filter jobseekers based on search query and filters
   const filteredJobseekers = jobseekersResponse?.data.filter((jobseeker) => {
     if (statusFilter !== "all") {
@@ -130,7 +178,7 @@ const AdminJobseekersPage = () => {
       if (statusFilter !== jobseekerStatus) return false;
     }
 
-    if (experienceFilter !== "all" && jobseeker.experience_level !== experienceFilter) {
+    if (experienceFilter !== "all" && jobseeker.profile?.preferred_job_type !== experienceFilter) {
       return false;
     }
 
@@ -140,7 +188,8 @@ const AdminJobseekersPage = () => {
         jobseeker.first_name.toLowerCase().includes(query) ||
         jobseeker.last_name.toLowerCase().includes(query) ||
         jobseeker.email.toLowerCase().includes(query) ||
-        jobseeker.location.toLowerCase().includes(query)
+        jobseeker.profile?.district?.toLowerCase().includes(query) ||
+        jobseeker.profile?.industry?.toLowerCase().includes(query)
       );
     }
 
@@ -198,6 +247,7 @@ const AdminJobseekersPage = () => {
                       <SelectItem value="mid">Mid Level</SelectItem>
                       <SelectItem value="senior">Senior Level</SelectItem>
                       <SelectItem value="executive">Executive</SelectItem>
+                      <SelectItem value="internship">Internship</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -239,9 +289,9 @@ const AdminJobseekersPage = () => {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                           <div className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-                              {jobseeker.profile_picture ? (
+                              {jobseeker.image_path ? (
                                 <img 
-                                  src={jobseeker.profile_picture} 
+                                  src={jobseeker.image_path} 
                                   alt={`${jobseeker.first_name} ${jobseeker.last_name}`} 
                                   className="w-full h-full object-cover"
                                 />
@@ -257,12 +307,21 @@ const AdminJobseekersPage = () => {
                               </h2>
                               <p className="text-grayColor text-sm mt-1">{jobseeker.email}</p>
                               <div className="flex items-center gap-2 mt-2">
-                                <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                  {jobseeker.experience_level}
-                                </Badge>
-                                <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                  {jobseeker.location}
-                                </Badge>
+                                {jobseeker.profile?.preferred_job_type && (
+                                  <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
+                                    {jobseeker.profile.preferred_job_type}
+                                  </Badge>
+                                )}
+                                {jobseeker.profile?.district && (
+                                  <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
+                                    {jobseeker.profile.district}
+                                  </Badge>
+                                )}
+                                {jobseeker.profile?.industry && (
+                                  <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
+                                    {jobseeker.profile.industry}
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -283,12 +342,61 @@ const AdminJobseekersPage = () => {
                                 <DropdownMenuItem onClick={() => router.push(`/dashboard/admin/jobseekers/${jobseeker.id}/applications`)}>
                                   View Applications
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleToggleJobseekerStatus(jobseeker.id, jobseeker.status)}>
+                                <DropdownMenuItem onClick={() => handleToggleJobseekerStatus(jobseeker.id, !!jobseeker.status)}>
                                   {jobseeker.status ? "Block User" : "Unblock User"}
+                                </DropdownMenuItem>
+                                                               <DropdownMenuItem
+                                  className="text-manduPrimary"
+                                  onClick={() => handleImpersonateJobseeker(jobseeker.id)}
+                                >
+                                  Impersonate User
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
+                        </div>
+                        
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2">
+                          {jobseeker.phone && (
+                            <div className="text-sm text-grayColor">
+                              <span className="font-medium">Phone:</span> {jobseeker.phone}
+                            </div>
+                          )}
+                          {jobseeker.created_at && (
+                            <div className="text-sm text-grayColor">
+                              <span className="font-medium">Joined:</span> {format(new Date(jobseeker.created_at), "MMM dd, yyyy")}
+                            </div>
+                          )}
+                          {jobseeker.applications_count !== undefined && (
+                            <div className="text-sm text-grayColor">
+                              <span className="font-medium">Applications:</span> {jobseeker.applications_count}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => router.push(`/dashboard/admin/jobseekers/${jobseeker.id}`)}
+                          >
+                            View Profile
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => router.push(`/dashboard/admin/jobseekers/${jobseeker.id}/applications`)}
+                          >
+                            View Applications
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-blue-600 border-blue-600"
+                            onClick={() => handleImpersonateJobseeker(jobseeker.id)}
+                          >
+                            Impersonate
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -355,6 +463,10 @@ const AdminJobseekersPage = () => {
                     <span className="text-sm text-grayColor font-normal leading-[21.4px]">New This Month</span>
                     <span className="text-sm text-grayColor font-bold">{stats?.new_jobseekers_this_month || 0}</span>
                   </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-grayColor font-normal leading-[21.4px]">With Complete Profiles</span>
+                    <span className="text-sm text-grayColor font-bold">{stats?.complete_profiles || 0}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -382,6 +494,14 @@ const AdminJobseekersPage = () => {
                   >
                     <Ban className="h-4 w-4 mr-2" />
                     View Blocked Users
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-manduBorder hover:text-neutral-900"
+                    onClick={() => router.push("/dashboard/admin/jobseekers/verification-requests")}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Verification Requests
                   </Button>
                 </div>
               </CardContent>

@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useSWR from "swr";
-import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher, defaultFetcherAdmin } from "@/lib/fetcher";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -113,6 +113,8 @@ interface JobsResponse {
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 const AdminJobsPage = () => {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState("all");
@@ -127,7 +129,7 @@ const AdminJobsPage = () => {
 
   const { data: jobsResponse, mutate } = useSWR<JobsResponse>(
     `api/admin/jobs?${params ? `${params}` : ""}`,
-    defaultFetcher
+    defaultFetcherAdmin
   );
 
   const { data: stats } = useSWR<Record<string, any>>(

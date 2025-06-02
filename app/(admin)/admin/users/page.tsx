@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useSWR from "swr";
-import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher, defaultFetcherAdmin } from "@/lib/fetcher";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,22 +33,47 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+interface JobSeekerProfile {
+  id: number;
+  user_id: number;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  district: string;
+  municipality: string;
+  city_tole: string;
+  date_of_birth: string;
+  mobile: string;
+  preferred_job_type: string;
+  gender: string;
+  has_driving_license: boolean;
+  has_vehicle: boolean;
+  career_objectives: string;
+  created_at: string;
+  updated_at: string;
+  looking_for: string;
+  salary_expectations: string;
+  industry: string;
+}
+
 interface JobSeeker {
   id: number;
   first_name: string;
   last_name: string;
+  company_name: string | null;
   email: string;
-  phone: string;
-  profile_picture: string;
-  resume: string;
-  job_title: string;
-  location: string;
-  status: boolean;
-  verified: boolean;
-  created_at: string;
-  updated_at: string;
-  applications_count: number;
-  saved_jobs_count: number;
+  phone: string | null;
+  image_path: string | null;
+  profile: JobSeekerProfile | null;
+  status?: boolean;
+  verified?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  applications_count?: number;
+  saved_jobs_count?: number;
+  resume?: string;
+  job_title?: string;
+  location?: string;
 }
 
 interface JobSeekersResponse {
@@ -88,13 +113,13 @@ const AdminUsersPage = () => {
   const params = searchParams.toString();
 
   const { data: jobSeekersResponse, mutate } = useSWR<JobSeekersResponse>(
-    `api/admin/users?${params ? `${params}` : ""}`,
-    defaultFetcher
+    `api/admin/all-users?${params ? `${params}` : ""}`,
+    defaultFetcherAdmin
   );
 
   const { data: stats } = useSWR<Record<string, any>>(
     "api/admin/users/stats", 
-    defaultFetcher
+    defaultFetcherAdmin
   );
 
   const handleToggleUserStatus = (userId: number, currentStatus: boolean) => {
@@ -162,8 +187,8 @@ const AdminUsersPage = () => {
         user.first_name.toLowerCase().includes(query) ||
         user.last_name.toLowerCase().includes(query) ||
         user.email.toLowerCase().includes(query) ||
-        user.job_title?.toLowerCase().includes(query) ||
-        user.location?.toLowerCase().includes(query)
+        user.profile?.industry?.toLowerCase().includes(query) ||
+        user.profile?.district?.toLowerCase().includes(query)
       );
     }
 
@@ -259,9 +284,9 @@ const AdminUsersPage = () => {
                       <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row gap-4">
                           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                            {user.profile_picture ? (
+                            {user.image_path ? (
                               <img 
-                                src={user.profile_picture} 
+                                src={user.image_path} 
                                 alt={`${user.first_name} ${user.last_name}`} 
                                 className="w-full h-full object-cover"
                               />
@@ -279,7 +304,8 @@ const AdminUsersPage = () => {
                                   {user.first_name} {user.last_name}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">
-                                  {user.job_title || 'No job title'} {user.location ? `• ${user.location}` : ''}
+                                  {user.profile?.preferred_job_type || 'No job preference'} 
+                                  {user.profile?.district ? ` • ${user.profile.district}` : ''}
                                 </p>
                               </div>
                               
@@ -314,7 +340,7 @@ const AdminUsersPage = () => {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
                                       className={user.status ? "text-red-600" : "text-green-600"}
-                                      onClick={() => handleToggleUserStatus(user.id, user.status)}
+                                      onClick={() => handleToggleUserStatus(user.id, !!user.status)}
                                     >
                                       {user.status ? 'Block User' : 'Unblock User'}
                                     </DropdownMenuItem>
@@ -334,24 +360,31 @@ const AdminUsersPage = () => {
                                   <span className="text-sm text-grayColor">{user.phone}</span>
                                 </div>
                               )}
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-grayColor" />
-                                <span className="text-sm text-grayColor">
-                                  Joined: {format(new Date(user.created_at), "MMM dd, yyyy")}
-                                </span>
-                              </div>
+                              {user.created_at && (
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-4 w-4 text-grayColor" />
+                                  <span className="text-sm text-grayColor">
+                                    Joined: {format(new Date(user.created_at), "MMM dd, yyyy")}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                             
                             <div className="flex items-center gap-4 mt-3">
                               <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                {user.applications_count} Applications
+                                {user.applications_count || 0} Applications
                               </Badge>
                               <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                {user.saved_jobs_count} Saved Jobs
+                                {user.saved_jobs_count || 0} Saved Jobs
                               </Badge>
-                              {user.resume && (
+                              {user.profile?.industry && (
                                 <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                  Has Resume
+                                  {user.profile.industry}
+                                </Badge>
+                              )}
+                              {user.profile?.gender && (
+                                <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
+                                  {user.profile.gender}
                                 </Badge>
                               )}
                             </div>
@@ -400,7 +433,7 @@ const AdminUsersPage = () => {
           <div className="lg:col-span-1 md:col-span-1 space-y-6">
             <Card className="w-full rounded-[15.54px] border-[1.94px] border-solid border-slate-200">
               <div className="bg-[#fcfcfc] rounded-t-[13px] border-t-[1.86px] border-r-[1.86px] border-l-[1.86px] border-slate-200 p-[13px_29px]">
-                               <h2 className="font-medium text-manduSecondary text-xl leading-[30px]">
+                <h2 className="font-medium text-manduSecondary text-xl leading-[30px]">
                   Users Overview
                 </h2>
               </div>
@@ -493,5 +526,3 @@ const AdminUsersPage = () => {
 };
 
 export default AdminUsersPage;
-
-

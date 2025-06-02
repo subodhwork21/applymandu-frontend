@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import Header from "@/components/header";
@@ -33,10 +33,7 @@ export default function AdminDashboardLayout({
   ];
 
   const isActive = (path: string) => {
-    if (path === "/admin") {
-      return pathname === path;
-    }
-    return pathname.startsWith(path);
+    return pathname === path;
   };
 
 
@@ -58,6 +55,7 @@ export default function AdminDashboardLayout({
   
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
 
     <section className="min-h-screen flex flex-col">
       {/* <Header/> */}
@@ -83,5 +81,6 @@ export default function AdminDashboardLayout({
       {children}
       {/* <Footer /> */}
     </section>
+    </Suspense>
   );
 }

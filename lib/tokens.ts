@@ -1,7 +1,7 @@
 import { getCookie } from "cookies-next";
 
 export function jobSeekerToken(): string{
-    return getCookie('JOBSEEKER_TOKEN') as string;
+    return getCookie('JOBSEEKER_TOKEN') as string || getCookie("IMP_TOKEN") as string;
 }
 
 export function employerToken(): string{

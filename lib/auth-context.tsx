@@ -275,6 +275,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const result = await response?.json();
     if (response?.status === 200) {
+      if(getCookie("ADMIN_TOKEN") != null){
+        deleteCookie("JOBSEEKER_TOKEN");
+        deleteCookie("EMPLOYER_TOKEN");
+        setCookie("IMP_TOKEN", result?.token);
+         setIsEmployer(result?.is_employer);
+        setIsLoading(false);
+        return;
+      }
       if (result?.is_employer === true) {
         deleteCookie("JOBSEEKER_TOKEN");
         setCookie("EMPLOYER_TOKEN", result?.token);
@@ -553,6 +561,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const closeForgotPasswordModal = () => setIsForgotPasswordModalOpen(false);
 
   const token = getCookie("JOBSEEKER_TOKEN") || getCookie("EMPLOYER_TOKEN") || getCookie("IMP_TOKEN");
+  const adminToken = getCookie("ADMIN_TOKEN");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -571,7 +580,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [token]);
 
-  const adminToken = getCookie("ADMIN_TOKEN");
 
   useEffect(()=>{
       setIsLoading(true);

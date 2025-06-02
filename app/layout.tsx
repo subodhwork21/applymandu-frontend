@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { inter } from "@/lib/fonts";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
@@ -22,8 +22,7 @@ export const metadata: Metadata = {
   title: "Applymandu - Your Gateway to Career Opportunities",
   description:
     "Find your dream job or hire the perfect candidate with Applymandu, the leading job board in Nepal.",
-     manifest: '/manifest.json',
-  themeColor: '#000000',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -40,30 +39,27 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: '#000000',
+};
     
-    const poppins = Poppins({
-      subsets: ['latin'],
-      display: 'swap',
-      variable: '--font-poppins',
-      weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
-    });
-
-
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
+});
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
-
-  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/Ellipse.png" sizes="any" />
-         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#000000" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Applymandu" />
@@ -86,11 +82,10 @@ export default function RootLayout({
               <RegisterModal />
               <ForgotPasswordModal />
             </ApplicationProvider>
-                <TwoFactorModal />
+            <TwoFactorModal />
           </AuthProvider>
         </ThemeProvider>
-      <Toaster />
-
+        <Toaster />
       </body>
     </html>
   );
