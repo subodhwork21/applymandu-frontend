@@ -392,7 +392,7 @@ const AdminJobsPage = () => {
                             </div>
                           </div>
 
-                          <div className="flex flex-col gap-2 items-end">
+                          <div className="flex flex-col gap-2 justify-between items-end">
                             <div className="flex gap-2">
                               <Badge className={`${job.status ? "bg-[#14dc14]/10 text-[#006B24]" : "bg-red-100 text-manduSecondary"} font-semibold text-sm px-4 py-0.5 rounded-full`}>
                                 {job.status ? "Active" : "Inactive"}
@@ -402,7 +402,39 @@ const AdminJobsPage = () => {
                               </Badge>
                             </div>
                             
-                            <DropdownMenu>
+                           
+                          </div>
+                        </div>
+
+                              <div className="flex justify-between items-end">
+
+                        <div className="flex flex-wrap items-center gap-[5px] mt-4">
+                          <Badge
+                            variant="outline"
+                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+                          >
+                            {job.employment_type}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+                          >
+                            {job.location_type}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+                          >
+                            {job.salary_range?.formatted}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
+                          >
+                            {job.department}
+                          </Badge>
+                        </div>
+                         <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
                                   Actions <MoreHorizontal className="h-4 w-4 ml-2" />
@@ -432,35 +464,7 @@ const AdminJobsPage = () => {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-[5px] mt-4">
-                          <Badge
-                            variant="outline"
-                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-                          >
-                            {job.employment_type}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-                          >
-                            {job.location_type}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-                          >
-                            {job.salary_range?.formatted}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="bg-[#f1f1f1b2] text-manduBorder font-semibold text-sm px-5 py-2 rounded-[50px]"
-                          >
-                            {job.department}
-                          </Badge>
-                        </div>
+                              </div>
                       </CardContent>
                     </Card>
                   ))
