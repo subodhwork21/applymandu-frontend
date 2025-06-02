@@ -155,10 +155,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { requires2FA: true, email };
       }
       if(result?.is_employer === true){
-
+        deleteCookie("IMP_TOKEN");
         setCookie("EMPLOYER_TOKEN", result?.token);
       }
       else{
+        deleteCookie("IMP_TOKEN");
         setCookie("JOBSEEKER_TOKEN", result?.token);
       }
       setUser({
@@ -298,6 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       if (result?.is_employer === true) {
         deleteCookie("JOBSEEKER_TOKEN");
+        deleteCookie("IMP_TOKEN");
         setCookie("EMPLOYER_TOKEN", result?.token);
         setUser({
           id: result?.data?.id,
@@ -309,6 +311,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
       } else {
         deleteCookie("EMPLOYER_TOKEN");
+        deleteCookie("IMP_TOKEN");
         setCookie("JOBSEEKER_TOKEN", result?.token);
         setUser({
           id: result?.data?.id,

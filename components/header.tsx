@@ -42,6 +42,7 @@ import { formatDistanceToNow } from "date-fns";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { echo } from "@/lib/echo-setup";
 import { toast } from "@/hooks/use-toast";
+import { deleteCookie, getCookie } from "cookies-next";
 
 
 interface ChatPreview {
@@ -143,6 +144,11 @@ const Header = () => {
   const [activeTab, setActiveTab] = useState<"notifications" | "messages">(
     "notifications"
   );
+
+  const leaveImpersonation = () => {
+    deleteCookie("IMP_TOKEN");
+    router.push("/admin/");
+  };
 
   const fetchChatPreviews = useCallback(async () => {
     try {
@@ -654,15 +660,25 @@ return notification?.read_at === null;
                           </DropdownMenuItem>
                         </p>
                       )}
+                     
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
+                     {
+                        getCookie("ADMIN_TOKEN") ?  <DropdownMenuItem
+                      className="text-red-600 focus:text-red-600"
+                      onClick={leaveImpersonation}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Leave Impersonation</span>
+                    </DropdownMenuItem>:  <DropdownMenuItem
                       className="text-red-600 focus:text-red-600"
                       onClick={logout}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
+                      }
+                   
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
