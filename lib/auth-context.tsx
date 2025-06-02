@@ -261,7 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const openTwoFactorModal = () => setIsTwoFactorModalOpen(true);
   const closeTwoFactorModal = () => setIsTwoFactorModalOpen(false);
 
-  const fetchUserByToken = async (token: string) => {
+  const fetchUserByToken = async (token: string, adminToken: string) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}api/login-with-token`,
       {
@@ -275,12 +275,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const result = await response?.json();
     if (response?.status === 200) {
-      if(getCookie("ADMIN_TOKEN") != null){
+      if(adminToken != null){
         deleteCookie("JOBSEEKER_TOKEN");
         deleteCookie("EMPLOYER_TOKEN");
         setCookie("IMP_TOKEN", result?.token);
          setIsEmployer(result?.is_employer);
         setIsLoading(false);
+       result?.is_employer === true ?  setUser({
+          id: result?.data?.id,
+          email: result?.data?.email,
+          image_path: result?.data?.image_path,
+          company_name: result?.data?.company_name,
+        }) :  setUser({
+          id: result?.data?.id,
+          email: result?.data?.email,
+          first_name: result?.data?.first_name,
+          last_name: result?.data?.last_name,
+          image_path: result?.data?.image_path,
+          position_title: result?.data?.experiences[0]?.position_title,
+        });
         return;
       }
       if (result?.is_employer === true) {
@@ -569,7 +582,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Check for regular user token
       if (token) {
-        await fetchUserByToken(token);
+        await fetchUserByToken(token, adminToken);
       }
       
      
