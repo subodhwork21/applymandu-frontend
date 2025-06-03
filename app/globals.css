@@ -104,6 +104,19 @@
 }
 
 
+@media(min-width: 1500px ){
+ .container {
+  padding-left:  40px !important;
+  padding-right:  40px !important;
+ }
+}
+
 .container{
   max-width: 1600px;
 }
+
+/* @media (min-width: 1600px){
+  .container{
+    padding: auto 26rem !important;
+  }
+} */

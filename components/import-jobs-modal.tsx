@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { FileText, Loader2, Upload, X } from "lucide-react";
-// Either use all imports from @radix-ui/react-dialog
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogFooter, DialogHeader } from "./ui/dialog";
 import { Button } from "./ui/button";
 
@@ -41,13 +40,27 @@ const ImportJobsModal: React.FC<ImportJobsModalProps> = ({ isOpen, onClose, onIm
   });
 
   const handleImport = async () => {
-    if (!file) return;
+    // Add proper validation before proceeding
+    if (!file) {
+      setError('Please select a file to import');
+      return;
+    }
+    
+    // Double-check file type
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (fileExtension !== 'csv' && fileExtension !== 'json') {
+      setError('Please upload a CSV or JSON file');
+      return;
+    }
     
     setIsUploading(true);
     setError(null);
     
     try {
       await onImport(file);
+      // Reset form state on success
+      setFile(null);
+      setError(null);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during import');
@@ -56,8 +69,20 @@ const ImportJobsModal: React.FC<ImportJobsModalProps> = ({ isOpen, onClose, onIm
     }
   };
 
+  // Reset state when modal closes
+  const handleClose = () => {
+    if (!isUploading) {
+      setFile(null);
+      setError(null);
+      onClose();
+    }
+  };
+
+  // Check if import should be disabled
+  const isImportDisabled = !file || isUploading || error !== null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Import LinkedIn Jobs</DialogTitle>
@@ -100,11 +125,17 @@ const ImportJobsModal: React.FC<ImportJobsModalProps> = ({ isOpen, onClose, onIm
                 <span className="text-sm font-medium truncate max-w-[200px]">
                   {file.name}
                 </span>
+                <span className="text-xs text-gray-500 ml-2">
+                  ({(file.size / 1024).toFixed(1)} KB)
+                </span>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => setFile(null)}
+                onClick={() => {
+                  setFile(null);
+                  setError(null);
+                }}
                 disabled={isUploading}
               >
                 <X className="h-4 w-4" />
@@ -120,12 +151,12 @@ const ImportJobsModal: React.FC<ImportJobsModalProps> = ({ isOpen, onClose, onIm
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isUploading}>
+          <Button variant="outline" onClick={handleClose} disabled={isUploading}>
             Cancel
           </Button>
           <Button 
             onClick={handleImport} 
-            disabled={!file || isUploading}
+            disabled={isImportDisabled}
             className="bg-manduPrimary hover:bg-manduPrimary/90"
           >
             {isUploading ? (
@@ -146,4 +177,4 @@ const ImportJobsModal: React.FC<ImportJobsModalProps> = ({ isOpen, onClose, onIm
   );
 };
 
-export default ImportJobsModal
+export default ImportJobsModal;

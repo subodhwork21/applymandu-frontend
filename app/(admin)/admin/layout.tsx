@@ -37,20 +37,20 @@ export default function AdminDashboardLayout({
   };
 
 
-  // useEffect(()=>{
-  //   if (!isAdminAuthenticated) {
-  //     router.push("admin-login");
-  //   }
-  // }, [pathname, adminUser, isAdminAuthenticated, router])
+  useEffect(()=>{
+    if (!isAdminAuthenticated) {
+      router.push("/admin-login");
+    }
+  }, [pathname, adminUser, isAdminAuthenticated, router])
 
   
-  // if(!isAdminAuthenticated){
-  //   return (
-  //     <section className="w-screen h-screen flex justify-center items-center relative">
-  //       <Loader2Icon className="animate-spin h-10 w-10 absolute" />
-  //     </section>
-  //   );
-  // }
+  if(!isAdminAuthenticated){
+    return (
+      <section className="w-screen h-screen flex justify-center items-center relative">
+        <Loader2Icon className="animate-spin h-10 w-10 absolute" />
+      </section>
+    );
+  }
 
   
 

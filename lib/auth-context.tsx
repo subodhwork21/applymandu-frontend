@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { baseFetcher } from "./fetcher";
+import { baseFetcher, baseFetcherAdmin } from "./fetcher";
 import {
   getCookie,
   getCookies,
@@ -374,7 +374,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.error("Admin token check error:", error);
       // deleteCookie("ADMIN_TOKEN");
-      setAdminUser(null);
+      // setAdminUser(null);
       return false;
     }
   };
@@ -525,7 +525,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Admin logout
   const adminLogout = async() => {
-    const {response, result, error} = await baseFetcher("api/admin/logout", {
+    const {response, result, error} = await baseFetcherAdmin("api/admin/logout", {
       method: "POST",
     });
     

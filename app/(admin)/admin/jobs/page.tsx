@@ -59,6 +59,7 @@ import {
 } from "@/components/ui/dialog";
 import ImportJobsModal from "@/components/import-jobs-modal";
 import { Checkbox } from "@/components/ui/checkbox";
+import { adminToken } from "@/lib/tokens";
 
 interface Skill {
   id: number;
@@ -806,28 +807,70 @@ const AdminJobsPage = () => {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onImport={async (file) => {
-          const formData = new FormData();
-          formData.append("file", file);
-
-          const { response, result, errors } = await baseFetcherAdmin(
-            "api/admin/import-jobs",
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
-
-          if (response?.ok) {
+          // Add proper validation first
+          if (!file) {
             toast({
-              title: "Success",
-              description: result.message || "Jobs imported successfully",
+              title: "Error",
+              description: "No file selected",
+              variant: "destructive",
             });
-            mutate();
-          } else {
-            throw new Error(errors || "Failed to import jobs");
+            return;
+          }
+
+          // Validate file type
+          const allowedExtensions = ["csv", "json"];
+          const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+          if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+            toast({
+              title: "Error",
+              description: "Please select a valid CSV or JSON file",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          try {
+            const formData = new FormData();
+            formData.append("file", file, file.name); // Add filename explicitly
+
+            const { response, result, errors } = await baseFetcherAdmin(
+              "api/admin/import-jobs",
+              {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${adminToken()}`
+                },
+              },
+
+            );
+
+            if (response?.ok) {
+              toast({
+                title: "Success",
+                description: result.message || "Jobs imported successfully",
+              });
+              mutate(); // Refresh the jobs list
+              setIsImportModalOpen(false); // Close the modal
+            } else {
+              toast({
+                title: "Error",
+                description: errors || "Failed to import jobs",
+                variant: "destructive",
+              });
+            }
+          } catch (error) {
+            console.error("Import error:", error);
+            toast({
+              title: "Error",
+              description: "An unexpected error occurred during import",
+              variant: "destructive",
+            });
           }
         }}
-      />
+      />  
     </section>
   );
 };

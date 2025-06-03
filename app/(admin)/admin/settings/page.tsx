@@ -11,10 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { baseFetcherAdmin, defaultFetcherAdmin } from "@/lib/fetcher";
-import { Loader2, Save, User, Lock, Bell, Shield, Key } from "lucide-react";
+import { Loader2, Save, User, Lock, Bell, Shield, Key, LogOut } from "lucide-react";
 import useSWR from "swr";
 import Image from "next/image";
-import { useAuth } from "@/lib/auth-context";
+import { useAdminAuth, useAuth } from "@/lib/auth-context";
 import { deleteCookie } from "cookies-next";
 
 interface AdminSettings {
@@ -45,6 +45,8 @@ interface AdminSettings {
 const AdminSettingsPage = () => {
   const router = useRouter();
   const { user } = useAuth();
+    const {logout: adminLogout} = useAdminAuth();
+
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -181,6 +183,7 @@ const AdminSettingsPage = () => {
 
   const handleSaveProfile = async () => {
     setIsLoading(true);
+
     
     const formDataToSend = new FormData();
     formDataToSend.append("first_name", formData.first_name || "");
@@ -388,8 +391,9 @@ const AdminSettingsPage = () => {
   }
 
    const handleLogout = () => {
+    adminLogout();
     deleteCookie("ADMIN_TOKEN");
-    redirect("/");
+    redirect("/admin-login");
   };
 
   return (
