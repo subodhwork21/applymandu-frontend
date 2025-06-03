@@ -183,7 +183,7 @@ const EmployerDashboardPage = () => {
               <div className="flex justify-between items-center mb-4 px-2 md:p-0">
                 <h2 className="md:text-xl text-md text-manduSecondary">Recent Applications</h2>
                 <Button
-                  className="bg-manduPrimary text-white hover:bg-manduPrimary/80 rounded-[9px]"
+                  className="bg-manduCustom-secondary-blue text-white hover:bg-manduCustom-secondary-blue/80 rounded-[9px]"
                   onClick={() => setIsPostJobModalOpen(true)}
                 >
                   Post New Job

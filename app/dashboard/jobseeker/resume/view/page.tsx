@@ -183,11 +183,11 @@ const ResumeView = () => {
                     </h3>
                     <div className="space-y-2">
                       <p className="text-activityText font-medium flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-manduPrimary" />
+                        <Building2 className="h-4 w-4 text-manduCustom-secondary-blue" />
                         {profile.jobseekerProfile.industry}
                       </p>
                       <p className="text-activityText font-medium flex items-center gap-2">
-                        <Briefcase className="h-4 w-4 text-manduPrimary" />
+                        <Briefcase className="h-4 w-4 text-manduCustom-secondary-blue" />
                         {profile.jobseekerProfile.preferred_job_type}
                       </p>
                     </div>

@@ -239,7 +239,7 @@ const AdminApplicationsPage = () => {
             All Applications
           </h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => router.push("/admin/applications/export")}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -342,7 +342,7 @@ const AdminApplicationsPage = () => {
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-manduPrimary/10 text-manduPrimary">
+                                    <div className="w-full h-full flex items-center justify-center bg-manduCustom-secondary-blue/10 text-manduCustom-secondary-blue">
                                       <Briefcase className="h-8 w-8" />
                                     </div>
                                   )}
@@ -351,7 +351,7 @@ const AdminApplicationsPage = () => {
                                 <div className="flex-1">
                                   <div className="flex flex-col md:flex-row justify-between">
                                     <div>
-                                      <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6 text-left">
+                                      <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6 text-left">
                                         {job.title}
                                       </h2>
                                       <p className="text-grayColor text-sm mt-1 text-left">
@@ -455,7 +455,7 @@ const AdminApplicationsPage = () => {
                                                   src={application.user_image}
                                                   alt={application.applied_user}
                                                 />
-                                                <AvatarFallback className="bg-manduPrimary text-white">
+                                                <AvatarFallback className="bg-manduCustom-secondary-blue text-white">
                                                   {application.applied_user
                                                     .split(" ")
                                                     .map((n) => n[0])
@@ -467,7 +467,7 @@ const AdminApplicationsPage = () => {
                                             <div className="flex-1">
                                               <div className="flex flex-col md:flex-row justify-between">
                                                 <div>
-                                                  <h4 className="font-semibold text-manduPrimary">
+                                                  <h4 className="font-semibold text-manduCustom-secondary-blue">
                                                     {application.applied_user}
                                                   </h4>
                                                   <p className="text-sm text-grayColor">
@@ -604,7 +604,7 @@ const AdminApplicationsPage = () => {
                                   View Job Details
                                 </Button>
                                 <Button
-                                  className="bg-manduPrimary text-white"
+                                  className="bg-manduCustom-secondary-blue text-white"
                                   onClick={() =>
                                     router.push(
                                       `/admin/jobs/${job.id}/applications`
@@ -634,7 +634,7 @@ const AdminApplicationsPage = () => {
                         size="sm"
                         disabled={!link.url}
                         className={
-                          link.active ? "bg-manduPrimary text-white" : ""
+                          link.active ? "bg-manduCustom-secondary-blue text-white" : ""
                         }
                         onClick={() => {
                           if (link.url) {

@@ -337,12 +337,12 @@ const Header = () => {
                 key={item.path}
                 href={item.path}
                 className={cn(
-                  "text-sm text-manduPrimary cursor-pointer transition-colors",
+                  "text-body1 text-manduCustom-secondary-blue cursor-pointer transition-colors",
                   isActivePath(
                     pathName,
                     item.path,
                     item.path === routes.home
-                  ) && "font-bold text-manduPrimary"
+                  ) && "font-bold text-manduCustom-secondary-blue"
                 )}
               >
                 {item.label}
@@ -449,7 +449,7 @@ return notification?.read_at === null;
 
                               onClick={()=> router.push("/jobs/"+ notification.data.slug)}
                                 key={notification.id}
-                                className={`flex items-start p-4 cursor-pointer ${notification?.read_at ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white ": "bg-manduPrimary/40 text-white"}`}
+                                className={`flex items-start p-4 cursor-pointer ${notification?.read_at ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white ": "bg-manduCustom-secondary-blue/40 text-white"}`}
                               >
                                 <div
                                   className={`h-8 w-8 rounded-full ${getNotificationBgColor(
@@ -685,14 +685,14 @@ return notification?.read_at === null;
             ) : (
               <>
                 <Button
-                  className="font-[600] hidden md:flex border-manduSecondary border-[1px] bg-white text-manduSecondary hover:bg-white hover:text-manduSecondary rounded-[24px]"
+                  className="font-[600] text-body1 hidden md:flex border-manduSecondary border-[1px] bg-white text-manduSecondary hover:bg-white hover:text-manduSecondary rounded-[24px]"
                   onClick={openLoginModal}
                 >
                   Sign In
                 </Button>
                 <Button
                   variant="outline"
-                  className="hidden md:flex bg-manduSecondary border-manduSecondary hover:text-manduSecondary border-[1px] text-white  rounded-[24px]"
+                  className="hidden md:flex text-body1 bg-manduSecondary border-manduSecondary hover:text-manduSecondary border-[1px] text-white  rounded-[24px]"
                   onClick={() => openRegisterModal()}
                 >
                   Register

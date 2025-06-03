@@ -248,7 +248,7 @@ const TrashedJobsPage = () => {
                       <CardContent className="p-4 sm:p-6">
                         <div className="flex flex-col gap-5">
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                            <h2 className="text-xl font-semibold text-manduPrimary">
+                            <h2 className="text-xl font-semibold text-manduCustom-secondary-blue">
                               {job.title}
                             </h2>
                             <Badge className="bg-manduSecondary/30 hover:bg-manduSecondary/60 text-manduSecondary font-semibold px-4 py-2 rounded-full">

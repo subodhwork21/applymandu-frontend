@@ -206,7 +206,7 @@ const AdminJobseekersPage = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">Manage Jobseekers</h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => router.push("/dashboard/admin/jobseekers/export")}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -296,13 +296,13 @@ const AdminJobseekersPage = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-manduPrimary text-white text-xl font-bold">
+                                <div className="w-full h-full flex items-center justify-center bg-manduCustom-secondary-blue text-white text-xl font-bold">
                                   {jobseeker.first_name.charAt(0)}
                                 </div>
                               )}
                             </div>
                             <div>
-                              <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+                              <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                 {jobseeker.first_name} {jobseeker.last_name}
                               </h2>
                               <p className="text-grayColor text-sm mt-1">{jobseeker.email}</p>
@@ -346,7 +346,7 @@ const AdminJobseekersPage = () => {
                                   {jobseeker.status ? "Block User" : "Unblock User"}
                                 </DropdownMenuItem>
                                                                <DropdownMenuItem
-                                  className="text-manduPrimary"
+                                  className="text-manduCustom-secondary-blue"
                                   onClick={() => handleImpersonateJobseeker(jobseeker.id)}
                                 >
                                   Impersonate User
@@ -414,7 +414,7 @@ const AdminJobseekersPage = () => {
                         variant={link.active ? "default" : "outline"}
                         size="sm"
                         disabled={!link.url}
-                        className={link.active ? "bg-manduPrimary text-white" : ""}
+                        className={link.active ? "bg-manduCustom-secondary-blue text-white" : ""}
                         onClick={() => {
                           if (link.url) {
                             const url = new URL(link.url);

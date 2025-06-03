@@ -160,7 +160,7 @@ const PopularClosingJobs = () => {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-semibold feat-text text-base">
+                              <h3 className="font-semibold feat-text text-base leading-[24px]">
                                 {job.title}
                               </h3>
                               <p className="text-grayColor text-sm mb-1">
@@ -177,14 +177,13 @@ const PopularClosingJobs = () => {
                               </Button> */}
                             </div>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-neutral-600 justify-between">
-                            <div className="flex gap-8">
+                          <div className="flex items-center gap-4 text-sm  justify-between">
+                            <div className="flex gap-8 text-grayColor">
                               <span className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
+                                <MapPin className="h-4 w-4 text-grayColor" />
                                 {job.location}
                               </span>
-                              <span className="flex items-center gap-1">
-                                <DollarSign className="h-4 w-4" />
+                              <span className="flex items-center gap-1 text-[14px] font-semibold text-manduSecondary">
                                 {job.salary}
                               </span>
                             </div>
@@ -295,12 +294,12 @@ const PopularClosingJobs = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-neutral-600 justify-between">
-                            <div className="flex gap-8">
+                            <div className="flex gap-8 text-grayColor">
                               <span className="flex items-center gap-1">
                                 <MapPin className="h-4 w-4" />
                                 {job.location}
                               </span>
-                              <span className="flex items-center gap-1">
+                              <span className="flex items-center gap-1 text-manduSecondary">
                                 <DollarSign className="h-4 w-4" />
                                 {job.salary}
                               </span>

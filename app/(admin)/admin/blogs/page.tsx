@@ -179,7 +179,7 @@ const AdminBlogsPage = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">Manage Blogs</h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => router.push("/dashboard/admin/blogs/create")}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -268,7 +268,7 @@ const AdminBlogsPage = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-manduPrimary/10 text-manduPrimary">
+                              <div className="w-full h-full flex items-center justify-center bg-manduCustom-secondary-blue/10 text-manduCustom-secondary-blue">
                                 No Image
                               </div>
                             )}
@@ -277,7 +277,7 @@ const AdminBlogsPage = () => {
                           <div className="flex-1">
                             <div className="flex flex-col md:flex-row justify-between">
                               <div>
-                                <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+                                <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                   {blog.title}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">
@@ -352,7 +352,7 @@ const AdminBlogsPage = () => {
                         variant={link.active ? "default" : "outline"}
                         size="sm"
                         disabled={!link.url}
-                        className={link.active ? "bg-manduPrimary text-white" : ""}
+                        className={link.active ? "bg-manduCustom-secondary-blue text-white" : ""}
                         onClick={() => {
                           if (link.url) {
                             const url = new URL(link.url);

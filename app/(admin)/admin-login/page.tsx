@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
 
           <Button
             type="submit"
-            className="w-full bg-manduPrimary hover:bg-manduSecondary"
+            className="w-full bg-manduCustom-secondary-blue hover:bg-manduSecondary"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -106,7 +106,7 @@ export default function AdminLoginPage() {
         <div className="mt-6 text-center">
           <Link
             href="/"
-            className="text-sm text-manduPrimary hover:text-manduSecondary"
+            className="text-sm text-manduCustom-secondary-blue hover:text-manduSecondary"
           >
             Return to homepage
           </Link>

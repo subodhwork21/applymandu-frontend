@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { Loader2, Save, User, Lock, Bell, Shield, Key } from "lucide-react";
 import useSWR from "swr";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { deleteCookie } from "cookies-next";
 
 interface AdminSettings {
   id: number;
@@ -134,6 +135,8 @@ const AdminSettingsPage = () => {
     }
   };
 
+ 
+
   const handleAddIP = () => {
     const ipInput = document.getElementById("new-ip") as HTMLInputElement;
     const ip = ipInput.value.trim();
@@ -174,6 +177,7 @@ const AdminSettingsPage = () => {
       }));
     }
   };
+  
 
   const handleSaveProfile = async () => {
     setIsLoading(true);
@@ -378,10 +382,15 @@ const AdminSettingsPage = () => {
   if (!adminSettings && !formData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-manduPrimary" />
+        <Loader2 className="h-8 w-8 animate-spin text-manduCustom-secondary-blue" />
       </div>
     );
   }
+
+   const handleLogout = () => {
+    deleteCookie("ADMIN_TOKEN");
+    redirect("/");
+  };
 
   return (
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
@@ -409,9 +418,12 @@ const AdminSettingsPage = () => {
           </TabsList>
 
           <TabsContent value="profile">
-            <Card>
-              <CardHeader>
+            <Card >
+              <CardHeader className="flex justify-between items-center flex-row">
                 <CardTitle>Profile Information</CardTitle>
+               <button onClick={handleLogout} className="text-white px-4 py-2 rounded-[8px] bg-manduSecondary">
+                Logout
+               </button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -510,7 +522,7 @@ const AdminSettingsPage = () => {
                   <Button 
                     onClick={handleSaveProfile} 
                     disabled={isLoading}
-                    className="bg-manduPrimary hover:bg-manduPrimary/90"
+                    className="bg-manduCustom-secondary-blue hover:bg-manduCustom-secondary-blue/90"
                   >
                     {isLoading ? (
                       <>
@@ -680,7 +692,7 @@ const AdminSettingsPage = () => {
                   <Button 
                     onClick={handleSaveSecurity} 
                     disabled={isLoading}
-                    className="bg-manduPrimary hover:bg-manduPrimary/90"
+                    className="bg-manduCustom-secondary-blue hover:bg-manduCustom-secondary-blue/90"
                   >
                     {isLoading ? (
                       <>
@@ -820,7 +832,7 @@ const AdminSettingsPage = () => {
                   <Button 
                     onClick={handleSaveNotifications} 
                     disabled={isLoading}
-                    className="bg-manduPrimary hover:bg-manduPrimary/90"
+                    className="bg-manduCustom-secondary-blue hover:bg-manduCustom-secondary-blue/90"
                   >
                     {isLoading ? (
                       <>
@@ -887,7 +899,7 @@ const AdminSettingsPage = () => {
                   <Button 
                     onClick={handleChangePassword} 
                     disabled={isLoading || !currentPassword || !newPassword || !confirmPassword}
-                    className="bg-manduPrimary hover:bg-manduPrimary/90"
+                    className="bg-manduCustom-secondary-blue hover:bg-manduCustom-secondary-blue/90"
                   >
                     {isLoading ? (
                       <>

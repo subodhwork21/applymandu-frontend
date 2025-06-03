@@ -191,7 +191,7 @@ const AdminCategoriesPage = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">Manage Categories</h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => {
               setCategoryName("");
               setCategoryDescription("");
@@ -238,7 +238,7 @@ const AdminCategoriesPage = () => {
                 ) : (
                   filteredCategories.map((category) => (
                     <tr key={category.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 text-sm font-medium text-manduPrimary">
+                      <td className="px-4 py-4 text-sm font-medium text-manduCustom-secondary-blue">
                         {category.name}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-500 max-w-xs truncate">

@@ -274,7 +274,7 @@ const AdminEmployersPage = () => {
             Manage Employers
           </h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => router.push("/dashboard/admin/employers/export")}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -382,7 +382,7 @@ const AdminEmployersPage = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-manduPrimary/10 text-manduPrimary">
+                              <div className="w-full h-full flex items-center justify-center bg-manduCustom-secondary-blue/10 text-manduCustom-secondary-blue">
                                 <Building className="h-8 w-8" />
                               </div>
                             )}
@@ -391,7 +391,7 @@ const AdminEmployersPage = () => {
                           <div className="flex-1">
                             <div className="flex flex-col md:flex-row justify-between">
                               <div>
-                                <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+                                <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                   {employer.company_name}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">
@@ -483,7 +483,7 @@ const AdminEmployersPage = () => {
                                         : "Unblock Employer"}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                      className={"text-manduPrimary"}
+                                      className={"text-manduCustom-secondary-blue"}
                                       onClick={() =>
                                         handleImpersonateEmployer(employer.id)
                                       }
@@ -561,7 +561,7 @@ const AdminEmployersPage = () => {
                         size="sm"
                         disabled={!link.url}
                         className={
-                          link.active ? "bg-manduPrimary text-white" : ""
+                          link.active ? "bg-manduCustom-secondary-blue text-white" : ""
                         }
                         onClick={() => {
                           if (link.url) {

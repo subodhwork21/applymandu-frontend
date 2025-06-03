@@ -205,7 +205,7 @@ const AdminUsersPage = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">Manage Users</h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => router.push("/dashboard/admin/users/export")}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -291,7 +291,7 @@ const AdminUsersPage = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-manduPrimary/10 text-manduPrimary">
+                              <div className="w-full h-full flex items-center justify-center bg-manduCustom-secondary-blue/10 text-manduCustom-secondary-blue">
                                 <User className="h-8 w-8" />
                               </div>
                             )}
@@ -300,7 +300,7 @@ const AdminUsersPage = () => {
                           <div className="flex-1">
                             <div className="flex flex-col md:flex-row justify-between">
                               <div>
-                                <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+                                <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                   {user.first_name} {user.last_name}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">
@@ -406,7 +406,7 @@ const AdminUsersPage = () => {
                         variant={link.active ? "default" : "outline"}
                         size="sm"
                         disabled={!link.url}
-                        className={link.active ? "bg-manduPrimary text-white" : ""}
+                        className={link.active ? "bg-manduCustom-secondary-blue text-white" : ""}
                         onClick={() => {
                           if (link.url) {
                             const url = new URL(link.url);

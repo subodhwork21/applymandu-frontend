@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import {  DollarSign, CheckCircle, HeartIcon } from "lucide-react";
+import { DollarSign, CheckCircle, HeartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApplication } from "@/lib/application-context";
 import { useAuth } from "@/lib/auth-context";
@@ -55,9 +55,12 @@ const JobCard = ({
   };
 
   const handleSaveJob = async (id: number, saved: boolean) => {
-    const { response, result } = await baseFetcher(saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id, {
-      method: "GET",
-    })
+    const { response, result } = await baseFetcher(
+      saved ? "api/activity/unsave-job/" + id : "api/activity/save-job/" + id,
+      {
+        method: "GET",
+      }
+    );
 
     if (response?.ok) {
       toast({
@@ -65,8 +68,7 @@ const JobCard = ({
         description: result?.message,
         variant: "default",
       });
-    }
-    else {
+    } else {
       toast({
         title: "Error",
         description: result?.message,
@@ -74,93 +76,97 @@ const JobCard = ({
       });
     }
     mutate();
-
-  }
+  };
 
   return (
     <Link href={`/jobs/${job?.slug}`}>
       <div className="bg-white rounded-2xl border-manduBorder/40 transition-all h-full flex flex-col border border-gray-200 p-6 shadow-none hover:shadow-l-[4px] hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)] duration-700">
         <div className="flex items-start flex-col gap-y-[10px] w-full">
           <div className="flex items-start gap-x-1.5 w-full">
-          <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
-            <div className="text-white text-xl ">
-              <Image
-                src={job?.image || "/logo.png"}
-                alt="Company Logo"
-                width={52}
-                className="rounded-[6.8px] h-[35px] w-[52px]"
-                height={52}
-              />
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-start mb-1">
-              <div>
-                <h3 className="text-lg font-semibold feat-text">{title}
-                <span className="bg-manduSecondary/10  text-sm  font-medium ml-3 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
-                    {
-                      "New"
-                    }
-                </span>
-                </h3>
-                <p className="text-base capitalize text-manduPrimary font-medium">{company}</p>
+            <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
+              <div className="text-white text-xl ">
+                <Image
+                  src={job?.image || "/logo.png"}
+                  alt="Company Logo"
+                  width={52}
+                  className="rounded-[6.8px] h-[35px] w-[52px]"
+                  height={52}
+                />
               </div>
-              {job?.saved === true ? (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSaveJob(job?.id, job?.saved!);
-                  }}
-                  // variant="ghost"
-                  size="icon"
-                  className="bg-white border border-grayText rounded-full"
-                >
-                  <HeartIcon fill="grayText" size={20} />
-                </Button>
-              ) : job?.saved === false ? (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSaveJob(job?.id, job?.saved!);
-                  }}
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-400 border-1px border-grayText rounded-full"
-                >
-                  <HeartIcon />
-                </Button>
-              ) : null}
             </div>
-            <div className="flex items-center justify-start gap-4 text-sm text-neutral-600 mb-1">
-              <span className="flex items-center gap-2 capitalize">
-                <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
-                {location}
-              </span>
-              <span className="flex items-center gap-2 capitalize">
-                <ClockIcon className="h-4 w-4 text-[#4A5568]" />
-                {jobType}
-              </span>
-             
-            </div>
-             <span className="flex items-center mb-4 text-manduSecondary text-[17px] font-bold">
+            <div className="flex-1">
+              <div className="flex justify-between items-start mb-1">
+                <div>
+                  <h3 className="text-lg font-semibold feat-text">
+                    {title}
+                    <span className="bg-manduSecondary/10  text-sm  font-medium ml-3 rounded-3xl px-2 py-1  text-manduSecondary capitalize">
+                      {"New"}
+                    </span>
+                  </h3>
+                  <p className="text-base capitalize text-manduCustom-secondary-blue font-medium">
+                    {company}
+                  </p>
+                </div>
+                {job?.saved === true ? (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSaveJob(job?.id, job?.saved!);
+                    }}
+                    // variant="ghost"
+                    size="icon"
+                    className="bg-white border border-grayText rounded-full"
+                  >
+                    <HeartIcon fill="#D1D1D1" size={25} />
+                  </Button>
+                ) : job?.saved === false ? (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSaveJob(job?.id, job?.saved!);
+                    }}
+                    variant="ghost"
+                    size="icon"
+                    className="border shadow-sm border-grayText rounded-full"
+                  >
+                    <HeartIcon size={20} />
+                  </Button>
+                ) : null}
+              </div>
+              <div className="flex items-center justify-start gap-4 text-sm text-neutral-600 mb-1">
+                <span className="flex items-center gap-2 capitalize">
+                  <MapPinIcon className="h-4 w-4 text-[#4A5568]" />
+                  {location}
+                </span>
+                <span className="flex items-center gap-2 capitalize">
+                  <ClockIcon className="h-4 w-4 text-[#4A5568]" />
+                  {jobType}
+                </span>
+              </div>
+              <span className="flex items-center mb-4 text-manduSecondary text-[17px] font-bold">
                 {salary}
               </span>
-           
-          </div>
-          </div>
-              <Button
-                className={`w-full bg-manduPrimary text-white hover:bg-neutral-800 ${isAuthenticated && !isEmployer ? job.is_applied ? "bg-manduSecondary text-white font-semibold cursor-not-allowed hover:bg-manduSecondary/80" : "bg-manduSecondary hover:bg-manduSecondary/80": "bg-manduPrimary text-white"}`}
-                onClick={handleApply}
-              >
-                {isAuthenticated && !isEmployer
-                  ? job?.is_applied
-                    ? "Applied"
-                    : "Apply Now"
-                  : "Sign in to Apply"}
-              </Button>
             </div>
+          </div>
+          <Button
+            className={`w-full bg-manduCustom-secondary-blue text-white ${
+              isAuthenticated && !isEmployer
+                ? job.is_applied
+                  ? "bg-manduSecondary text-white font-semibold cursor-not-allowed hover:bg-manduSecondary/80"
+                  : "bg-manduSecondary hover:bg-manduSecondary/80"
+                : "bg-manduCustom-secondary-blue text-white"
+            }`}
+            onClick={handleApply}
+          >
+            {isAuthenticated && !isEmployer
+              ? job?.is_applied
+                ? "Applied"
+                : "Apply Now"
+              : "Sign in to Apply"}
+          </Button>
+        </div>
       </div>
     </Link>
   );

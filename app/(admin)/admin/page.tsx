@@ -149,7 +149,7 @@ const AdminDashboardPage = () => {
                 <Calendar className="h-5 w-5 text-grayColor" />
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-manduPrimary">{stats?.recent_users}</p>
+                <p className="text-3xl font-bold text-manduCustom-secondary-blue">{stats?.recent_users}</p>
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -169,7 +169,7 @@ const AdminDashboardPage = () => {
                 <Calendar className="h-5 w-5 text-grayColor" />
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-manduPrimary">{stats?.recent_employers}</p>
+                <p className="text-3xl font-bold text-manduCustom-secondary-blue">{stats?.recent_employers}</p>
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -189,7 +189,7 @@ const AdminDashboardPage = () => {
                 <Calendar className="h-5 w-5 text-grayColor" />
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-manduPrimary">{stats?.recent_jobs}</p>
+                <p className="text-3xl font-bold text-manduCustom-secondary-blue">{stats?.recent_jobs}</p>
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -209,7 +209,7 @@ const AdminDashboardPage = () => {
                 <Calendar className="h-5 w-5 text-grayColor" />
               </div>
                             <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-manduPrimary">{stats?.recent_applications}</p>
+                <p className="text-3xl font-bold text-manduCustom-secondary-blue">{stats?.recent_applications}</p>
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -321,7 +321,7 @@ const AdminDashboardPage = () => {
               className="h-auto py-4 flex flex-col items-center justify-center gap-2 border-manduSecondary/20"
               onClick={() => router.push("/dashboard/admin/jobs/pending")}
             >
-              <Briefcase className="h-6 w-6 text-manduPrimary" />
+              <Briefcase className="h-6 w-6 text-manduCustom-secondary-blue" />
               <span>Review Pending Jobs</span>
             </Button>
             
@@ -330,7 +330,7 @@ const AdminDashboardPage = () => {
               className="h-auto py-4 flex flex-col items-center justify-center gap-2 border-manduSecondary/20"
               onClick={() => router.push("/dashboard/admin/employers/verification-requests")}
             >
-              <Building className="h-6 w-6 text-manduPrimary" />
+              <Building className="h-6 w-6 text-manduCustom-secondary-blue" />
               <span>Employer Verifications</span>
             </Button>
             
@@ -339,7 +339,7 @@ const AdminDashboardPage = () => {
               className="h-auto py-4 flex flex-col items-center justify-center gap-2 border-manduSecondary/20"
               onClick={() => router.push("/dashboard/admin/users/verification-requests")}
             >
-              <Users className="h-6 w-6 text-manduPrimary" />
+              <Users className="h-6 w-6 text-manduCustom-secondary-blue" />
               <span>User Verifications</span>
             </Button>
             
@@ -348,7 +348,7 @@ const AdminDashboardPage = () => {
               className="h-auto py-4 flex flex-col items-center justify-center gap-2 border-manduSecondary/20"
               onClick={() => router.push("/dashboard/admin/reports")}
             >
-              <TrendingUp className="h-6 w-6 text-manduPrimary" />
+              <TrendingUp className="h-6 w-6 text-manduCustom-secondary-blue" />
               <span>View Reports</span>
             </Button>
           </div>

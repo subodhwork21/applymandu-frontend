@@ -23,6 +23,7 @@ import { JobDescription, JobDescriptionData } from "@/types/job-type";
 import { baseFetcher } from "@/lib/fetcher";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
+import SaveJob from "./saved-job";
 // import { Job } from "@/types/job-type";
 
 interface JobDetailPageClientProps {
@@ -103,7 +104,7 @@ const JobDetailPageClient = ({
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h1 className="text-xl mb-[6px] font-semibold text-manduPrimary">
+                      <h1 className="text-xl mb-[6px] font-semibold text-manduCustom-secondary-blue">
                         {job.title}
                       </h1>
                       <p className="text-pureGray text-sm font-semibold mb-[11px]">
@@ -123,7 +124,7 @@ const JobDetailPageClient = ({
                         {job?.salary_range?.formatted}
                       </span>
                     </div>
-                    {job?.saved === true ? (
+                    {/* {job?.saved === true ? (
                       <Button
                         onClick={(e) => {
                           e.preventDefault();
@@ -149,7 +150,8 @@ const JobDetailPageClient = ({
                       >
                         <Heart className="h-5 w-5" />
                       </Button>
-                    ) : null}
+                    ) : null} */}
+                    <SaveJob job={job} handleSaveJob={handleSaveJob} />
                   </div>
                 </div>
               </div>
@@ -211,7 +213,7 @@ const JobDetailPageClient = ({
                   {job.skills.map((skill, id) => (
                     <span
                       key={id}
-                      className="px-5 py-1.5 bg-manduPrimary text-white text-base rounded-full"
+                      className="px-5 py-1.5 bg-manduCustom-secondary-blue text-white text-base rounded-full"
                     >
                       {skill?.name}
                     </span>
@@ -287,7 +289,7 @@ const JobDetailPageClient = ({
             </div>
 
             <div className="border bg-white border-patternPrimary/10 rounded-lg p-6 shadow-sm mb-6">
-              <h3 className="mb-4 font-medium text-manduPrimary text-lg">
+              <h3 className="mb-4 font-medium text-manduCustom-secondary-blue text-lg">
                 Job Overview
               </h3>
               <div className="space-y-4">

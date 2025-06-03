@@ -120,7 +120,7 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
               isActive={link.active}
               onClick={(e) => link.url && handlePageClick(e, link.url)}
               // Make the pagination links more compact
-              className="h-8 w-8 p-0 sm:h-9 sm:w-9 text-manduPrimary"
+              className="h-8 w-8 p-0 sm:h-9 sm:w-9 text-manduCustom-secondary-blue"
             >
               {link.label}
             </PaginationLink>

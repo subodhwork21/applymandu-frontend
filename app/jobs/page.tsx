@@ -70,6 +70,7 @@ import {
   ClockIcon,
   MapPinIcon,
 } from "@heroicons/react/24/solid";
+import SaveJob from "@/components/saved-job";
 
 export default function Page() {
   return (
@@ -427,7 +428,7 @@ const JobsPage = () => {
                       type="text"
                       defaultValue={searchParams.get("search") || ""}
                       placeholder="Search jobs, skills, or companies"
-                      className="w-full pl-14 md:pl-16 pr-14 py-3 md:py-3 text-manduPrimary text-base md:text-lg bg-neutral-50 rounded-[50px] border-none focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all"
+                      className="w-full pl-14 md:pl-16 pr-14 py-3 md:py-3 text-manduCustom-secondary-blue text-base md:text-lg bg-neutral-50 rounded-[50px] border-none focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all"
                     />
                   </div>
                   <Button
@@ -495,7 +496,7 @@ const JobsPage = () => {
                 </div>
 
                 <div className="mt-8">
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex flex-wrap items-center justify-center gap-3">
                     <span className="text-base font-normal text-white">
                       Popular Searches:
                     </span>
@@ -724,8 +725,8 @@ const JobsPage = () => {
                                   src={job?.image || "/logo.png"}
                                   alt="Company Logo"
                                   className="rounded-[6px]"
-                                  width={52}
-                                  height={52}
+                                  width={36}
+                                  height={36}
                                 />
                               </div>
                             </div>
@@ -738,7 +739,7 @@ const JobsPage = () => {
                                       {"New"}
                                     </span>
                                   </h3>
-                                  <p className="capitalize text-manduPrimary font-medium text-base mb-2.5">
+                                  <p className="capitalize text-manduCustom-secondary-blue font-medium text-base mb-2.5">
                                     {job?.employer_name}
                                   </p>
                                   <div className="flex flex-wrap gap-2">
@@ -754,33 +755,7 @@ const JobsPage = () => {
                                   </div>
                                 </div>
 
-                                {job?.saved === true ? (
-                                  <Button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleSaveJob(job?.id, job?.saved!);
-                                    }}
-                                    // variant="ghost"
-                                    size="icon"
-                                    className="bg-white border border-grayText rounded-full"
-                                  >
-                                    <HeartIcon fill="#D1D1D1" size={25} />
-                                  </Button>
-                                ) : job?.saved === false ? (
-                                  <Button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleSaveJob(job?.id, job?.saved!);
-                                    }}
-                                    variant="ghost"
-                                    size="icon"
-                                    className="border shadow-sm border-grayText rounded-full"
-                                  >
-                                    <HeartIcon size={20} />
-                                  </Button>
-                                ) : null}
+                                <SaveJob job={job} handleSaveJob={handleSaveJob} />
                               </div>
                               <div className="flex items-center gap-4 text-sm text-neutral-600 mb-1.5">
                                 <span className="flex items-center gap-2 capitalize">
@@ -798,12 +773,12 @@ const JobsPage = () => {
                             </div>
                           </div>
                           <Button
-                            className={`w-full bg-manduPrimary text-base font-semibold text-white hover:bg-neutral-800  ${
+                            className={`w-full bg-manduCustom-secondary-blue text-base font-semibold text-white hover:bg-neutral-800  ${
                               isAuthenticated && !isEmployer
                                 ? job.is_applied
                                   ? "bg-manduSecondary hover:bg-manduSecondary/80 text-white font-semibold cursor-not-allowed"
                                   : "bg-manduSecondary hover:bg-manduSecondary/80"
-                                : "bg-manduPrimary text-white"
+                                : "bg-manduCustom-secondary-blue text-white"
                             }`}
                             onClick={(e) => handleApply(e, job)}
                           >
@@ -878,9 +853,9 @@ const JobsPage = () => {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <div className="flex justify-between items-start mb-3">
+                          <div className="flex justify-between items-start mb-2.5">
                             <div>
-                              <h3 className="text-[20px] font-semibold text-manduPrimary">
+                              <h3 className="text-[20px] font-semibold text-manduCustom-secondary-blue">
                                 {job.title}
                               </h3>
                               <p className="text-pureGray text-sm">
@@ -956,12 +931,12 @@ const JobsPage = () => {
                         </div>
                         <div className="flex items-center justify-between w-auto md:w-[200px]">
                           <Button
-                            className={`w-full bg-manduPrimary text-base rounded-[8px] font-semibold text-white hover:bg-neutral-800  ${
+                            className={`w-full bg-manduCustom-secondary-blue text-base rounded-[8px] font-semibold text-white hover:bg-neutral-800  ${
                               isAuthenticated && !isEmployer
                                 ? job.is_applied
                                   ? "bg-manduSecondary hover:bg-manduSecondary/80 text-white font-semibold cursor-not-allowed"
                                   : "bg-manduSecondary hover:bg-manduSecondary/80"
-                                : "bg-manduPrimary text-white"
+                                : "bg-manduCustom-secondary-blue text-white"
                             }`}
                             onClick={(e) => handleApply(e, job)}
                           >

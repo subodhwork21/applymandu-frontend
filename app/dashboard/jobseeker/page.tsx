@@ -93,7 +93,7 @@ const DashboardPage = () => {
     },
     interview_scheduled: {
       icon: Calendar,
-      color: "text-manduPrimary",
+      color: "text-manduCustom-secondary-blue",
       bg: "bg-iconCalendar/40 ",
     },
     application_status_update: {
@@ -361,7 +361,7 @@ const DashboardPage = () => {
                     <h3 className="text-2xl text-dashboardTitle font-medium">
                       Applications
                     </h3>
-                    <LayoutDashboardIcon className="w-5 h-5 text-manduPrimary" />
+                    <LayoutDashboardIcon className="w-5 h-5 text-manduCustom-secondary-blue" />
                   </div>
                   <div className="text-center">
                     {" "}
@@ -378,7 +378,7 @@ const DashboardPage = () => {
                     <h3 className="text-2xl text-dashboardTitle font-medium">
                       Interviews
                     </h3>
-                    <CalendarCheck className="w-5 h-5 text-manduPrimary" />
+                    <CalendarCheck className="w-5 h-5 text-manduCustom-secondary-blue" />
                   </div>
                   <div className="text-center">
                     <span className="text-3xl text-dashboardTitle font-semibold mb-6">
@@ -394,7 +394,7 @@ const DashboardPage = () => {
                     <h3 className="text-2xl text-dashboardTitle font-medium">
                       Saved
                     </h3>
-                    <InfoIcon className="w-5 h-5 text-manduPrimary" />
+                    <InfoIcon className="w-5 h-5 text-manduCustom-secondary-blue" />
                   </div>
                   <div className="text-center">
                     <span className="text-3xl text-dashboardTitle font-semibold mb-6">
@@ -596,7 +596,7 @@ const DashboardPage = () => {
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
                               <div>
-                                <h3 className="text-lg font-semibold text-manduPrimary">
+                                <h3 className="text-lg font-semibold text-manduCustom-secondary-blue">
                                   {job.title}
                                 </h3>
                                 <p className="text-pureGray font-semibold text-sm mt-1">

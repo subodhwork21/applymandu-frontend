@@ -182,7 +182,7 @@ const JobListingsPage = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">Job Listings</h1>
           <Button
-            className="bg-manduPrimary text-white hover:bg-neutral-800 w-full sm:w-auto"
+            className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800 w-full sm:w-auto"
             onClick={() => setIsPostJobModalOpen(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -266,7 +266,7 @@ const JobListingsPage = () => {
                         <div className="p-4 sm:p-6 md:p-8">
                           <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0">
                             <div>
-                              <h2 className="font-['Poppins'] font-semibold text-manduPrimary text-xl leading-6">
+                              <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                 {job.title}
                               </h2>
 
@@ -350,7 +350,7 @@ const JobListingsPage = () => {
                         variant={link.active ? "default" : "outline"}
                         size="sm"
                         disabled={!link.url}
-                        className={link.active ? "bg-manduPrimary text-white" : ""}
+                        className={link.active ? "bg-manduCustom-secondary-blue text-white" : ""}
                         onClick={() => {
                           if (link.url) {
                             const url = new URL(link.url);

@@ -337,7 +337,7 @@ const CompaniesPage = () => {
                             <span className="text-xs shadow-sm rounded-[50px] bg-neutral-100 px-3 py-1.5 text-neutral-700">
                               5 Open positions
                             </span>
-                            <Button variant="outline" size="sm" className="ml-auto font-semibold bg-manduPrimary text-base text-white rounded-[8px]">
+                            <Button variant="outline" size="sm" className="ml-auto font-semibold bg-manduCustom-secondary-blue text-base text-white rounded-[8px]">
                               View Company
                             </Button>
                           </div>

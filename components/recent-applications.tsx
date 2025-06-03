@@ -154,7 +154,7 @@ const RecentApplications = () => {
                 }}
               />
               <div>
-                <h3 className="text-lg text-manduPrimary">{application.applied_user}</h3>
+                <h3 className="text-lg text-manduCustom-secondary-blue">{application.applied_user}</h3>
                 <p className="text-sm text-pureGray">
                   {application.job_title} • {application.year_of_experience} years experience
                 </p>

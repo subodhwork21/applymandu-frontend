@@ -68,8 +68,8 @@ export default function AdminDashboardLayout({
                 href={item.href}
                 className={`text-sm px-4 py-2 rounded-[8px] whitespace-nowrap cursor-pointer ${
                   isActive(item.href)
-                    ? "bg-manduPrimary text-white"
-                    : "text-manduPrimary hover:bg-manduPrimary hover:text-white duration-700"
+                    ? "bg-manduCustom-secondary-blue text-white"
+                    : "text-manduCustom-secondary-blue hover:bg-manduCustom-secondary-blue hover:text-white duration-700"
                 }`}
               >
                 {item.name}
