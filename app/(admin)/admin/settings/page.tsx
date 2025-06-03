@@ -391,8 +391,8 @@ const AdminSettingsPage = () => {
   }
 
    const handleLogout = () => {
-    adminLogout();
-    deleteCookie("ADMIN_TOKEN");
+     deleteCookie("ADMIN_TOKEN");
+     adminLogout();
     redirect("/admin-login");
   };
 

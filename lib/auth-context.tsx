@@ -540,7 +540,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         className: "bg-blue",
       });
       
-      router.push("/admin/login");
+      deleteCookie("ADMIN_TOKEN");
+      router.push("/admin-login");
+
     }
     else{
       toast({
