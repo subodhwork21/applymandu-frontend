@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useSWR from "swr";
-import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
+import { baseFetcher, defaultFetcher, defaultFetcherAdmin } from "@/lib/fetcher";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,42 +37,26 @@ interface Blog {
   id: number;
   title: string;
   slug: string;
-  excerpt: string;
   content: string;
-  featured_image: string;
-  category_id: number;
-  category_name: string;
-  author_id: number;
-  author_name: string;
+  image: string;
+  image_path: string;
+  author: string;
   status: string;
-  published_at: string;
   created_at: string;
   updated_at: string;
-  views: number;
+  // Adding these fields to maintain compatibility with the existing code
+  excerpt?: string;
+  featured_image?: string;
+  category_id?: number;
+  category_name?: string;
+  author_id?: number;
+  author_name?: string;
+  published_at?: string;
+  views?: number;
 }
 
 interface BlogsResponse {
-  data: Blog[];
-  links: {
-    first: string;
-    last: string;
-    prev: string | null;
-    next: string | null;
-  };
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    links: {
-      url: string | null;
-      label: string;
-      active: boolean;
-    }[];
-    path: string;
-    per_page: number;
-    to: number;
-    total: number;
-  };
+  articles: Blog[];
 }
 
 const AdminBlogsPage = () => {
@@ -86,9 +70,10 @@ const AdminBlogsPage = () => {
   const searchParams = useSearchParams();
   const params = searchParams.toString();
 
+  // Updated to use the new endpoint
   const { data: blogsResponse, mutate } = useSWR<BlogsResponse>(
-    `api/admin/blogs?${params ? `${params}` : ""}`,
-    defaultFetcher
+    `api/admin/all-blogs`,
+    defaultFetcherAdmin
   );
 
   const { data: categories } = useSWR<Record<string, any>[]>(
@@ -148,21 +133,22 @@ const AdminBlogsPage = () => {
   };
 
   // Filter blogs based on search query and filters
-  const filteredBlogs = blogsResponse?.data.filter((blog) => {
+  const filteredBlogs = blogsResponse?.articles.filter((blog) => {
     if (statusFilter !== "all" && blog.status !== statusFilter) {
       return false;
     }
 
-    if (categoryFilter !== "all" && blog.category_id.toString() !== categoryFilter) {
+    // Since the new structure might not have category_id, we'll skip this filter if it's not available
+    if (categoryFilter !== "all" && blog.category_id && blog.category_id.toString() !== categoryFilter) {
       return false;
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
-        blog.title.toLowerCase().includes(query) ||
-        blog.excerpt.toLowerCase().includes(query) ||
-        blog.author_name.toLowerCase().includes(query)
+        blog?.title?.toLowerCase().includes(query) ||
+        blog?.content?.toLowerCase().includes(query) ||
+        blog?.author?.toLowerCase().includes(query)
       );
     }
 
@@ -206,7 +192,7 @@ const AdminBlogsPage = () => {
                       <SelectItem value="draft">Draft</SelectItem>
                     </SelectContent>
                   </Select>
-                                    <Select 
+                  <Select 
                     defaultValue="all"
                     value={categoryFilter}
                     onValueChange={setCategoryFilter}
@@ -261,9 +247,9 @@ const AdminBlogsPage = () => {
                       <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row gap-4">
                           <div className="w-full md:w-32 h-24 rounded-lg overflow-hidden bg-gray-100">
-                            {blog.featured_image ? (
+                            {blog.image_path ? (
                               <img 
-                                src={blog.featured_image} 
+                                src={`${blog.image_path}`} 
                                 alt={blog.title} 
                                 className="w-full h-full object-cover"
                               />
@@ -281,7 +267,7 @@ const AdminBlogsPage = () => {
                                   {blog.title}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">
-                                  By {blog.author_name} • {format(new Date(blog.created_at), "MMM dd, yyyy")}
+                                  By {blog.author} • {format(new Date(blog.created_at), "MMM dd, yyyy")}
                                 </p>
                               </div>
                               
@@ -323,16 +309,20 @@ const AdminBlogsPage = () => {
                             </div>
                             
                             <p className="text-neutral-600 text-sm mt-2 line-clamp-2">
-                              {blog.excerpt}
+                              {blog.content}
                             </p>
                             
                             <div className="flex items-center gap-2 mt-3">
-                              <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                {blog.category_name}
-                              </Badge>
-                              <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
-                                {blog.views} views
-                              </Badge>
+                              {blog.category_name && (
+                                <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
+                                  {blog.category_name}
+                                </Badge>
+                              )}
+                              {blog.views !== undefined && (
+                                <Badge variant="outline" className="bg-[#f1f1f1b2] text-manduBorder">
+                                  {blog.views} views
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -342,8 +332,9 @@ const AdminBlogsPage = () => {
                 )}
               </div>
 
-              {/* Pagination */}
-              {blogsResponse.meta.last_page > 1 && (
+              {/* Since the new API might not have pagination, we'll conditionally render this */}
+              {/* You can remove this section if your API doesn't support pagination */}
+              {/* {blogsResponse.meta && blogsResponse.meta.last_page > 1 && (
                 <div className="flex justify-center mt-6 overflow-x-auto">
                   <div className="flex flex-wrap space-x-1">
                     {blogsResponse.meta.links.map((link, i) => (
@@ -369,10 +360,10 @@ const AdminBlogsPage = () => {
                       >
                         <span dangerouslySetInnerHTML={{ __html: link.label }} />
                       </Button>
-                    ))}
+                                          ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -386,21 +377,35 @@ const AdminBlogsPage = () => {
               <CardContent className="p-[10px_30px]">
                 <div className="flex flex-col gap-[26px]">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-grayColor font-normal leading-[21.4px]">Published</span>
-                    <span className="text-sm text-grayColor font-bold">{stats?.published_blogs || 0}</span>
+                    <span className="text-sm text-grayColor font-normal leading-[21.4px]">Published Blogs</span>
+                    <span className="text-sm text-grayColor font-bold">
+                      {filteredBlogs.filter(blog => blog.status === 'published').length}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-grayColor font-normal leading-[21.4px]">Drafts</span>
-                    <span className="text-sm text-grayColor font-bold">{stats?.draft_blogs || 0}</span>
+                    <span className="text-sm text-grayColor font-normal leading-[21.4px]">Draft Blogs</span>
+                    <span className="text-sm text-grayColor font-bold">
+                      {filteredBlogs.filter(blog => blog.status === 'draft').length}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-grayColor font-normal leading-[21.4px]">Total Blogs</span>
-                    <span className="text-sm text-grayColor font-bold">{stats?.total_blogs || 0}</span>
+                    <span className="text-sm text-grayColor font-bold">
+                      {blogsResponse.articles.length}
+                    </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-grayColor font-normal leading-[21.4px]">Total Views</span>
-                    <span className="text-sm text-grayColor font-bold">{stats?.total_views || 0}</span>
-                  </div>
+                  {stats && (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-grayColor font-normal leading-[21.4px]">Total Views</span>
+                        <span className="text-sm text-grayColor font-bold">{stats.total_views || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-grayColor font-normal leading-[21.4px]">This Month</span>
+                        <span className="text-sm text-grayColor font-bold">{stats.blogs_this_month || 0}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -424,10 +429,18 @@ const AdminBlogsPage = () => {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-manduBorder hover:text-neutral-900"
-                    onClick={() => router.push("/dashboard/admin/categories")}
+                    onClick={() => router.push("/admin/blogs/categories")}
                   >
                     <Edit className="h-4 w-4 mr-2" />
                     Manage Categories
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-manduBorder hover:text-neutral-900"
+                    onClick={() => router.push("/dashboard/admin/blogs/featured")}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Manage Featured Blogs
                   </Button>
                 </div>
               </CardContent>
@@ -440,7 +453,7 @@ const AdminBlogsPage = () => {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>Delete Blog</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this blog? This action cannot be undone.
             </DialogDescription>
@@ -449,7 +462,10 @@ const AdminBlogsPage = () => {
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteBlog}>
+            <Button 
+              variant="destructive"
+              onClick={handleDeleteBlog}
+            >
               Delete
             </Button>
           </DialogFooter>
@@ -460,4 +476,5 @@ const AdminBlogsPage = () => {
 };
 
 export default AdminBlogsPage;
+
 
