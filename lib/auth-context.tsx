@@ -586,7 +586,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       
       // Check for regular user token
-      if (token) {
+      if (token != undefined) {
         await fetchUserByToken(token, adminToken);
       }
       

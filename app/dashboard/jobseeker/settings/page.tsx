@@ -466,8 +466,8 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-1">Settings</h1>
-          <p className="text-neutral-600">
+          <h1 className="text-2xl font-normal mb-1 text-manduSecondary font-nasalization">Settings</h1>
+          <p className="text-manduNeutral">
             Manage your account preferences and settings
           </p>
         </div>
@@ -479,7 +479,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               onSubmit={handleImageUpload}
               className="bg-white rounded-lg border border-neutral-200 p-6"
             >
-              <h3 className="text-lg mb-4">Profile Photo</h3>
+              <h3 className="text-lg mb-4 font-medium text-manduSecondary">Profile Photo</h3>
               <div className="flex items-center space-x-4">
                 <Image
                   width={80}
@@ -494,7 +494,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 <div>
                   <Button
                     type="button"
-                    className="bg-black text-white hover:bg-neutral-800"
+                    className="bg-manduSecondary text-white hover:text-white"
                     onClick={triggerFileInput}
                     disabled={isUploading}
                   >
@@ -512,7 +512,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                       }}
                     />
                   </Button>
-                  <p className="text-sm text-neutral-500 mt-2">
+                  <p className="text-sm text-activityTextLight mt-2">
                     Recommended: Square JPG, PNG (300x300px)
                   </p>
                 </div>
@@ -521,10 +521,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
             {/* Password */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-lg mb-4">Password</h3>
+              <h3 className="text-lg mb-4 text-manduSecondary font-medium">Password</h3>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="current_password">Current Password</Label>
+                  <Label className="text-manduNeutral" htmlFor="current_password">Current Password</Label>
                   <Input
                     id="current_password"
                     name="current_password"
@@ -534,7 +534,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="new_password">New Password</Label>
+                  <Label className="text-manduNeutral" htmlFor="new_password">New Password</Label>
                   <Input
                     id="new_password"
                     name="new_password"
@@ -544,7 +544,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="new_password_confirmation">
+                  <Label className="text-manduNeutral" htmlFor="new_password_confirmation">
                     Confirm New Password
                   </Label>
                   <Input
@@ -556,7 +556,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   />
                 </div>
                 <Button
-                  className="w-full bg-black text-white hover:bg-neutral-800"
+                  className="w-full bg-manduCustom-secondary-blue text-white hover:bg-neutral-800"
                   onClick={handlePasswordUpdate}
                   disabled={isSubmitting}
                 >
@@ -570,11 +570,11 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           <div className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Personal Information */}
-              <div className="bg-white rounded-lg border border-neutral-200 p-6">
-                <h2 className="text-xl mb-6">Personal Information</h2>
+              <div className="bg-white rounded-lg border border-borderLine p-6">
+                <h2 className="text-xl mb-6 font-medium text-manduSecondary">Personal Information</h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="first_name">First Name</Label>
+                    <Label className="text-manduNeutral" htmlFor="first_name">First Name</Label>
                     <Input
                       id="first_name"
                       name="first_name"
@@ -583,7 +583,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="last_name">Last Name</Label>
+                    <Label className="text-manduNeutral" htmlFor="last_name">Last Name</Label>
                     <Input
                       id="last_name"
                       name="last_name"
@@ -592,7 +592,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label className="text-manduNeutral" htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
                       name="email"
@@ -602,11 +602,11 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label className="text-manduNeutral" htmlFor="phone">Phone Number</Label>
                     <div className="flex">
                       <Input
                         value="+977"
-                        className="w-20 bg-neutral-50 border-r-0 rounded-r-none"
+                        className="w-20 bg-manduNeutral-10 border-r-0 rounded-r-none"
                         disabled
                       />
                       <Input
@@ -627,10 +627,11 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <div className="bg-white rounded-lg border border-neutral-200 p-6">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-xl mb-4">Privacy Preferences</h3>
+                    <h3 className="text-xl mb-4 font-medium text-manduSecondary">Privacy Preferences</h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
+                          className=""
                           id="profile_visibility"
                           checked={formData.visible_to_employers}
                           onCheckedChange={(checked) =>
@@ -640,7 +641,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="profile_visibility">
+                        <Label className="text-manduNeutral" htmlFor="profile_visibility">
                           Make my profile visible to employers
                         </Label>
                       </div>
@@ -655,7 +656,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="searchable">
+                        <Label className="text-manduNeutral" htmlFor="searchable">
                           Allow my profile to appear in search results
                         </Label>
                       </div>
@@ -670,7 +671,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="show_contact_info">
+                        <Label className="text-manduNeutral" htmlFor="show_contact_info">
                           Show my contact information to employers
                         </Label>
                       </div>
@@ -685,7 +686,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="show_activity_status">
+                        <Label className="text-manduNeutral" htmlFor="show_activity_status">
                           Show my online activity status
                         </Label>
                       </div>
@@ -700,13 +701,13 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="allow_data_usage">
+                        <Label className="text-manduNeutral" htmlFor="allow_data_usage">
                           Allow data usage for personalized job recommendations
                         </Label>
                       </div>
                     </div>
                     <div className="pt-6 border-neutral-200">
-                      <h3 className="text-xl mb-4">Availability</h3>
+                      <h3 className="text-xl mb-4 text-manduSecondary font-medium">Availability</h3>
                       <div className="space-y-4">
                         <div className="flex items-center space-x-2">
                           <Checkbox
@@ -719,14 +720,14 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               )
                             }
                           />
-                          <Label htmlFor="immediate_availability">
+                          <Label className="text-manduNeutral" htmlFor="immediate_availability">
                             I am immediately available for work
                           </Label>
                         </div>
 
                         {!formData.immediate_availability && (
                           <div className="space-y-2">
-                            <Label htmlFor="availability_date">
+                            <Label className="text-manduNeutral" htmlFor="availability_date">
                               When will you be available?
                             </Label>
                             <Input
@@ -736,7 +737,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               value={formatDateForInput(formData.availability_date)}
                               onChange={handleDateChange}
                             />
-                            <p className="text-sm text-neutral-500">
+                            <p    className="text-sm text-manduNeutral">
                               Please select your availability date
                             </p>
                           </div>
@@ -746,7 +747,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   </div>
 
                   <div className="pt-6 border-t border-neutral-200">
-                    <h3 className="text-xl mb-4">Notification Preferences</h3>
+                    <h3 className="text-xl mb-4 text-manduSecondary font-medium">Notification Preferences</h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
@@ -759,7 +760,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="email_notifications">
+                        <Label className="text-manduNeutral" htmlFor="email_notifications">
                           Email notifications for new job matches
                         </Label>
                       </div>
@@ -774,7 +775,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="sms_notifications">
+                        <Label className="text-manduNeutral" htmlFor="sms_notifications">
                           SMS notifications for application updates
                         </Label>
                       </div>
@@ -789,7 +790,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label htmlFor="newsletter_subscription">
+                        <Label className="text-manduNeutral" htmlFor="newsletter_subscription">
                           Subscribe to newsletter
                         </Label>
                       </div>
@@ -801,14 +802,14 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
             {/* Account Actions */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-xl mb-4">Account Actions</h3>
+              <h3 className="text-xl mb-4 font-medium text-manduSecondary">Account Actions</h3>
               <div className="flex flex-col md:flex-row gap-3">
                 <AlertDialog
                   open={showDeactivateDialog}
                   onOpenChange={setShowDeactivateDialog}
                 >
                   <AlertDialogTrigger asChild>
-                    <Button className="w-full md:w-auto bg-black text-white hover:bg-neutral-800">
+                    <Button className="w-full md:w-auto bg-manduSecondary text-white hover:bg-manduSecondary">
                       Deactivate Account
                     </Button>
                   </AlertDialogTrigger>
@@ -839,7 +840,7 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   onOpenChange={setShowDeleteDialog}
                 >
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full md:w-auto">
+                    <Button variant="destructive" className="w-full md:w-auto text-manduSecondary border border-manduSecondary">
                       Delete Account
                     </Button>
                   </AlertDialogTrigger>
@@ -868,9 +869,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
             {/* Save Changes */}
             <div className="flex justify-end space-x-4">
-              <Button variant="outline">Cancel</Button>
+              <Button className="text-manduCustom-secondary-blue border border-manduCustom-secondary-blue" variant="outline">Cancel</Button>
               <Button
-                className="bg-black text-white hover:bg-neutral-800"
+                className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >

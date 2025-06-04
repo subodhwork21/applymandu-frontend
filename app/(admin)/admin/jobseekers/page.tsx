@@ -302,7 +302,7 @@ const AdminJobseekersPage = () => {
                               )}
                             </div>
                             <div>
-                              <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
+                              <h2 className="font-poppins  font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                 {jobseeker.first_name} {jobseeker.last_name}
                               </h2>
                               <p className="text-grayColor text-sm mt-1">{jobseeker.email}</p>

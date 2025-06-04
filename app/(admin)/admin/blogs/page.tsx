@@ -263,7 +263,7 @@ const AdminBlogsPage = () => {
                           <div className="flex-1">
                             <div className="flex flex-col md:flex-row justify-between">
                               <div>
-                                <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
+                                <h2 className="font-poppins font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                   {blog.title}
                                 </h2>
                                 <p className="text-grayColor text-sm mt-1">

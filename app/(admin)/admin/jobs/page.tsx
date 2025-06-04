@@ -264,10 +264,10 @@ const AdminJobsPage = () => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
-          job.title.toLowerCase().includes(query) ||
-          job.description.toLowerCase().includes(query) ||
-          job.location.toLowerCase().includes(query) ||
-          job.employer_name.toLowerCase().includes(query)
+          job?.title?.toLowerCase().includes(query) ||
+          job?.description?.toLowerCase().includes(query) ||
+          job?.location?.toLowerCase().includes(query) ||
+          job?.employer_name?.toLowerCase().includes(query)
         );
       }
 
@@ -303,7 +303,7 @@ const AdminJobsPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 gap-6 font-poppins">
           <div className="lg:col-span-4 md:col-span-2">
             <div className="bg-white p-4 sm:p-6 rounded-lg border border-[#E5E7EB]">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -435,7 +435,7 @@ const AdminJobsPage = () => {
 
                             <div>
                               <div className="flex items-center gap-2">
-                                <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
+                                <h2 className="font-poppins font-semibold text-manduCustom-secondary-blue text-xl leading-6">
                                   {job.title}
                                 </h2>
                                 {job.is_featured && (
@@ -458,7 +458,7 @@ const AdminJobsPage = () => {
                                   <div className="w-4 h-4">
                                     <Calendar className="h-4 w-4 text-grayColor" />
                                   </div>
-                                  <span className="font-['Poppins'] font-normal text-grayColor text-sm leading-5">
+                                  <span className="font-poppins font-normal text-grayColor text-sm leading-5">
                                     Deadline:{" "}
                                     {job.application_deadline
                                       ? format(
@@ -472,7 +472,7 @@ const AdminJobsPage = () => {
                                   <div className="w-4 h-4">
                                     <Users className="h-4 w-4 text-grayColor" />
                                   </div>
-                                  <span className="font-['Poppins'] font-normal text-grayColor text-sm leading-5">
+                                  <span className="font-poppins font-normal text-grayColor text-sm leading-5">
                                     {job.applications_count} Applications
                                   </span>
                                 </div>

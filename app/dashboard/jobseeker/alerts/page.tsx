@@ -345,14 +345,14 @@ const AlertsPage = () => {
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-1">Job Alerts</h1>
-          <p className="text-neutral-600">Stay updated with new opportunities matching your preferences</p>
+          <h1 className="text-2xl font-semibold mb-1 text-manduSecondary font-nasalization">Job Alerts</h1>
+          <p className="text-manduNeutral">Stay updated with new opportunities matching your preferences</p>
         </div>
 
         <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
           <div className="p-6 border-b border-neutral-200">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">My Alerts</h2>
+              <h2 className="text-xl text-manduSecondary">My Alerts</h2>
               <div className="flex space-x-4">
                 <Select value={filter} onValueChange={setFilter}>
                   <SelectTrigger className="w-[180px]">
@@ -377,7 +377,7 @@ const AlertsPage = () => {
 
           <div className="p-6">
             {filteredAlerts.length === 0 ? (
-              <div className="text-center py-12 text-neutral-600">
+              <div className="text-center py-12 text-manduNeutral">
                 {formattedAlerts.length === 0 ? 
                   "You don't have any job alerts yet. Create one to get started!" : 
                   "No alerts match your search criteria."}
@@ -388,12 +388,12 @@ const AlertsPage = () => {
                   <div key={alert.id} className="bg-white rounded-lg border border-neutral-200 p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 bg-manduPrimary rounded-full flex items-center justify-center flex-shrink-0">
                           <Bell className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-lg">{alert.title}</h3>
-                          <p className="text-neutral-600 text-sm">{alert.location}</p>
+                          <h3 className="font-medium text-lg text-manduCustom-black-text">{alert.title}</h3>
+                          <p className="text-manduNeutral text-sm">{alert.location}</p>
                         </div>
                       </div>
                       <DropdownMenu>
@@ -403,10 +403,10 @@ const AlertsPage = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[200px]">
-                          <DropdownMenuItem onClick={() => handleEditAlert(alert)}>
+                          <DropdownMenuItem className='text-manduNeutral' onClick={() => handleEditAlert(alert)}>
                             Edit Alert
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleAlertStatus(alert.id, alert?.status!)}>
+                          <DropdownMenuItem className='text-manduNeutral' onClick={() => handleToggleAlertStatus(alert.id, alert?.status!)}>
                             {alert.status === 'active' ? 'Pause Alert' : 'Resume Alert'}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -421,12 +421,12 @@ const AlertsPage = () => {
 
                     <div className="space-y-4">
                       <div>
-                        <p className="text-sm text-neutral-600 mb-2">Keywords</p>
+                        <p className="text-sm text-manduNeutral mb-2">Keywords</p>
                         <div className="flex flex-wrap gap-2">
                           {alert.keywords.map((keyword, index) => (
                             <span 
                               key={index}
-                              className="px-2 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm"
+                              className="px-2 py-1 bg-manduPrimary text-white rounded-full text-sm"
                             >
                               {keyword}
                             </span>
@@ -435,7 +435,7 @@ const AlertsPage = () => {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-neutral-600">
+                        <span className="text-sm text-manduNeutral">
                           {alert.frequency} updates
                         </span>
                         <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyles(alert?.status!)}`}>
@@ -451,11 +451,11 @@ const AlertsPage = () => {
 
           <div className="p-6 border-t border-neutral-200">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-neutral-600">
+              <div className="text-sm text-black">
                 Showing {filteredAlerts.length} of {formattedAlerts.length} alerts
               </div>
               <Button 
-                className="bg-black text-white hover:bg-neutral-800"
+                className="bg-manduSecondary text-white text-white"
                 onClick={() => {
                   setIsEditMode(false);
                   setIsCreateAlertOpen(true);

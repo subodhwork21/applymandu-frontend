@@ -458,13 +458,13 @@ function ApplicationsContent() {
 
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Applications Summary</h2>
+              <h2 className="text-xl mb-4 text-manduSecondary font-medium">Applications Summary</h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">
+                  <span className="text-sm text-grayColor">
                     Total Applications
                   </span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor font-bold">
                     {/* {jobApplications.reduce(
                       (total, job) => total + job.applications.length,
                       0
@@ -475,34 +475,34 @@ function ApplicationsContent() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Applied</span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor">Applied</span>
+                  <span className="text-sm text-grayColor font-bold">
                     {
                       applicationSummary && applicationSummary.applied_applications
                     }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Shortlisted</span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor">Shortlisted</span>
+                  <span className="text-sm text-grayColor font-bold">
                     {
                       applicationSummary && applicationSummary.shortlisted_applications
                     }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">
+                  <span className="text-sm text-grayColor">
                     Interview Scheduled
                   </span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor font-bold">
                     {
                       applicationSummary && applicationSummary.interview_scheduled_applications
                     }
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Rejected</span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor">Rejected</span>
+                  <span className="text-sm text-grayColor font-bold">
                     {
                       applicationSummary && applicationSummary.rejected_applications
                     }
@@ -512,7 +512,7 @@ function ApplicationsContent() {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Quick Filters</h2>
+              <h2 className="text-xl mb-4 font-medium text-manduSecondary">Quick Filters</h2>
               <div className="space-y-2">
                 <Button
                   onClick={() => {
@@ -521,7 +521,7 @@ function ApplicationsContent() {
                     mutate();
                   }}
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Star className="h-4 w-4 mr-2" />
                   New Applications
@@ -532,7 +532,7 @@ function ApplicationsContent() {
                     mutate();
                   }}
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Calendar className="h-4 w-4 mr-2" />
                   Today's Applications
@@ -543,7 +543,7 @@ function ApplicationsContent() {
                     router.push("/dashboard/employer/applications?status=shortlisted");
                     mutate();
                   }}
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Star className="h-4 w-4 mr-2" />
                   Shortlisted
@@ -554,7 +554,7 @@ function ApplicationsContent() {
                     router.push("/dashboard/employer/applications?status=applied");
                     mutate();
                   }}
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Clock className="h-4 w-4 mr-2" />
                   Pending Review

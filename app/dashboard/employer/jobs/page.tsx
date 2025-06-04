@@ -251,7 +251,7 @@ const JobListingsPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-4 flex flex-col gap-6">
+              <div className="space-y-4 flex flex-col gap-6 font-poppins">
                 {filteredJobs.length === 0 ? (
                   <div className="text-center py-8 text-neutral-500">
                     No job listings found matching your criteria.
@@ -266,7 +266,7 @@ const JobListingsPage = () => {
                         <div className="p-4 sm:p-6 md:p-8">
                           <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0">
                             <div>
-                              <h2 className="font-['Poppins'] font-semibold text-manduCustom-secondary-blue text-xl leading-6">
+                              <h2 className="font-semibold text-manduCustom-secondary-blue text-xl font-poppins leading-6">
                                 {job.title}
                               </h2>
 
@@ -275,7 +275,7 @@ const JobListingsPage = () => {
                                   <div className="w-4 h-4">
                                     <Calendar className="h-4 w-4 text-grayColor" />
                                   </div>
-                                  <span className="font-['Poppins'] font-normal text-grayColor text-sm leading-5">
+                                  <span className="font-normal text-grayColor text-sm leading-5">
                                     Deadline: {job.application_deadline ? format(new Date(job.application_deadline), "MMM dd, yyyy") : "Not set"}
                                   </span>
                                 </div>

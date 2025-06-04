@@ -6,7 +6,7 @@ import { redirect, usePathname, useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Loader2Icon } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
+import { useAdminAuth, useAuth } from "@/lib/auth-context";
 
 export default function AdminDashboardLayout({
   children,
@@ -15,7 +15,7 @@ export default function AdminDashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const {isAdminAuthenticated, adminUser} = useAuth();
+  const {isAuthenticated, user} = useAdminAuth();
 
   const navigation = [
     { name: "Dashboard", href: "/admin/" },
@@ -37,14 +37,15 @@ export default function AdminDashboardLayout({
   };
 
 
-  useEffect(()=>{
-    if (!isAdminAuthenticated) {
-      router.push("/admin-login");
-    }
-  }, [pathname, adminUser, isAdminAuthenticated, router])
+  // useEffect(()=>{
+  //   if (!isAuthenticated) {
+  //     router.push("/admin-login");
+  //   }
+   
+  // }, [user])
 
   
-  if(!isAdminAuthenticated){
+  if(!isAuthenticated){
     return (
       <section className="w-screen h-screen flex justify-center items-center relative">
         <Loader2Icon className="animate-spin h-10 w-10 absolute" />
