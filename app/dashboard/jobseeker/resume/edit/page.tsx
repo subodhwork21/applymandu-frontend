@@ -483,12 +483,25 @@ const prepareFormData = () => {
           {/* Progress Section */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-semibold">Edit Your Resume</h2>
-              <span className="text-sm text-neutral-600">
+              <h2 className="text-text-28 font-medium  text-manduSecondary font-nasalization">Edit Your Resume</h2>
+              <span className="text-sm text-grayColor">
                 Step {currentStep} of {totalSteps}
               </span>
             </div>
-            <Progress value={progress} className="h-2" />
+           {
+  <style>
+    {`
+   custom-progress {
+  background-color: #001C4A; 
+}
+
+.custom-progress > div {
+  background-color: #000389; 
+}
+    `}
+  </style>
+}
+            <Progress value={progress} className="h-2 custom-progress"/>
             <div className="flex justify-between mt-4">
               {steps.map((step) => (
                 <button
@@ -497,8 +510,8 @@ const prepareFormData = () => {
                   className={cn(
                     "text-sm transition-colors",
                     currentStep === step.number
-                      ? "text-black font-medium"
-                      : "text-neutral-600 hover:text-neutral-900"
+                      ? "text-manduCustom-secondary-blue font-medium"
+                      : "text-grayColor hover:text-neutral-900"
                   )}
                 >
                   {step.title}
@@ -606,12 +619,13 @@ const prepareFormData = () => {
           <div className="flex justify-between mt-6">
             <Button
               variant="outline"
+              className="text-manduSecondary border border-manduSecondary hover:text-manduSecondary"
               onClick={currentStep === 1 ? handleCancel : handlePrevious}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               {currentStep === 1 ? "Cancel" : "Previous"}
             </Button>
-            <Button onClick={currentStep === totalSteps ? handleSubmit : handleNext}>
+            <Button  className="bg-manduSecondary" onClick={currentStep === totalSteps ? handleSubmit : handleNext}>
               {currentStep === totalSteps ? "Save Changes" : "Next"}
               {currentStep !== totalSteps && (
                 <ChevronRight className="h-4 w-4 ml-2" />

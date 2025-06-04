@@ -65,7 +65,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
   return (
     <div className="bg-white rounded-lg p-6 border border-neutral-200">
-      <h3 className="text-lg font-medium mb-6">Personal Information</h3>
+      <h3 className="text-lg font-medium mb-6 text-manduSecondary">Personal Information</h3>
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
@@ -339,6 +339,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           )}
           <div className="flex items-center space-x-2">
             <Checkbox
+            className="text-manduPrimary"
               id="vehicle"
               checked={personalDetails.has_vehicle}
               onCheckedChange={(checked) =>

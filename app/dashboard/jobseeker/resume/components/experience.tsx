@@ -60,10 +60,10 @@ const Experience: React.FC<ExperienceProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-neutral-200">
+    <div className="bg-white rounded-lg p-6 border border-borderLine">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-medium">Work Experience</h3>
-        <Button onClick={addExperience} variant="outline" size="sm">
+        <h3 className="text-lg font-medium text-manduSecondary">Work Experience</h3>
+        <Button className="bg-manduSecondary text-white" onClick={addExperience} variant="outline" size="sm">
           <Plus className="h-4 w-4 mr-2" />
           Add Experience
         </Button>
@@ -73,7 +73,7 @@ const Experience: React.FC<ExperienceProps> = ({
         {experiences.map((exp) => (
           <div
             key={exp.id}
-            className="relative border border-neutral-200 rounded-lg p-6"
+            className="relative border border-borderLine rounded-lg p-6"
           >
             {experiences.length > 1 && (
               <Button
@@ -121,7 +121,7 @@ const Experience: React.FC<ExperienceProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                <Label className="text-sm text-statsValue font-medium pb-2 block">
                   Industry <span className="text-red-500">*</span>
                 </Label>
                 <Select
@@ -175,7 +175,7 @@ const Experience: React.FC<ExperienceProps> = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                <Label className="text-sm text-statsValue font-medium pb-2 block">
                   Job Level <span className="text-red-500">*</span>
                 </Label>
                 <Select
@@ -203,7 +203,7 @@ const Experience: React.FC<ExperienceProps> = ({
             </div>
 
             <div className="mt-4 space-y-2">
-              <Label className="text-sm font-medium pb-2 block">
+              <Label className="text-sm font-medium pb-2 block text-statsValue">
                 Roles and Responsibilities 
               </Label>
               <Textarea
@@ -230,7 +230,7 @@ const Experience: React.FC<ExperienceProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                <Label className="text-sm font-medium pb-2 block text-statsValue">
                   Start Date <span className="text-red-500">*</span>
                 </Label>
                 <Popover>
@@ -269,7 +269,7 @@ const Experience: React.FC<ExperienceProps> = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                <Label className="text-sm font-medium pb-2 block text-statsValue">
                   End Date
                 </Label>
                 <Popover>
@@ -317,7 +317,7 @@ const Experience: React.FC<ExperienceProps> = ({
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={`currentlyWorking-${exp.id}`}
-                  checked={exp.currently_work_here}
+                  defaultChecked={exp.currently_work_here}
                   onCheckedChange={(checked: boolean) => {
                     updateExperience(exp.id, "currently_work_here", checked);
                     if (checked) {
@@ -327,7 +327,7 @@ const Experience: React.FC<ExperienceProps> = ({
                 />
                 <Label
                   htmlFor={`currentlyWorking-${exp.id}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm text-manduBorder font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   I currently work here
                 </Label>

@@ -2,7 +2,16 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Calendar, MapPin, MoreVertical, Briefcase } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  MoreVertical,
+  Briefcase,
+  MapPinIcon,
+  ClockIcon,
+  ArrowRight,
+  ArrowRightIcon,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -23,6 +32,7 @@ import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 // Define interfaces for the API response
 interface Application {
@@ -37,10 +47,11 @@ interface Application {
   cover_letter: string;
   created_at: string;
   updated_at: string;
-  application_status_history: {
+  status_history: {
     status: string;
     created_at: string;
   }[];
+  skills: string[];
 }
 
 interface Employer {
@@ -53,6 +64,10 @@ interface Job {
   title: string;
   description: string;
   is_remote: number;
+  employer_name: string;
+  salary_range: {
+    formatted: string;
+  };
   employment_type: string;
   experience_level: string;
   location: string;
@@ -68,6 +83,7 @@ interface Job {
   updated_at: string;
   job_label: string;
   employer: Employer;
+  image: string;
   applications: Application[];
 }
 
@@ -92,6 +108,8 @@ interface ProcessedApplication {
   expected_salary: number;
   notice_period: number;
   cover_letter: string;
+  image: string;
+  skills: string[];
 }
 
 const ApplicationsPage = () => {
@@ -118,21 +136,23 @@ const ApplicationsPage = () => {
             id: app.id,
             job_id: job.id,
             position: job.title,
-            company: job.employer?.company_name || "Unknown Company",
+            company: job?.employer_name || "Unknown Company",
             location:
               job.location || (job.is_remote ? "Remote" : "Not specified"),
             appliedDate: format(new Date(app.applied_at), "MMM dd, yyyy"),
             status:
-              (app.application_status_history[0]?.status ===
+              (app.status_history[0]?.status ===
               "interview_scheduled"
                 ? "Shortlisted"
-                : app.application_status_history[0]?.status) || "Applied",
+                : app.status_history[0]?.status) || "Applied",
             employmentType: job.employment_type,
-            salaryRange: `${job.salary_min} - ${job.salary_max}`,
+            salaryRange: job?.salary_range?.formatted,
             year_of_experience: app.year_of_experience,
             expected_salary: app.expected_salary,
             notice_period: app.notice_period,
             cover_letter: app.cover_letter,
+            image: job?.image,
+            skills: app?.skills
           });
         });
       }
@@ -232,6 +252,7 @@ const ApplicationsPage = () => {
       viewed: false,
       saved: false,
       is_applied: true,
+      
     });
   };
 
@@ -265,22 +286,24 @@ const ApplicationsPage = () => {
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-1">My Applications</h1>
-          <p className="text-neutral-600">
+          <h1 className="text-2xl font-semibold mb-2.5 text-manduSecondary font-nasalization">
+            My Applications
+          </h1>
+          <p className="text-manduBorder text-sm">
             Track and manage your job applications
           </p>
         </div>
 
         <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-          <div className="p-6 border-b border-neutral-200">
+          <div className="p-6 border-b border-borderLine">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">Applications</h2>
+              <h2 className="text-xl text-manduSecondary">Applications</h2>
               <div className="flex space-x-4">
                 <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] text-manduBorder shadow-md">
                     <SelectValue placeholder="All Applications" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="text-manduBorder">
                     <SelectItem value="all">All Applications</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="shortlisted">Shortlisted</SelectItem>
@@ -292,7 +315,7 @@ const ApplicationsPage = () => {
                   placeholder="Search applications..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-[200px]"
+                  className="w-[200px] shadow-md"
                 />
               </div>
             </div>
@@ -304,99 +327,179 @@ const ApplicationsPage = () => {
                 No applications found matching your criteria
               </div>
             ) : (
+              // <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              //   {filteredApplications.map((application) => (
+              //     <div
+              //       key={application.id}
+              //       className="bg-white rounded-lg border border-neutral-200 p-6 hover:shadow-md transition-shadow"
+              //     >
+              //       <div className="flex justify-between items-start">
+              //         <div className="flex-1">
+              //           <h3 className="text-lg font-medium mb-2">
+              //             {application.position}
+              //           </h3>
+              //           <p className="text-neutral-600 mb-2">
+              //             {application.company}
+              //           </p>
+              //           <div className="flex flex-wrap gap-4 text-sm text-neutral-500 mb-3">
+              //             <span className="flex items-center">
+              //               <Calendar className="h-4 w-4 mr-2" />
+              //               Applied on {application.appliedDate}
+              //             </span>
+              //             <span className="flex items-center">
+              //               <MapPin className="h-4 w-4 mr-2" />
+              //               {application.location}
+              //             </span>
+              //             <span className="flex items-center">
+              //               <Briefcase className="h-4 w-4 mr-2" />
+              //               {application.employmentType}
+              //             </span>
+              //           </div>
+              //           {/* <div className="text-sm text-neutral-600">
+              //             <p>Experience: {application.year_of_experience} years</p>
+              //             <p>Expected Salary: ${application.expected_salary}</p>
+              //             <p>Notice Period: {application.notice_period} days</p>
+              //           </div> */}
+              //         </div>
+              //         <div className="flex items-center gap-3">
+              //           <span
+              //             className={`px-3 py-1 rounded-full text-sm capitalize ${getStatusStyles(
+              //               application.status
+              //             )}`}
+              //           >
+              //             {application.status}
+              //           </span>
+              //           <DropdownMenu>
+              //             <DropdownMenuTrigger asChild>
+              //               <Button
+              //                 variant="ghost"
+              //                 size="icon"
+              //                 className="h-8 w-8"
+              //               >
+              //                 <MoreVertical className="h-4 w-4" />
+              //               </Button>
+              //             </DropdownMenuTrigger>
+              //             <DropdownMenuContent
+              //               align="end"
+              //               className="w-[200px]"
+              //             >
+              //               <Link
+              //                 href={`/dashboard/jobseeker/applications/${application.id}`}
+              //               >
+              //                 <DropdownMenuItem>View Details</DropdownMenuItem>
+              //               </Link>
+              //               <DropdownMenuItem
+              //                 onClick={(e) => handleReapply(e, application)}
+              //               >
+              //                 Reapply
+              //               </DropdownMenuItem>
+              //               <DropdownMenuItem
+              //                 className="text-red-600"
+              //                 onClick={() => handleWithdraw(application.id)}
+              //               >
+              //                 Withdraw Application
+              //               </DropdownMenuItem>
+              //             </DropdownMenuContent>
+              //           </DropdownMenu>
+              //         </div>
+              //       </div>
+              //     </div>
+              //   ))}
+              // </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredApplications.map((application) => (
-                  <div
-                    key={application.id}
-                    className="bg-white rounded-lg border border-neutral-200 p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-medium mb-2">
-                          {application.position}
-                        </h3>
-                        <p className="text-neutral-600 mb-2">
-                          {application.company}
-                        </p>
-                        <div className="flex flex-wrap gap-4 text-sm text-neutral-500 mb-3">
-                          <span className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Applied on {application.appliedDate}
-                          </span>
-                          <span className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            {application.location}
-                          </span>
-                          <span className="flex items-center">
-                            <Briefcase className="h-4 w-4 mr-2" />
-                            {application.employmentType}
-                          </span>
+                {filteredApplications.map((application) => {
+                  return (
+                    <div className="bg-white rounded-xl shadow-xl p-6 border-[2px] border-manduSecondary/30 hover:shadow-[inset_1px_0_0_0_rgb(220,20,60,1),inset_0_1px_0_0_rgb(220,20,60,1),inset_0_-1px_0_0_rgb(220,20,60,1),inset_-1px_0_0_0_rgb(220,20,60,1)] transition-all duration-200 h-full flex flex-col">
+                      <div className="flex items-start flex-col gap-y-[10px] w-full">
+                        <div className="flex items-start gap-x-4 w-full">
+                          <div className="w-15 h-15 p-2 rounded-[8px] bg-white  justify-center flex-shrink-0">
+                              <Image
+                          src={application?.image}
+                          alt="Company Logo"
+                          width={60}
+                          height={60}
+                          className="h-[60px] w-[60px] rounded-[8px]"
+                        />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <div>
+                                <h3 className="text-text-20 font-semibold feat-text mb-1.5">
+                                  {application.position}
+                                  <span className="bg-manduSuccess-20  text-sm  font-medium ml-2 rounded-3xl px-3 py-2  text-manduSuccess capitalize">
+                                    {application?.status}
+                                  </span>
+                                </h3>
+                                <p className="text-sm capitalize text-manduCustom-secondary-blue font-semibold">
+                                  {application.company}
+                                </p>
+                              </div>
+                              <Link href={`/dashboard/jobseeker/applications/${application.id}`} className="flex justify-center gap-2 items-center mb-1.5 text-manduSecondary font-semibold cursor-pointer">
+                                <p>View Details</p>
+                                <ArrowRightIcon className="h-4 w-4 text-manduSecondary" />
+                              </Link>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-[#525252] mb-1">
+                              <span className="flex items-center gap-2 capitalize">
+                                <MapPinIcon className="h-4 w-4 text-[#525252]" />
+                                {application.location}
+                              </span>
+                              <span className="flex items-center gap-2 capitalize">
+                                <ClockIcon className="h-4 w-4 text-[#525252]" />
+                                {application.employmentType}
+                              </span>
+                            </div>
+                            <span className="flex items-center mb-4 text-manduSecondary text-text-16 font-semibold">
+                             {application.salaryRange}
+                            </span>
+                          </div>
                         </div>
-                        {/* <div className="text-sm text-neutral-600">
-                          <p>Experience: {application.year_of_experience} years</p>
-                          <p>Expected Salary: ${application.expected_salary}</p>
-                          <p>Notice Period: {application.notice_period} days</p>
-                        </div> */}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm capitalize ${getStatusStyles(
-                            application.status
-                          )}`}
-                        >
-                          {application.status}
-                        </span>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-[200px]"
+                        <div className="flex justify-between items-center w-full">
+                          <div className="flex gap-2">
+                      {application.skills &&
+                        application.skills.map((skill, id) => (
+                          <span
+                            key={id}
+                            className="px-4 py-2 font-semibold bg-grayTag/70  rounded-[50px] text-sm capitalize text-manduBorder"
                           >
-                            <Link
-                              href={`/dashboard/jobseeker/applications/${application.id}`}
-                            >
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem
+                            {skill}
+                          </span>
+                        ))}
+                    </div>
+                          <div className="flex gap-5">
+                            <Button
+                              className={` bg-manduSecondary text-white hover:text-white`}
                               onClick={(e) => handleReapply(e, application)}
                             >
                               Reapply
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-red-600"
+                            </Button>
+                            <Button
+                              className={` text-manduSecondary bg-white border border-manduSecondary font-semibold hover:text-white`}
                               onClick={() => handleWithdraw(application.id)}
                             >
                               Withdraw Application
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
 
-          <div className="p-6 border-t border-neutral-200">
+          <div className="p-6 border-t border-borderLine">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-neutral-600">
+              <div className="text-sm text-[#000000]">
                 Showing {filteredApplications.length} of{" "}
                 {processedApplications.length} applications
               </div>
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm" disabled={true}>
+                <Button className="text-manduSecondary border border-manduSecondary" variant="outline" size="sm" disabled={true}>
                   Previous
                 </Button>
-                <Button size="sm" disabled={true}>
+                <Button size="sm" disabled={true} className="bg-manduSecondary border border-manduSecondary text-white">
                   Next
                 </Button>
               </div>

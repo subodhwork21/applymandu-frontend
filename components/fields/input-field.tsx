@@ -26,12 +26,12 @@ const FormInput = ({
   return (
     <div className="w-full space-y-1">
       {label && (
-        <label className="text-sm font-medium pb-3 block">
-          {label}{required && <span className="text-red-500 ml-1">*</span>}
+        <label className="text-sm font-medium pb-3 block text-statsValue">
+          {label}{required && <span className="text-[#EF4444] ml-1">*</span>}
         </label>
       )}
       <Input 
-        className={`${error ? 'border-red-500' : ''} ${className}`}
+        className={`text-manduBorder ${error ? 'border-red-500' : ''} ${className}`}
         required={required}
         {...props} 
       />

@@ -58,10 +58,10 @@ const Education: React.FC<EducationProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-neutral-200">
+    <div className="bg-white rounded-lg p-6 border border-borderLine">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-medium">Education</h3>
-        <Button onClick={addEducation} variant="outline" size="sm">
+        <h3 className="text-lg font-medium text-manduSecondary">Education</h3>
+        <Button onClick={addEducation} variant="outline" size="sm" className="bg-manduSecondary text-white">
           <Plus className="h-4 w-4 mr-2" />
           Add Education
         </Button>
@@ -71,7 +71,7 @@ const Education: React.FC<EducationProps> = ({
         {educations.map((edu) => (
           <div
             key={edu.id}
-            className="relative border border-neutral-200 rounded-lg p-6"
+            className="relative border border-borderLine rounded-lg p-6"
           >
             {educations.length > 1 && (
               <Button
@@ -86,7 +86,7 @@ const Education: React.FC<EducationProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">Degree <span className="text-red-500">*</span></Label>
+                <Label className="text-sm text-statsValue font-medium pb-2 block">Degree <span className="text-red-500">*</span></Label>
                 <Select
                   value={edu.degree}
                   onValueChange={(value) =>
@@ -165,7 +165,7 @@ const Education: React.FC<EducationProps> = ({
             </div>
 
             <div className="mt-4 space-y-2">
-              <Label className="text-sm font-medium pb-2 block">
+              <Label className="text-sm font-medium pb-2 block text-statsValue">
                 Grading Type 
               </Label>
               <Select
@@ -192,7 +192,7 @@ const Education: React.FC<EducationProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                <Label className="text-sm font-medium pb-2 block text-statsValue">
                   Joined Year <span className="text-red-500">*</span>
                 </Label>
                 <Popover>
@@ -240,7 +240,7 @@ const Education: React.FC<EducationProps> = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium pb-2 block">
+                <Label className="text-sm font-medium pb-2 block text-statsValue">
                   Passed Year
                 </Label>
                 <Popover>
@@ -313,7 +313,7 @@ const Education: React.FC<EducationProps> = ({
                 />
                 <Label
                   htmlFor={`currentlyStudying-${edu.id}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm text-manduBorder font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   I am currently studying here
                 </Label>

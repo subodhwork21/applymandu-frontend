@@ -228,13 +228,13 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-neutral-200">
+    <div className="bg-white rounded-lg p-6 border border-borderLine">
       <div className="space-y-8">
         {/* Skills */}
         <div>
-          <h3 className="text-lg font-medium mb-4">Skills </h3>
+          <h3 className="text-lg font-medium text-statsValue mb-4">Skills </h3>
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center justify-between">
               <FormInput
                 placeholder="Add a skill"
                 error={getError('skills')}
@@ -247,6 +247,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               />
               <Button
                 variant="outline"
+                className="bg-white text-manduBorder rounded-full p-0 w-8 h-8"
                 onClick={() => {
                   const input = document.querySelector('input[placeholder="Add a skill"]') as HTMLInputElement;
                   addSkill(input.value);
@@ -260,7 +261,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
               {additionalDetails.skills.map((skill) => (
                 <div
                   key={skill.id}
-                  className="bg-neutral-100 text-neutral-700 px-3 py-1 rounded-full flex items-center gap-2"
+                  className="bg-manduCustom-secondary-blue text-white px-3 py-0.5 rounded-full flex items-center gap-2"
                 >
                   <span>{skill.name}</span>
                   <button
@@ -279,8 +280,8 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Languages <span className="text-red-500">*</span></h3>
-            <Button onClick={addLanguage} variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button className='bg-manduSecondary text-white' onClick={addLanguage} variant="outline" size="sm">
+              <Plus className="h-4 w-4 mr-2 " />
               Add Language
             </Button>
           </div>
@@ -331,7 +332,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Training & Courses </h3>
-            <Button onClick={addTraining} variant="outline" size="sm">
+            <Button className='bg-manduSecondary text-white' onClick={addTraining} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Training
             </Button>
@@ -383,7 +384,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Certificates </h3>
-            <Button onClick={addCertificate} variant="outline" size="sm">
+            <Button className='bg-manduSecondary text-white' onClick={addCertificate} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Certificate
             </Button>
@@ -465,7 +466,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">References </h3>
-            <Button onClick={addReference} variant="outline" size="sm">
+            <Button className='bg-manduSecondary text-white text-manduBorder' onClick={addReference} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Reference
             </Button>
