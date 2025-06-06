@@ -21,7 +21,13 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { defaultFetcher, defaultFetcherAdmin } from "@/lib/fetcher";
 import { AreaChart, BarChart, DonutChart } from "@tremor/react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Updated interface to match your Laravel API response
 interface DashboardStats {
@@ -150,13 +156,11 @@ const mockChartData: ChartData = {
   ],
 };
 
-
-
 const AdminDashboardPage = () => {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  
+
   // Available years for selection (current year and 4 years back)
   const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
@@ -164,10 +168,27 @@ const AdminDashboardPage = () => {
     "api/admin/top-stats",
     defaultFetcherAdmin
   );
-  const {data: jobseekerData, isLoading: jobseekerLoading} = useSWR<Record<string, any>>(
-  "api/admin/jobseekers-growth",
-  defaultFetcherAdmin
-);
+  const { data: jobseekerData, isLoading: jobseekerLoading } = useSWR<
+    Record<string, any>
+  >("api/admin/jobseekers-growth", defaultFetcherAdmin);
+
+  const { data: jobByMonth, isLoading: jobByMonthLoading } = useSWR<
+    Record<string, any>
+  >("api/admin/jobs-by-month", defaultFetcherAdmin);
+
+  const { data: application_by_month, isLoading: applicationLoading } = useSWR<
+    Record<string, any>
+  >("api/admin/application-trends", defaultFetcherAdmin);
+
+  const { data: jobs_by_category, isLoading: jobs_by_categoryLoading } = useSWR<
+    Record<string, any>
+  >("api/admin/jobs-by-category", defaultFetcherAdmin);
+
+  const { data: applications_by_status, isLoading: applicationsLoading } =
+    useSWR<Record<string, any>>(
+      "api/admin/application-by-status",
+      defaultFetcherAdmin
+    );
 
   // Use mock data instead of API call for charts
   const chartData = mockChartData;
@@ -181,13 +202,17 @@ const AdminDashboardPage = () => {
   if (statsLoading || chartLoading || recentLoading) {
     return <div className="p-8 text-center">Loading dashboard data...</div>;
   }
-   const filterDataByYear = (data: { date: string; count: number }[]) => {
-    return data.filter(item => item.date.includes(selectedYear.toString()));
+  const filterDataByYear = (data: { date: string; count: number }[]) => {
+    return data.filter((item) => item.date.includes(selectedYear.toString()));
   };
 
-  const filteredUserData = filterDataByYear(jobseekerData?.data?.users_by_month);
-  const filteredJobsData = filterDataByYear(chartData.jobs_by_month);
-  const filteredApplicationsData = filterDataByYear(chartData.applications_by_month);
+  const filteredUserData = filterDataByYear(
+    jobseekerData?.data?.users_by_month
+  );
+  const filteredJobsData = filterDataByYear(jobByMonth?.data?.jobs_by_month);
+  const filteredApplicationsData = filterDataByYear(
+    application_by_month?.data?.applications_by_month
+  );
 
   return (
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
@@ -197,14 +222,16 @@ const AdminDashboardPage = () => {
             Admin Dashboard
           </h1>
 
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Filter by year:</span>
-            <Select 
-              value={selectedYear.toString()} 
-              onValueChange={(value) => 
-                setSelectedYear(parseInt(value)
-                // router.push("/admin")
-  )}
+            <Select
+              value={selectedYear.toString()}
+              onValueChange={(value) =>
+                setSelectedYear(
+                  parseInt(value)
+                  // router.push("/admin")
+                )
+              }
             >
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder={selectedYear.toString()} />
@@ -729,7 +756,7 @@ const AdminDashboardPage = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold text-manduSecondary flex items-center">
                 <BarChart4 className="h-5 w-5 mr-2" />
-                Job Postings (2024)
+                Job Postings {selectedYear}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -754,7 +781,7 @@ const AdminDashboardPage = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold text-manduSecondary flex items-center">
                 <TrendingUp className="h-5 w-5 mr-2" />
-                Application Trends (2024)
+                Application Trends {selectedYear}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -789,7 +816,10 @@ const AdminDashboardPage = () => {
             <CardContent>
               <DonutChart
                 className="h-80 mt-4"
-                data={chartData.jobs_by_category}
+                data={jobs_by_category?.data?.jobs_by_category.map((item) => ({
+                  name: item.department,
+                  value: item.count,
+                }))}
                 category="value"
                 index="name"
                 colors={[
@@ -822,7 +852,12 @@ const AdminDashboardPage = () => {
             <CardContent>
               <DonutChart
                 className="h-80 mt-4"
-                data={chartData.applications_by_status}
+                data={applications_by_status?.data?.applications_by_status.map(
+                  (item) => ({
+                    name: item.status,
+                    value: item.count,
+                  })
+                )}
                 category="value"
                 index="name"
                 colors={[
@@ -921,11 +956,11 @@ const AdminDashboardPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {chartData.jobs_by_category
+                {jobs_by_category?.data?.jobs_by_category
                   .slice(0, 5)
                   .map((category, index) => (
                     <div
-                      key={category.name}
+                      key={category.department}
                       className="flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
@@ -942,11 +977,13 @@ const AdminDashboardPage = () => {
                         >
                           {index + 1}
                         </div>
-                        <span className="font-medium">{category.name}</span>
+                        <span className="font-medium">
+                          {category.department}
+                        </span>
                       </div>
                       <div className="text-right">
                         <span className="font-bold text-manduSecondary">
-                          {category.value}
+                          {category.count}
                         </span>
                         <span className="text-sm text-grayColor ml-1">
                           jobs
@@ -967,40 +1004,40 @@ const AdminDashboardPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {chartData.applications_by_status.slice(0, 5).map((status) => (
+                {applications_by_status?.data?.applications_by_status?.slice(0, 5).map((status) => (
                   <div
-                    key={status.name}
+                    key={status.status}
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center space-x-3">
                       <div
                         className={`w-3 h-3 rounded-full ${
-                          status.name === "Pending"
+                          status.status === "Pending"
                             ? "bg-yellow-500"
-                            : status.name === "Under Review"
+                            : status.status === "Under Review"
                             ? "bg-blue-500"
-                            : status.name === "Shortlisted"
+                            : status.status === "Shortlisted"
                             ? "bg-green-500"
-                            : status.name === "Interview Scheduled"
+                            : status.status === "Interview Scheduled"
                             ? "bg-indigo-500"
-                            : status.name === "Hired"
+                            : status.status === "Hired"
                             ? "bg-emerald-500"
-                            : status.name === "Rejected"
+                            : status.status === "Rejected"
                             ? "bg-red-500"
                             : "bg-gray-500"
                         }`}
                       ></div>
-                      <span className="font-medium">{status.name}</span>
+                      <span className="font-medium">{status.status}</span>
                     </div>
                     <div className="text-right">
                       <span className="font-bold text-manduSecondary">
-                        {status.value.toLocaleString()}
+                        {status.count.toLocaleString()}
                       </span>
                       <div className="text-xs text-grayColor">
                         {(
-                          (status.value /
-                            chartData.applications_by_status.reduce(
-                              (sum, s) => sum + s.value,
+                          (status.count /
+                            applications_by_status?.data?.applications_by_status?.reduce(
+                              (sum, s) => sum + s.count,
                               0
                             )) *
                           100
