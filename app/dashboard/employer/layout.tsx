@@ -24,14 +24,13 @@ export default function EmployerDashboardLayout({
     { name: "Applications", href: "/dashboard/employer/applications" },
     { name: "Candidates", href: "/dashboard/employer/candidates" },
     { name: "Analytics", href: "/dashboard/employer/analytics" },
+    { name: "Analytics Plus", href: "/dashboard/employer/analytics-plus" },
+    { name: "API Access", href: "/dashboard/employer/api-access" },
     { name: "Settings", href: "/dashboard/employer/settings" },
   ];
 
   const isActive = (path: string) => {
-    if (path === "/dashboard/employer") {
-      return pathname === path;
-    }
-    return pathname.startsWith(path);
+   return pathname === path;
   };
 
   const [echoInitialized, setEchoInitialized] = useState(false);

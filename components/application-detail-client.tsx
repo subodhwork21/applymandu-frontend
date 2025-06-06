@@ -23,6 +23,7 @@ import { format, parseISO } from "date-fns";
 import { employerToken } from "@/lib/tokens";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { useAuth } from "@/lib/auth-context";
 
 interface ApplicationStatus {
   id: number;
@@ -51,7 +52,7 @@ interface ApplicationData {
   applied_user: string;
   skills: string[];
   status_history: ApplicationStatus[];
-  user_image: string;
+  image_path: string;
   location: string | null;
 }
 
@@ -67,6 +68,8 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
   const [notes, setNotes] = React.useState<
     { id: number; note: string; created_at: string; user: { company_name: string } }[]
   >([]);
+
+  const {user} = useAuth();
 
   const {
     data: notesList,
@@ -134,7 +137,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
         id: application.user_id.toString(),
         name: application?.applied_user,
         position: application.job_title,
-        avatar: application?.user_image,
+        avatar: application?.image_path,
       }
    
 
@@ -211,8 +214,8 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                     </Button>
                   </Link>
                   <div>
-                    <h1 className="text-2xl">Application Details</h1>
-                    <p className="text-neutral-600">
+                    <h1 className="text-2xl text-manduSecondary ">Application Details</h1>
+                    <p className="text-grayColor">
                       Review candidate application
                     </p>
                   </div>
@@ -220,10 +223,8 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
 
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex gap-4">
-                    <div className="w-16 h-16 bg-neutral-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <div className="text-white text-2xl">
-                        {application.applied_user.charAt(0)}
-                      </div>
+                    <div className=" rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Image className="rounded-full w-[60px] h-[60px]" src={user?.image_path!} alt="User" width={60} height={60} />
                     </div>
                     <div>
                       <h3 className="text-lg font-medium mb-2">
@@ -360,7 +361,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                   <Image
                     width={48}
                     height={48}
-                    src={application?.user_image}
+                    src={application?.image_path}
                     alt={application.applied_user}
                     className="w-12 h-12 rounded-full"
                   />

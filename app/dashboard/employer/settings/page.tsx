@@ -247,15 +247,28 @@ const SettingsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-3">
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-6">Company Details</h2>
+              <h2 className="text-2xl mb-6 text-manduSecondary font-medium font-nasalization ">
+                Company Details
+              </h2>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="companyName">Company Name</Label>
-                    <Input id="companyName" {...register("companyName")} />
+                    <Label
+                      className="text-manduSecondary"
+                      htmlFor="companyName"
+                    >
+                      Company Name
+                    </Label>
+                    <Input
+                      className="text-dashboardTitleLight border border-manduCustom-secondary-grey"
+                      id="companyName"
+                      {...register("companyName")}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="industry">Industry</Label>
+                    <Label className="text-manduSecondary" htmlFor="industry">
+                      Industry
+                    </Label>
                     <Select
                       defaultValue={
                         settingsData?.data?.profile?.industry || "technology"
@@ -265,8 +278,8 @@ const SettingsPage = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select industry" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="technology">
+                      <SelectContent className="text-dashboardTitleLight border border-manduCustom-secondary-grey">
+                        <SelectItem className="" value="technology">
                           Information Technology
                         </SelectItem>
                         <SelectItem value="healthcare">Healthcare</SelectItem>
@@ -323,7 +336,12 @@ const SettingsPage = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="companySize">Company Size</Label>
+                    <Label
+                      className="text-manduSecondary font-medium"
+                      htmlFor="companySize"
+                    >
+                      Company Size
+                    </Label>
                     <Select
                       defaultValue={
                         settingsData?.data?.profile?.size || "51-200"
@@ -344,8 +362,14 @@ const SettingsPage = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="foundedYear">Founded Year</Label>
+                    <Label
+                      className="text-manduSecondary font-medium"
+                      htmlFor="foundedYear"
+                    >
+                      Founded Year
+                    </Label>
                     <Input
+                      className="text-dashboardTitleLight border border-manduCustom-secondary-grey"
                       id="foundedYear"
                       type="number"
                       {...register("foundedYear")}
@@ -354,8 +378,14 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Company Description</Label>
+                  <Label
+                    className="text-manduSecondary font-medium"
+                    htmlFor="description"
+                  >
+                    Company Description
+                  </Label>
                   <Textarea
+                    className="text-dashboardTitleLight border border-manduCustom-secondary-grey"
                     id="description"
                     rows={4}
                     {...register("description")}
@@ -363,14 +393,33 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address">Company Address</Label>
-                  <Input id="address" {...register("address")} />
+                  <Label
+                    className="text-manduSecondary font-medium"
+                    htmlFor="address"
+                  >
+                    Company Address
+                  </Label>
+                  <Input
+                    className="text-dashboardTitleLight border border-manduCustom-secondary-grey"
+                    id="address"
+                    {...register("address")}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Contact Email</Label>
-                    <Input id="email" type="email" {...register("email")} />
+                    <Label
+                      className="text-manduSecondary font-medium"
+                      htmlFor="email"
+                    >
+                      Contact Email
+                    </Label>
+                    <Input
+                      className="text-dashboardTitleLight border border-manduCustom-secondary-grey"
+                      id="email"
+                      type="email"
+                      {...register("email")}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Contact Phone</Label>
@@ -384,7 +433,12 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Company Logo</Label>
+                  <Label
+                    className="text-manduSecondary font-medium"
+                    htmlFor="logo"
+                  >
+                    Company Logo
+                  </Label>
                   <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center overflow-hidden">
                       {logoPreview ? (
@@ -411,7 +465,7 @@ const SettingsPage = () => {
                       <Button
                         type="button"
                         variant="outline"
-                        className="h-10 w-full"
+                        className="h-10 w-full text-manduSecondary font-medium"
                       >
                         <Upload className="h-4 w-4 mr-2" />
                         Upload Logo
@@ -430,6 +484,7 @@ const SettingsPage = () => {
                   <Button
                     type="button"
                     variant="outline"
+                    className="text-manduCustom-secondary-blue border border-manduCustom-secondary-blue font-medium"
                     disabled={!isDirty && !logoFile}
                     onClick={() => {
                       reset();
@@ -446,7 +501,7 @@ const SettingsPage = () => {
                   <Button
                     type="submit"
                     disabled={!isDirty && !logoFile}
-                    className="bg-black text-white hover:bg-neutral-800"
+                    className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800"
                   >
                     Save Changes
                   </Button>
@@ -457,13 +512,19 @@ const SettingsPage = () => {
 
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Account Settings</h2>
+              <h2 className="text-2xl mb-4 text-manduSecondary font-medium">
+                Account Settings
+              </h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="2fa" className="cursor-pointer">
+                  <Label
+                    htmlFor="2fa"
+                    className="cursor-pointer text-manduNeutral-70"
+                  >
                     Two-Factor Authentication
                   </Label>
                   <Switch
+                    className="bg-manduCustom-secondary-blue"
                     id="2fa"
                     defaultChecked={
                       !!Number(settingsData?.data?.profile?.two_fa)
@@ -472,10 +533,14 @@ const SettingsPage = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="notifications" className="cursor-pointer">
+                  <Label
+                    htmlFor="notifications"
+                    className="cursor-pointer text-manduNeutral-70"
+                  >
                     Email Notifications
                   </Label>
                   <Switch
+                  className="bg-manduCustom-secondary-blue"
                     id="notifications"
                     defaultChecked={!!settingsData?.data?.profile?.notification}
                   />
@@ -484,16 +549,19 @@ const SettingsPage = () => {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Subscription</h2>
+              <h2 className="text-xl mb-4 text-manduSecondary">Subscription</h2>
               <div className="space-y-2">
-                <p className="text-sm">
-                  Current Plan: <span className="font-medium">Premium</span>
+                <p className="text-sm text-manduNeutral-70 font-medium">
+                  Current Plan:{" "}
+                  <span className="font-medium text-manduCustom-secondary-blue">
+                    Premium
+                  </span>
                 </p>
-                <p className="text-sm text-neutral-600">
+                <p className="text-sm text-manduCustom-secondary-blue font-medium">
                   Valid until: Apr 22, 2025
                 </p>
                 <Button
-                  className="w-full mt-4 bg-black text-white hover:bg-neutral-800"
+                  className="w-full mt-4 bg-manduCustom-secondary-blue text-white hover:bg-neutral-800"
                   onClick={() => setIsUpgradeModalOpen(true)}
                 >
                   Upgrade Plan

@@ -227,7 +227,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
       <div className="container mx-auto px-4">
         <Link
           href="/dashboard/employer/candidates"
-          className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6"
+          className="inline-flex items-center gap-2 font-semibold text-manduSecondary hover:text-manduSecondary/90 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Candidates
@@ -237,8 +237,8 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
           <div className="relative h-48 bg-neutral-100 rounded-t-lg">
             <div className="absolute -bottom-16 left-8">
               <Image
-                width={128}
-                height={128}
+                width={132}
+                height={132}
                 src={candidate.image_path || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${candidate.id}`}
                 alt={`${candidate.first_name} ${candidate.last_name}`}
                 className="w-32 h-32 rounded-full border-4 border-white object-cover"
@@ -249,15 +249,16 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
           <div className="pt-20 px-8 pb-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl">{`${candidate.first_name} ${candidate.last_name}`}</h1>
-                <p className="text-neutral-600">{candidate.profile?.looking_for || "No position specified"}</p>
-                <div className="flex items-center mt-2 text-sm text-neutral-600">
+                <h1 className="text-2xl font-medium text-manduSecondary">{`${candidate.first_name} ${candidate.last_name}`}</h1>
+                <p className="text-manduNeutral">{candidate.profile?.looking_for || "No position specified"}</p>
+                <div className="flex items-center mt-2 text-sm text-manduNeutral">
                   <MapPin className="h-4 w-4 mr-2" />
                   <span>{`${candidate.profile?.city_tole || ""}, ${candidate.profile?.district || "Nepal"}`}</span>
                 </div>
               </div>
               <div className="flex space-x-3">
                 <Button
+                className="bg-white text-manduSecondary border border-manduSecondary hover:bg-manduSecondary/90"
                   variant="outline"
                   onClick={() => setIsMessageModalOpen(true)}
                 >
@@ -265,7 +266,7 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
                   Message
                 </Button>
                 <Button
-                  className="bg-black text-white hover:bg-neutral-800"
+                  className="bg-manduSecondary text-white hover:bg-manduSecondary/90"
                   onClick={() => setIsInterviewModalOpen(true)}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
@@ -277,51 +278,51 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
               <div className="md:col-span-2 space-y-6">
                 <div>
-                  <h2 className="text-xl mb-4">About</h2>
-                  <p className="text-neutral-600">
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">About</h2>
+                  <p className="text-manduNeutral">
                     {candidate.profile?.career_objectives || 
                      "No career objectives provided."}
                   </p>
                 </div>
 
                 <div>
-                  <h2 className="text-xl mb-4">Experience</h2>
-                  <div className="space-y-4">
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Experience</h2>
+                  <div className="space-y-4 pl-4 border-l-2 border-l-manduCustom-secondary-blue">
                     {candidate.experiences && candidate.experiences.length > 0 ? (
                       candidate.experiences.map((exp) => (
-                        <div key={exp.id} className="border-l-2 border-neutral-200 pl-4">
-                          <h3 className="text-lg">{exp.position_title}</h3>
-                          <p className="text-neutral-600">
+                        <div key={exp.id} className="border-l-2 border-borderLine pl-4">
+                          <h3 className="text-lg text-manduPrimary">{exp.position_title}</h3>
+                          <p className="text-manduNeutral">
                             {exp.company_name} • {formatDate(exp.start_date)} - {formatDate(exp.end_date)}
                           </p>
-                          <p className="text-sm text-neutral-600 mt-2">
+                          <p className="text-sm text-manduNeutral mt-2">
                             {exp.roles_and_responsibilities}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-neutral-600">No experience listed.</p>
+                      <p className="text-manduNeutral">No experience listed.</p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-xl mb-4">Skills</h2>
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Skills</h2>
                   <div className="flex flex-wrap gap-2">
                     {candidate.skills && candidate.skills.length > 0 ? (
                       candidate.skills.map((skill) => (
-                        <span key={skill.id} className="px-3 py-1 bg-neutral-100 rounded-full text-sm">
+                        <span key={skill.id} className="px-3 py-1 bg-borderLine rounded-full text-sm">
                           {skill.name}
                         </span>
                       ))
                     ) : (
-                      <p className="text-neutral-600">No skills listed.</p>
+                      <p className="text-manduNeutral">No skills listed.</p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-xl mb-4">Education</h2>
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Education</h2>
                   {candidate.educations && candidate.educations.length > 0 ? (
                     candidate.educations.map((edu) => (
                       <div key={edu.id} className="border-l-2 border-neutral-200 pl-4 mb-4">
@@ -341,27 +342,27 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
 
               <div className="space-y-6">
                 <div className="bg-neutral-50 p-6 rounded-lg">
-                  <h2 className="text-xl mb-4">Details</h2>
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Details</h2>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-neutral-600">Email</p>
-                      <p className="text-sm">{candidate.email}</p>
+                      <p className="text-sm text-grayColor">Email</p>
+                      <p className="text-sm text-grayColor">{candidate.email}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-neutral-600">Phone</p>
-                      <p className="text-sm">{candidate.phone}</p>
+                      <p className="text-sm text-grayColor">Phone</p>
+                      <p className="text-sm text-grayColor">{candidate.phone}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-neutral-600">Experience</p>
-                      <p className="text-sm">
+                      <p className="text-sm text-grayColor">Experience</p>
+                      <p className="text-sm text-grayColor">
                         {candidate.experiences && candidate.experiences.length > 0
                           ? `${candidate.experiences.length} ${candidate.experiences.length === 1 ? 'position' : 'positions'}`
                           : "No experience"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-neutral-600">Availability</p>
-                      <p className="text-sm">
+                      <p className="text-sm text-grayColor">Availability</p>
+                      <p className="text-sm text-grayColor">
                         {candidate?.immediate_availability   
                           ? "Immediately available" 
                           : candidate?.availability_date 
@@ -373,37 +374,37 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
                 </div>
 
                 <div className="bg-neutral-50 p-6 rounded-lg">
-                  <h2 className="text-xl mb-4">Profile Completion</h2>
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Profile Completion</h2>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-neutral-600">
+                      <span className="text-sm text-grayColor">
                         Completion Status
                       </span>
-                      <span className="text-sm font-medium">{profileCompletionPercentage}%</span>
+                      <span className="text-sm font-medium text-manduSuccess">{profileCompletionPercentage}%</span>
                     </div>
                     <Progress value={profileCompletionPercentage} className="h-2" />
                   </div>
                 </div>
 
                 <div className="bg-neutral-50 p-6 rounded-lg">
-                  <h2 className="text-xl mb-4">Languages</h2>
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Languages</h2>
                   <div className="space-y-3">
                     {candidate.languages && candidate.languages.length > 0 ? (
                       candidate.languages.map((lang) => (
                         <div key={lang.id} className="flex justify-between">
                           <span className="text-sm">{lang.language}</span>
-                          <span className="text-sm text-neutral-600">{lang.proficiency}</span>
+                          <span className="text-sm text-grayColor">{lang.proficiency}</span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-neutral-600">No languages listed.</p>
+                      <p className="text-manduNeutral">No languages listed.</p>
                     )}
                   </div>
                 </div>
 
                 <div className="bg-neutral-50 p-6 rounded-lg">
-                  <h2 className="text-xl mb-4">Documents</h2>
-                  <Button onClick={handleDownloadResume} variant="default" className="w-full">
+                  <h2 className="text-xl mb-4 text-manduSecondary font-medium">Documents</h2>
+                  <Button onClick={handleDownloadResume} variant="default" className="w-full bg-manduSecondary text-white">
                     <Download className="h-4 w-4 mr-2" />
                     Download Resume
                   </Button>
