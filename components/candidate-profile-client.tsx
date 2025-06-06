@@ -323,14 +323,14 @@ const CandidateProfileClient = ({ id }: { id: string }) => {
 
                 <div>
                   <h2 className="text-xl mb-4 text-manduSecondary font-medium">Education</h2>
-                  {candidate.educations && candidate.educations.length > 0 ? (
-                    candidate.educations.map((edu) => (
-                      <div key={edu.id} className="border-l-2 border-neutral-200 pl-4 mb-4">
+                  {candidate?.educations && candidate?.educations?.length > 0 ? (
+                    candidate?.educations?.map((edu) => (
+                      <div key={edu?.id} className="border-l-2 border-neutral-200 pl-4 mb-4">
                         <h3 className="text-lg">
-                          {edu.degree.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} in {edu.subject_major}
+                          {edu?.degree?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} in {edu?.subject_major}
                         </h3>
                         <p className="text-neutral-600">
-                          {edu.institution} • {formatDate(edu.joined_year)} - {formatDate(edu.passed_year)}
+                          {edu?.institution} • {formatDate(edu?.joined_year)} - {formatDate(edu?.passed_year)}
                         </p>
                       </div>
                     ))
