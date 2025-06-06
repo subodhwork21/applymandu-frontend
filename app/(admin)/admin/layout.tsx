@@ -29,6 +29,7 @@ export default function AdminDashboardLayout({
     },
     { name: "Reports", href: "/admin/reports" },
     { name: "Settings", href: "/admin/settings" },
+    { name: "Roles & Permissions", href: "/admin/roles-and-permission" },
 
   ];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { defaultFetcher, defaultFetcherAdmin } from "@/lib/fetcher";
 import { AreaChart, BarChart, DonutChart } from "@tremor/react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Updated interface to match your Laravel API response
 interface DashboardStats {
@@ -149,13 +150,24 @@ const mockChartData: ChartData = {
   ],
 };
 
+
+
 const AdminDashboardPage = () => {
   const router = useRouter();
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  
+  // Available years for selection (current year and 4 years back)
+  const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
   const { data: stats, isLoading: statsLoading } = useSWR<DashboardStats>(
     "api/admin/top-stats",
     defaultFetcherAdmin
   );
+  const {data: jobseekerData, isLoading: jobseekerLoading} = useSWR<Record<string, any>>(
+  "api/admin/jobseekers-growth",
+  defaultFetcherAdmin
+);
 
   // Use mock data instead of API call for charts
   const chartData = mockChartData;
@@ -169,6 +181,13 @@ const AdminDashboardPage = () => {
   if (statsLoading || chartLoading || recentLoading) {
     return <div className="p-8 text-center">Loading dashboard data...</div>;
   }
+   const filterDataByYear = (data: { date: string; count: number }[]) => {
+    return data.filter(item => item.date.includes(selectedYear.toString()));
+  };
+
+  const filteredUserData = filterDataByYear(jobseekerData?.data?.users_by_month);
+  const filteredJobsData = filterDataByYear(chartData.jobs_by_month);
+  const filteredApplicationsData = filterDataByYear(chartData.applications_by_month);
 
   return (
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
@@ -177,6 +196,28 @@ const AdminDashboardPage = () => {
           <h1 className="text-3xl text-manduSecondary font-nasalization">
             Admin Dashboard
           </h1>
+
+            <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Filter by year:</span>
+            <Select 
+              value={selectedYear.toString()} 
+              onValueChange={(value) => 
+                setSelectedYear(parseInt(value)
+                // router.push("/admin")
+  )}
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder={selectedYear.toString()} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -664,13 +705,13 @@ const AdminDashboardPage = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold text-manduSecondary flex items-center">
                 <BarChart4 className="h-5 w-5 mr-2" />
-                User Growth (2024)
+                User Growth ({selectedYear})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <AreaChart
                 className="h-72 mt-4"
-                data={chartData.users_by_month}
+                data={filteredUserData}
                 index="date"
                 categories={["count"]}
                 colors={["blue"]}
@@ -694,7 +735,7 @@ const AdminDashboardPage = () => {
             <CardContent>
               <BarChart
                 className="h-72 mt-4"
-                data={chartData.jobs_by_month}
+                data={filteredJobsData}
                 index="date"
                 categories={["count"]}
                 colors={["amber"]}
@@ -719,7 +760,7 @@ const AdminDashboardPage = () => {
             <CardContent>
               <AreaChart
                 className="h-80 mt-4"
-                data={chartData.applications_by_month}
+                data={filteredApplicationsData}
                 index="date"
                 categories={["count"]}
                 colors={["emerald"]}
