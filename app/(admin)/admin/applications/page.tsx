@@ -232,8 +232,8 @@ const AdminApplicationsPage = () => {
   };
 
   return (
-    <section className="py-8 2xl:px-0 lg:px-12 px-4">
-      <div className="container mx-auto px-4">
+    <section className="py-8 2xl:px-0 lg:px-12 px-0">
+      <div className="container mx-auto px-4 lg:px-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl text-manduSecondary font-nasalization">
             All Applications
@@ -249,7 +249,7 @@ const AdminApplicationsPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 gap-6">
           <div className="lg:col-span-4 md:col-span-2">
-            <div className="bg-white p-4 sm:p-6 rounded-lg border border-[#E5E7EB]">
+            <div className="sm:bg-white p-0 sm:p-6 rounded-lg sm:border border-[#E5E7EB]">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="flex flex-col sm:flex-row md:flex-row space-y-4 sm:space-y-0 md:space-y-0 space-x-0 sm:space-x-4 md:space-x-4 w-full md:w-auto">
                   <Select

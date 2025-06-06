@@ -284,9 +284,9 @@ const AdminEmployersPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 gap-6">
           <div className="lg:col-span-4 md:col-span-2">
-            <div className="bg-white p-4 sm:p-6 rounded-lg border border-[#E5E7EB]">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="flex flex-col sm:flex-row md:flex-row space-y-4 sm:space-y-0 md:space-y-0 space-x-0 sm:space-x-4 md:space-x-4 w-full md:w-auto">
+            <div className="sm:bg-white p-0 sm:p-6 rounded-lg sm:border border-[#E5E7EB]">
+              <div className="flex flex-col lg:flex-row justify-between items-start md:items-center mb-6 gap-4 w-full">
+                <div className="flex flex-col lg:flex-row space-y-4 sm:space-y-0 md:space-y-0 space-x-0 sm:space-x-4 md:space-x-4 w-full md:w-auto">
                   <Select
                     defaultValue="all"
                     value={statusFilter}

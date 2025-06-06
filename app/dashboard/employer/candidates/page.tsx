@@ -110,7 +110,7 @@ const CandidatesPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-3">
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
+            <div className="bg-white p-6 rounded-lg border border-borderLine">
               <div className="flex gap-4 mb-6">
                 <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
@@ -133,9 +133,9 @@ const CandidatesPage = () => {
                 <Button
                   variant="outline"
                   onClick={() => setIsFilterModalOpen(true)}
-                  className="h-12 px-6"
+                  className="h-10 px-6 bg-manduCustom-secondary-blue text-white"
                 >
-                  <Filter className="h-5 w-5 mr-2" />
+                  <Filter className="h-5 w-5 mr-2 " />
                   Filter
                 </Button>
               </div>
@@ -145,7 +145,7 @@ const CandidatesPage = () => {
                   filteredCandidates.map((candidate) => (
                     <div
                       key={candidate.id}
-                      className="border border-neutral-200 rounded-lg p-4"
+                      className="border border-borderLine rounded-lg p-4"
                     >
                       <div className="flex items-start gap-4">
                         <Image
@@ -157,12 +157,12 @@ const CandidatesPage = () => {
                         />
                         <div className="flex-1">
                           <div className="flex justify-between">
-                            <h3 className="text-lg">{`${candidate.first_name} ${candidate.last_name}`}</h3>
-                            <span className="px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm">
+                            <h3 className="text-lg text-bluePrime font-medium">{`${candidate.first_name} ${candidate.last_name}`}</h3>
+                            <span className="px-3 py-1 bg-manduSuccess text-white rounded-full text-sm">
                               {candidate?.immediate_availability ? "Available" : candidate?.availability_date ? "Available after " + candidate?.availability_date+ " days" : "Not Available"}
                             </span>
                           </div>
-                          <p className="text-neutral-600 text-sm">
+                          <p className="text-grayColor text-sm">
                             {candidate.profile?.looking_for || "No position specified"}
                           </p>
                           <div className="flex flex-wrap space-x-2 mt-2">
@@ -170,21 +170,21 @@ const CandidatesPage = () => {
                               candidate.skills.map((skill, skillIndex) => (
                                 <span
                                   key={skillIndex}
-                                  className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs mr-2 mb-2"
+                                  className="px-2 py-1 rounded-[4px] bg-manduCustom-secondary-blue text-white text-xs mr-2 mb-2"
                                 >
                                   {skill.name}
                                 </span>
                               ))
                             ) : (
-                              <span className="text-neutral-500 text-xs">No skills listed</span>
+                              <span className="text-manduNeutral text-xs">No skills listed</span>
                             )}
                           </div>
                           <div className="flex justify-end space-x-2 mt-4">
                             <Link href={`/dashboard/employer/candidates/${candidate.id}`}>
-                              <Button variant="outline">View Profile</Button>
+                              <Button className="bg-white border border-manduSecondary text-manduSecondary font-semibold" variant="outline">View Profile</Button>
                             </Link>
                             <Button
-                              className="bg-black text-white hover:bg-neutral-800"
+                              className="bg-manduSecondary text-white hover:text-white"
                               onClick={() => 
                                 handleContact({
                                   name: `${candidate.first_name} ${candidate.last_name}`,
@@ -210,32 +210,32 @@ const CandidatesPage = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Candidate Stats</h2>
+            <div className="bg-white p-6 rounded-lg border border-borderLine">
+              <h2 className="text-xl mb-4 text-manduSecondary font-medium">Candidate Stats</h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">
+                  <span className="text-sm text-grayColor">
                     Total Candidates
                   </span>
-                  <span className="text-sm">{candidateStats?.total_candidates || 0}</span>
+                  <span className="text-sm text-grayColor font-bold">{candidateStats?.total_candidates || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Active</span>
+                  <span className="text-sm text-grayColor">Active</span>
                   <span className="text-sm">
                     {candidateStats?.active_candidates || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">With Skills</span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor">With Skills</span>
+                  <span className="text-sm text-grayColor font-bold">
                     {candidateStats?.candidates_with_skills || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">
+                  <span className="text-sm text-grayColor">
                     Incomplete Profiles
                   </span>
-                  <span className="text-sm">
+                  <span className="text-sm text-grayColor font-bold">
                     {candidateStats?.incomplete_profile_candidates || 0}
                   </span>
                 </div>
@@ -243,25 +243,25 @@ const CandidatesPage = () => {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-neutral-200">
-              <h2 className="text-xl mb-4">Quick Actions</h2>
+              <h2 className="text-xl mb-4 text-manduSecondary font-medium">Quick Actions</h2>
               <div className="space-y-2">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Mail className="h-4 w-4 mr-2" />
                   Send Bulk Message
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Users className="h-4 w-4 mr-2" />
                   Export Candidates
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-neutral-600 hover:text-neutral-900"
+                  className="w-full justify-start text-manduNeutral hover:text-neutral-900"
                 >
                   <Star className="h-4 w-4 mr-2" />
                   Manage Tags

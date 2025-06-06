@@ -80,7 +80,7 @@ const JobCard = ({
 
   return (
     <Link href={`/jobs/${job?.slug}`}>
-      <div className="bg-white rounded-2xl border-manduBorder/40 transition-all h-full flex flex-col border border-gray-200 p-6 shadow-none hover:shadow-l-[4px] hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)] duration-700">
+      <div className="bg-[#F5F5F5]/40 rounded-2xl border-manduBorder/40 h-full flex flex-col border border-gray-200 p-6 shadow-none transition-all hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)]">
         <div className="flex items-start flex-col gap-y-[10px] w-full">
           <div className="flex items-start gap-x-1.5 w-full">
             <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">

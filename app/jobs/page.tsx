@@ -703,7 +703,7 @@ const JobsPage = () => {
         {searchParams.toString() === "" ? (
           <section className="py-8 bg-neutral-100 2xl:px-0 lg:px-12 px-4">
             <div className="container mx-auto px-4">
-              <h2 className=" mb-6 text-manduSecondary uppercase font-nasalization font-normal text-3xl">
+              <h2 className=" mb-6 text-manduSecondary uppercase font-nasalization font-normal md:text-3xl text-2xl">
                 Featured Jobs
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -716,7 +716,7 @@ const JobsPage = () => {
                 ) : (
                   featuredJobs?.data?.map((job, index) => (
                     <Link href={`/jobs/${job?.slug}`} key={index}>
-                      <div className="bg-white rounded-2xl shadow-lg md:p-6 p-4 border border-manduBorder/40 transition-all duration-200 h-full flex flex-col hover:shadow-l-[4px] hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)]">
+                      <div className="bg-[#F5F5F5]/40 rounded-2xl shadow-lg md:p-6 p-4 border border-manduBorder/40 transition-all duration-200 h-full flex flex-col hover:shadow-l-[4px] hover:shadow-[inset_4px_0_0_0_rgb(0,28,74),inset_0_1px_0_0_rgb(0,28,74),inset_0_-1px_0_0_rgb(0,28,74),inset_-1px_0_0_0_rgb(0,28,74)]">
                         <div className="flex items-start flex-col gap-y-[10px] w-full">
                           <div className="flex items-start gap-x-1 w-full">
                             <div className="w-14 h-14 p-2 bg-white rounded-xl justify-center flex-shrink-0">
@@ -802,9 +802,9 @@ const JobsPage = () => {
 
         {/* All Jobs Section */}
         <section className="py-8 bg-white 2xl:px-0 lg:px-12 px-4">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto sm:px-4 px-0">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl uppercase text-manduSecondary font-nasalization">
+              <h2 className="md:text-3xl text-2xl uppercase text-manduSecondary font-nasalization">
                 All Jobs
               </h2>
               <div className="flex items-center gap-4 text-bluePrime">

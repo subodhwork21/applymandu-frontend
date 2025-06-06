@@ -244,13 +244,13 @@ const CandidatesFilterModal = ({
       <DialogContent className="sm:max-w-lg p-0">
         <div className="p-6 border-b border-neutral-200">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl">Filter Candidates</h2>
+            <h2 className="text-xl text-manduSecondary font-semibold">Filter Candidates</h2>
           </div>
         </div>
 
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           <div>
-            <Label>Experience Level</Label>
+            <Label className="text-manduCustom-secondary-blue/80">Experience Level</Label>
             <div className="space-y-2 mt-2">
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -260,7 +260,7 @@ const CandidatesFilterModal = ({
                     handleExperienceLevelChange("entry", checked as boolean)
                   }
                 />
-                <Label htmlFor="entry">Entry Level (0-2 years)</Label>
+                <Label className="text-manduCustom-secondary-blue/80" htmlFor="entry">Entry Level (0-2 years)</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -270,7 +270,7 @@ const CandidatesFilterModal = ({
                     handleExperienceLevelChange("mid", checked as boolean)
                   }
                 />
-                <Label htmlFor="mid">Mid Level (2-5 years)</Label>
+                <Label className="text-manduCustom-secondary-blue/80" htmlFor="mid">Mid Level (2-5 years)</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -280,13 +280,13 @@ const CandidatesFilterModal = ({
                     handleExperienceLevelChange("senior", checked as boolean)
                   }
                 />
-                <Label htmlFor="senior">Senior Level (5+ years)</Label>
+                <Label className="text-manduCustom-secondary-blue/80" htmlFor="senior">Senior Level (5+ years)</Label>
               </div>
             </div>
           </div>
 
           <div>
-            <Label>Skills</Label>
+            <Label className="text-manduCustom-secondary-blue/80">Skills</Label>
             <div className="flex gap-2 mt-2">
               <Input
                 placeholder="Add skills"
@@ -307,12 +307,12 @@ const CandidatesFilterModal = ({
               {filters.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm flex items-center gap-2"
+                  className="px-3 py-1 bg-manduCustom-secondary-blue text-white rounded-full text-sm flex items-center gap-2"
                 >
                   {skill}
                   <button
                     onClick={() => handleRemoveSkill(skill)}
-                    className="hover:text-neutral-900"
+                    className="hover:text-manduNeutral"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -322,7 +322,7 @@ const CandidatesFilterModal = ({
           </div>
 
           <div>
-            <Label>Location</Label>
+            <Label className="text-manduCustom-secondary-blue/80">Location</Label>
             <Select 
               value={filters.location} 
               onValueChange={handleLocationChange}
@@ -330,7 +330,7 @@ const CandidatesFilterModal = ({
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="All Locations" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="text-manduCustom-secondary-blue/80">
                 <SelectItem value="all">All Locations</SelectItem>
                 <SelectItem value="kathmandu">Kathmandu</SelectItem>
                 <SelectItem value="pokhara">Pokhara</SelectItem>
@@ -345,7 +345,7 @@ const CandidatesFilterModal = ({
           </div>
 
           <div>
-            <Label>Availability</Label>
+            <Label className="text-manduCustom-secondary-blue/80">Availability</Label>
             <div className="space-y-2 mt-2">
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -355,7 +355,7 @@ const CandidatesFilterModal = ({
                     handleAvailabilityChange("now", checked as boolean)
                   }
                 />
-                <Label htmlFor="available-now">Available Now</Label>
+                <Label className="text-manduCustom-secondary-blue/80" htmlFor="available-now">Available Now</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -365,7 +365,7 @@ const CandidatesFilterModal = ({
                     handleAvailabilityChange("two_weeks", checked as boolean)
                   }
                 />
-                <Label htmlFor="available-2weeks">Available in 2 weeks</Label>
+                <Label className="text-manduCustom-secondary-blue/80" htmlFor="available-2weeks">Available in 2 weeks</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -375,24 +375,26 @@ const CandidatesFilterModal = ({
                     handleAvailabilityChange("one_month", checked as boolean)
                   }
                 />
-                <Label htmlFor="available-1month">Available in 1 month</Label>
+                <Label className="text-manduCustom-secondary-blue/80" htmlFor="available-1month">Available in 1 month</Label>
               </div>
             </div>
           </div>
 
           <div>
-            <Label>Salary Range (NPR)</Label>
+            <Label className="text-manduCustom-secondary-blue/80">Salary Range (NPR)</Label>
             <div className="flex items-center gap-3 mt-2">
               <Input 
                 type="number" 
                 placeholder="Min" 
+                className="text-manduCustom-secondary-blue/80 border border-manduCustom-secondary-grey"
                 value={filters.min_salary}
                 onChange={(e) => handleSalaryChange('min_salary', e.target.value)}
               />
-              <span className="text-neutral-400">to</span>
+              <span className="text-manduCustom-secondary-blue/80">to</span>
               <Input 
                 type="number" 
                 placeholder="Max" 
+                className="text-manduCustom-secondary-blue/80 border border-manduCustom-secondary-grey"
                 value={filters.max_salary}
                 onChange={(e) => handleSalaryChange('max_salary', e.target.value)}
               />
