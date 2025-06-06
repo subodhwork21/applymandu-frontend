@@ -26,6 +26,7 @@ export default function EmployerDashboardLayout({
     { name: "Analytics", href: "/dashboard/employer/analytics" },
     { name: "Analytics Plus", href: "/dashboard/employer/analytics-plus" },
     { name: "API Access", href: "/dashboard/employer/api-access" },
+    { name: "Calendar", href: "/dashboard/employer/calendar" },
     { name: "Settings", href: "/dashboard/employer/settings" },
   ];
 
