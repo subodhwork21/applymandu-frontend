@@ -60,7 +60,6 @@ const LoginModal = () => {
           <div className="flex items-center justify-between p-6 pb-0">
             <h2 className="text-2xl font-bold text-bluePrime flex items-center gap-2">
               Sign In to Applymandu 
-              <span className="text-2xl">👋</span>
             </h2>
           </div>
 
