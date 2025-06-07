@@ -370,11 +370,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
               <Button
                 variant="outline"
                 onClick={() => {
-                  // TODO: Implement edit functionality
-                  toast({
-                    title: "Edit Event",
-                    description: "Edit functionality coming soon",
-                  });
+                 setEditConfirm(true)
                 }}
               >
                 <Edit className="w-4 h-4 mr-2" />

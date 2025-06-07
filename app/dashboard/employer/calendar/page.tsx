@@ -70,15 +70,17 @@ const CalendarPage: React.FC = () => {
   const fetchEvents = useCallback(async () => {
     try {
       setLoading(true);
-      const {response, errors} = await baseFetcher(
+      const {response, errors, result} = await baseFetcher(
         `api/employer/calendar/events`,
         {
           method: "GET",    
         }
       );
 
+      console.log(result);
+
       if (response?.ok) {
-        const data = await response.json();
+        const data = result;
         if (data.success) {
           const formattedEvents = data.data.map((event: any) => ({
             ...event,
@@ -145,21 +147,18 @@ const CalendarPage: React.FC = () => {
   // Handle event creation
   const handleCreateEvent = async (eventData: Partial<CalendarEvent>) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/employer/calendar/events`,
+      const {response, result, errors} = await baseFetcher(
+        `api/employer/calendar/events`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem("EMPLOYER_TOKEN")}`,
-          },
           body: JSON.stringify(eventData),
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
+
+      if (response?.ok) {
+        const data = result;
+        if (data?.success) {
           toast({
             title: "Success",
             description: "Event created successfully",
@@ -169,13 +168,16 @@ const CalendarPage: React.FC = () => {
           fetchEvents(); // Refresh events
         }
       } else {
-        throw new Error('Failed to create event');
+        toast({
+          title: "Error",
+          description: errors,
+        })
       }
     } catch (error) {
       console.error('Error creating event:', error);
       toast({
         title: "Error",
-        description: "Failed to create event",
+        description: error as string,
         variant: "destructive",
       });
     }
@@ -186,21 +188,17 @@ const CalendarPage: React.FC = () => {
     if (!selectedEvent) return;
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/employer/calendar/events/${selectedEvent.id}`,
+      const {response, result, errors} = await baseFetcher(
+        `api/employer/calendar/events/${selectedEvent.id}`,
         {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem("EMPLOYER_TOKEN")}`,
-          },
+          method: 'POST',
           body: JSON.stringify(eventData),
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
+      if (response?.ok) {
+        const data = result;
+        if (data?.success) {
           toast({
             title: "Success",
             description: "Event updated successfully",
@@ -208,7 +206,11 @@ const CalendarPage: React.FC = () => {
           fetchEvents(); // Refresh events
         }
       } else {
-        throw new Error('Failed to update event');
+        toast({
+          title: "Error",
+          description: errors || "Failed to update event",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error updating event:', error);
@@ -223,17 +225,14 @@ const CalendarPage: React.FC = () => {
   // Handle event deletion
   const handleDeleteEvent = async (eventId: number) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/employer/calendar/events/${eventId}`,
+      const {response, result, errors} = await baseFetcher(
+        `api/employer/calendar/events/${eventId}`,
         {
           method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("EMPLOYER_TOKEN")}`,
-          },
         }
       );
 
-      if (response.ok) {
+      if (response?.ok) {
         toast({
           title: "Success",
           description: "Event deleted successfully",
@@ -242,7 +241,11 @@ const CalendarPage: React.FC = () => {
         setSelectedEvent(null);
         fetchEvents(); // Refresh events
       } else {
-        throw new Error('Failed to delete event');
+        toast({
+          title: "Error",
+          description: errors || "Failed to delete event",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error deleting event:', error);
@@ -340,12 +343,12 @@ const CalendarPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto 2xl:px-0 lg:px-12 px-4 py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between flex-wrap sm:gap-0 gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
-          <p className="text-gray-600">Manage your interviews and events</p>
+          <p className="text-gray-600 sm:block hidden">Manage your interviews and events</p>
         </div>
         <div className="flex items-center gap-2">
           <Button

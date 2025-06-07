@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Clock, MapPin, Users, Link as LinkIcon } from 'lucide-react';
 import { Input } from './ui/input';
+import { FormInput } from './ui/form-input';
 
 interface CalendarEvent {
   id: number;
@@ -224,8 +225,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
       const eventData = {
         title: formData.title,
         type: formData.type,
-        start: startDateTime,
-        end: endDateTime,
+        start_time: startDateTime,
+        end_time: endDateTime,
         description: formData.description,
         location: formData.location,
         candidate_name: formData.candidate_name,
@@ -276,7 +277,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Input
+                <FormInput
                   label="Event Title"
                   required
                   value={formData.title}
@@ -328,13 +329,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   Start Date & Time
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
-                  <Input
+                  <FormInput
                     type="date"
                     value={formData.start_date}
                     onChange={(e) => handleInputChange('start_date', e.target.value)}
                     error={errors.start_date}
                   />
-                  <Input
+                  <FormInput
                     type="time"
                     value={formData.start_time}
                     onChange={(e) => handleInputChange('start_time', e.target.value)}
@@ -349,13 +350,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   End Date & Time
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
-                  <Input
+                  <FormInput
                     type="date"
                     value={formData.end_date}
                     onChange={(e) => handleInputChange('end_date', e.target.value)}
                     error={errors.end_date}
                   />
-                  <Input
+                  <FormInput
                     type="time"
                     value={formData.end_time}
                     onChange={(e) => handleInputChange('end_time', e.target.value)}
@@ -393,7 +394,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
+                <FormInput
                   label="Candidate Name"
                   required
                   value={formData.candidate_name}
@@ -401,7 +402,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   placeholder="Enter candidate name"
                   error={errors.candidate_name}
                 />
-                <Input
+                <FormInput
                   label="Candidate Email"
                   type="email"
                   value={formData.candidate_email}
@@ -415,14 +416,14 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
           {/* Location and Meeting Link */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
+            <FormInput
               label="Location"
               value={formData.location}
               onChange={(e) => handleInputChange('location', e.target.value)}
               placeholder="Enter location or 'Online'"
               icon={<MapPin className="w-4 h-4" />}
             />
-            <Input
+            <FormInput
               label="Meeting Link"
               value={formData.meeting_link}
               onChange={(e) => handleInputChange('meeting_link', e.target.value)}

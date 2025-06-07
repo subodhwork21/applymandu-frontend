@@ -220,7 +220,7 @@ const EmployerAdvancedAnalyticsPage = () => {
     <section className="py-8">
       <div className="container mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h1 className="text-3xl text-manduSecondary font-nasalization">
+          <h1 className="text-2xl text-manduSecondary font-nasalization">
             Advanced Analytics
           </h1>
 
