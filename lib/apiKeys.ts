@@ -27,7 +27,7 @@ class ApiKeyService {
   }
 
   async getApiKeys() {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys`, {
       headers: this.getAuthHeaders(),
     });
     
@@ -39,7 +39,7 @@ class ApiKeyService {
   }
 
   async createApiKey(data: ApiKeyData) {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -54,7 +54,7 @@ class ApiKeyService {
   }
 
   async updateApiKey(keyId: string, data: ApiKeyUpdateData) {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/${keyId}`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/${keyId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
@@ -69,7 +69,7 @@ class ApiKeyService {
   }
 
   async deleteApiKey(keyId: string) {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/${keyId}`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/${keyId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
@@ -83,7 +83,7 @@ class ApiKeyService {
   }
 
   async regenerateApiKey(keyId: string) {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/${keyId}/regenerate`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/${keyId}/regenerate`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
     });
@@ -97,7 +97,7 @@ class ApiKeyService {
   }
 
   async toggleApiKeyStatus(keyId: string) {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/${keyId}/toggle-status`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/${keyId}/toggle-status`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
     });
@@ -111,7 +111,7 @@ class ApiKeyService {
   }
 
   async getPermissions() {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/permissions`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/permissions`, {
       headers: this.getAuthHeaders(),
     });
     
@@ -123,7 +123,7 @@ class ApiKeyService {
   }
 
   async getStatistics() {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/statistics`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/statistics`, {
       headers: this.getAuthHeaders(),
     });
     
@@ -135,7 +135,7 @@ class ApiKeyService {
   }
 
   async testApiKey(apiKey: string) {
-    const response = await fetch(`${API_BASE_URL}api/employer/api-keys/test`, {
+    const response = await fetch(`${API_BASE_URL}api/api-keys/test`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({ api_key: apiKey }),

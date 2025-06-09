@@ -815,11 +815,11 @@ const EmployerApiAccessPage = () => {
                     <div className="p-4 bg-blue-50 rounded-lg">
                       <h3 className="font-medium text-manduSecondary mb-2">API Base URL</h3>
                       <div className="flex items-center bg-white border rounded p-2">
-                        <code className="text-sm flex-grow">{process.env.NEXT_PUBLIC_API_URL}/api/v1</code>
+                        <code className="text-sm flex-grow">{process.env.NEXT_PUBLIC_API_URL}api/v1</code>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyToClipboard(`${process.env.NEXT_PUBLIC_API_URL}/api/v1`)}
+                          onClick={() => copyToClipboard(`${process.env.NEXT_PUBLIC_API_URL}api/v1`)}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>

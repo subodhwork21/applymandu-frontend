@@ -220,7 +220,7 @@ const ResumeFilters: React.FC<ResumeFiltersProps> = ({
                 <SelectValue placeholder="Select a job" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Jobs</SelectItem>
+                <SelectItem value="all">All Jobs</SelectItem>
                 {availableJobs.map((job) => (
                   <SelectItem key={job.id} value={job.id.toString()}>
                     {job.title}
