@@ -70,9 +70,8 @@ const SavedCandidatesModal: React.FC<SavedCandidatesModalProps> = ({
   const fetchSavedCandidates = async () => {
     try {
       setLoading(true);
-      const { response, result } = await baseFetcher('api/employer/saved-candidates/details', {
-        method: 'POST',
-        body: JSON.stringify({ candidate_ids: savedCandidateIds }),
+      const { response, result } = await baseFetcher('api/advance/resume-search/saved-candidates', {
+        method: 'get',
       });
 
       if (response?.ok && result?.success) {
@@ -100,7 +99,7 @@ const SavedCandidatesModal: React.FC<SavedCandidatesModalProps> = ({
   };
 
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    return `${firstName?.charAt(0)}${lastName?.charAt(0)}`.toUpperCase();
   };
 
   return (
@@ -187,14 +186,14 @@ const SavedCandidatesModal: React.FC<SavedCandidatesModalProps> = ({
                         
                         {/* Skills */}
                         <div className="flex flex-wrap gap-1 mb-3">
-                          {candidate.skills.slice(0, 3).map((skill) => (
-                            <Badge key={skill.id} variant="outline" className="text-xs">
-                              {skill.name}
+                          {candidate?.skills?.slice(0, 3).map((skill) => (
+                            <Badge key={skill?.id} variant="outline" className="text-xs">
+                              {skill?.name}
                             </Badge>
                           ))}
-                          {candidate.skills.length > 3 && (
+                          {candidate?.skills?.length > 3 && (
                             <Badge variant="outline" className="text-xs">
-                              +{candidate.skills.length - 3} more
+                              +{candidate?.skills?.length - 3} more
                             </Badge>
                           )}
                         </div>

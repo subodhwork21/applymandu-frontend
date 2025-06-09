@@ -40,61 +40,152 @@ const ResumeSearchPage: React.FC = () => {
   });
 
   // Fetch resumes with filters
-  const fetchResumes = useCallback(async (url?: string) => {
-    try {
-      setLoading(true);
-      
-      const searchParams = new URLSearchParams();
-      
-      // Add search query
-      if (searchQuery.trim()) {
-        searchParams.append('search', searchQuery.trim());
-      }
-      
-      // Add filters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== null && value !== '' && value !== 'all') {
-          if (Array.isArray(value)) {
-            if (value.length > 0) {
-              searchParams.append(key, value.join(','));
-            }
-          } else if (typeof value === 'object' && value.min !== null && value.max !== null) {
-            searchParams.append(`${key}_min`, value.min.toString());
-            searchParams.append(`${key}_max`, value.max.toString());
-          } else {
-            searchParams.append(key, value.toString());
-          }
-        }
-      });
+  // Inside the fetchResumes function, modify the part where the response is processed:
 
-      const endpoint = url || `api/employer/resume-search?${searchParams.toString()}`;
-      
-      const { response, result } = await baseFetcher(endpoint, {
-        method: 'GET',
-      });
-
-      if (response?.ok && result?.success) {
-        setProfiles(result.data.data);
-        setMeta(result.data.meta);
-      } else {
-        throw new Error('Failed to fetch resumes');
-      }
-    } catch (error) {
-      console.error('Error fetching resumes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load resumes",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+const fetchResumes = useCallback(async (url?: string) => {
+  try {
+    setLoading(true);
+    
+    const searchParams = new URLSearchParams();
+    
+    // Add search query
+    if (searchQuery.trim()) {
+      searchParams.append('search', searchQuery.trim());
     }
-  }, [searchQuery, filters]);
+    
+    // Add filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== '' && value !== 'all') {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            searchParams.append(key, value.join(','));
+          }
+        } else if (typeof value === 'object' && value.min !== null && value.max !== null) {
+          searchParams.append(`${key}_min`, value.min.toString());
+          searchParams.append(`${key}_max`, value.max.toString());
+        } else {
+          searchParams.append(key, value.toString());
+        }
+      }
+    });
+
+    const endpoint = url || `api/advance/resume-search?${searchParams.toString()}`;
+    
+    const { response, result } = await baseFetcher(endpoint, {
+      method: 'GET',
+    });
+
+    if (response?.ok && result?.success) {
+      // Transform the API response to match the expected JobseekerProfile format
+      const transformedProfiles = result.data.map((item: any) => {
+        // Handle cases where jobseekerProfile might be null
+        if (!item.jobseekerProfile) {
+          return {
+            id: item.id,
+            first_name: 'Unknown',
+            last_name: '',
+            email: item.email,
+            phone: item.phone || '',
+            location: '',
+            skills: item.skills || [],
+            experience_years: 0,
+            last_active: 'Unknown',
+            education_level: '',
+            resume_url: null,
+            availability: 'Unknown',
+            profile_completeness: 0,
+            experiences: [],
+            educations: []
+          };
+        }
+
+        // Calculate experience years
+        const totalExperienceYears = item.experiences.reduce((total: number, exp: any) => {
+          const startDate = new Date(exp.start_date);
+          const endDate = exp.currently_work_here ? new Date() : (exp.end_date ? new Date(exp.end_date) : new Date());
+          const years = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+          return total + years;
+        }, 0);
+
+        // Get highest education
+        const highestEducation = item.educations.length > 0 ? item.educations[0].degree : '';
+
+        // Format location
+        const locationParts = [
+          item.jobseekerProfile.district,
+          item.jobseekerProfile.municipality,
+          item.jobseekerProfile.city_tole
+        ].filter(Boolean);
+        const location = locationParts.join(', ');
+
+        // Calculate profile completeness
+        const hasProfile = !!item.jobseekerProfile;
+        const hasExperience = item.experiences.length > 0;
+        const hasEducation = item.educations.length > 0;
+        const hasSkills = item.skills.length > 0;
+        const profileCompleteness = [hasProfile, hasExperience, hasEducation, hasSkills]
+          .filter(Boolean).length / 4 * 100;
+
+        return {
+          id: item.id,
+          first_name: item.jobseekerProfile.first_name || '',
+          last_name: item.jobseekerProfile.last_name || '',
+          email: item.email,
+          phone: item.phone || item.jobseekerProfile.mobile || '',
+          location: location,
+          skills: item.skills || [],
+          experience_years: Math.round(totalExperienceYears * 10) / 10, // Round to 1 decimal place
+          last_active: item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Unknown',
+          education_level: highestEducation,
+          resume_url: null, // Assuming resume URL is not provided in the response
+          availability: item.jobseekerProfile.preferred_job_type || 'Unknown',
+          profile_completeness: Math.round(profileCompleteness),
+          experiences: item?.experiences.map((exp: any) => ({
+            id: exp?.id,
+            position_title: exp?.position_title,
+            company_name: exp?.company_name,
+            start_date: new Date(exp?.start_date),
+            end_date: exp?.end_date ? new Date(exp?.end_date) : null,
+            currently_work_here: exp?.currently_work_here,
+            job_level: exp?.job_level,
+            industry: exp?.industry,
+            roles_and_responsibilities: exp?.roles_and_responsibilities
+          })),
+          educations: item.educations.map((edu: any) => ({
+            id: edu.id,
+            degree: edu.degree,
+            subject_major: edu.subject_major,
+            institution: edu.institution,
+            university_board: edu.university_board,
+            joined_year: new Date(edu.joined_year),
+            passed_year: edu.passed_year ? new Date(edu.passed_year) : null,
+            currently_studying: edu.currently_studying
+          }))
+        };
+      });
+
+      setProfiles(transformedProfiles);
+      setMeta(result.meta);
+    } else {
+      throw new Error('Failed to fetch resumes');
+    }
+  } catch (error) {
+    console.error('Error fetching resumes:', error);
+    toast({
+      title: "Error",
+      description: "Failed to load resumes",
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [searchQuery, filters]);
+
 
   // Fetch saved candidates
   const fetchSavedCandidates = useCallback(async () => {
     try {
-      const { response, result } = await baseFetcher('api/employer/saved-candidates', {
+      const { response, result } = await baseFetcher('api/advance/resume-search/saved-candidates', {
         method: 'GET',
       });
 
@@ -145,15 +236,14 @@ const ResumeSearchPage: React.FC = () => {
     setSearchQuery('');
   };
 
-  // Save/Unsave candidate
   const handleSaveCandidate = async (profileId: number) => {
     try {
       const isSaved = savedCandidates.includes(profileId);
-      const endpoint = isSaved ? 'api/employer/saved-candidates/remove' : 'api/employer/saved-candidates/add';
+      const endpoint = isSaved ? 'api/advance/resume-search/unsave-candidate' : 'api/advance/resume-search/save-candidate';
       
       const { response, result } = await baseFetcher(endpoint, {
         method: 'POST',
-        body: JSON.stringify({ jobseeker_id: profileId }),
+        body: JSON.stringify({ jobseeker_id: profileId, job_id: filters.job_id }),
       });
 
       if (response?.ok && result?.success) {
