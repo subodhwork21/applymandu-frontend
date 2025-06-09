@@ -320,7 +320,7 @@ const fetchResumes = useCallback(async (url?: string) => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Resume Search</h1>
+            <h1 className="text-2xl font-bold text-manduSecondary font-nasalization">Resume Search</h1>
             <p className="text-gray-600">Find the perfect candidates for your open positions</p>
           </div>
           <div className="flex items-center gap-2">

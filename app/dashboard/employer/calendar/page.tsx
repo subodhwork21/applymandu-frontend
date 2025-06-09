@@ -347,8 +347,8 @@ const CalendarPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap sm:gap-0 gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
-          <p className="text-gray-600 sm:block hidden">Manage your interviews and events</p>
+          <h1 className="text-2xl font-bold text-manduSecondary">Calendar</h1>
+          <p className="text-manduCustom-secondary-blue sm:block hidden">Manage your interviews and events</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -398,7 +398,7 @@ const CalendarPage: React.FC = () => {
       />
 
       {/* Calendar */}
-      <div className={`bg-white rounded-lg border border-gray-200 ${loading ? 'calendar-loading' : ''}`}>
+      <div className={`bg-white rounded-lg border border-borderLine ${loading ? 'calendar-loading' : ''}`}>
         <Calendar
           localizer={localizer}
           events={filteredEvents}
