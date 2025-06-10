@@ -212,11 +212,11 @@ const ApplicationDetails = ({id}: {id: string}) => {
       job.applications!.map(app => ({
         id: app.id,
         position: job.title,
-        company: job.employer_name,
+        company: job?.employer_name,
         location: job.location,
         appliedDate: app.applied_at,
         status: app.status_history[0]?.status || "applied",
-        companyInitial: job.employer_name.charAt(0),
+        companyInitial: job?.employer_name?.charAt(0),
         companyImage: job.image
       }))
     )

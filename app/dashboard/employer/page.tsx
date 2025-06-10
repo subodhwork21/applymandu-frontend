@@ -114,6 +114,10 @@ const EmployerDashboardPage = () => {
   const { data: jobsData, isLoading: jobsLoading, mutate: mutateJobs } = 
     useSWR<DashboardResponse>(`api/dashboard/active-job-listing${page ? `?page=${page}` : ""}`, defaultFetcher);
 
+    const {data: hiringStats, isLoading: hiringStatsLoading} = useSWR<Record<string,any>>("api/dashboard/hiring-statistics", defaultFetcher);
+
+    const {data: employerProfile, isLoading: profileLoading, mutate: mutateProfile} = useSWR<Record<string,any>>("api/employer/"+user?.id , defaultFetcher);
+    console.log(employerProfile)
   // Format posted date to relative time (e.g., "5 days ago")
   const getPostedTimeAgo = (postedDate: string) => {
     try {
@@ -353,7 +357,7 @@ const EmployerDashboardPage = () => {
                     )
                  }
                 </div>
-                <h2 className="text-xl mb-2">{user?.company_name}</h2>
+                <h2 className="text-xl mb-2">{employerProfile?.data?.company_name}</h2>
                 <p className="text-neutral-600 mb-6">
                   {
                     // user?.email
@@ -362,15 +366,15 @@ const EmployerDashboardPage = () => {
                 <div className="w-full space-y-3 text-sm">
                   <div className="flex items-center gap-2">
                     <Mail className="w-5 h-5 text-neutral-600" />
-                    <span>{user?.email || "email@example.com"}</span>
+                    <span>{employerProfile?.data?.email || "email@example.com"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-5 h-5 text-neutral-600" />
-                    <span>+977 {user?.phone || "98XXXXXXXX"}</span>
+                    <span>{employerProfile?.data?.phone || "98XXXXXXXX"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-neutral-600" />
-                    <span>Kathmandu, Nepal</span>
+                    <span>{employerProfile?.data?.employer_profile?.address || "-"}</span>
                   </div>
                 </div>
               </div>
@@ -383,17 +387,17 @@ const EmployerDashboardPage = () => {
                   <span className="text-sm text-neutral-600">
                     Application Rate
                   </span>
-                  <span className="text-sm">21.5/day</span>
+                  <span className="text-sm">{hiringStats?.data?.application_rate}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Time to Hire</span>
-                  <span className="text-sm">15 days</span>
+                  <span className="text-sm">{hiringStats?.data?.time_to_hire}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">
                     Cost per Hire
                   </span>
-                  <span className="text-sm">$450</span>
+                  <span className="text-sm">{hiringStats?.data?.cost_per_hire}</span>
                 </div>
               </div>
             </div>

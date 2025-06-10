@@ -12,11 +12,13 @@ import {
   CheckCircle2,
   Send,
   Trash2,
+  Edit3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import MessageModal from "@/components/message-modal";
 import InterviewScheduleModal from "@/components/interview-schedule-modal";
+import StatusUpdateModal from "@/components/status-update-modal";
 import useSWR from "swr";
 import { baseFetcher, defaultFetcher } from "@/lib/fetcher";
 import { format, parseISO } from "date-fns";
@@ -64,6 +66,7 @@ interface ApiResponse {
 const ApplicationDetailClient = ({ id }: { id: string }) => {
   const [isMessageModalOpen, setIsMessageModalOpen] = React.useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
+  const [isStatusUpdateModalOpen, setIsStatusUpdateModalOpen] = React.useState(false);
   const [newNote, setNewNote] = React.useState("");
   const [notes, setNotes] = React.useState<
     { id: number; note: string; created_at: string; user: { company_name: string } }[]
@@ -94,6 +97,8 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
   const application = applicationData?.data[0];
 
   const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+
     const { response, result, errors } = await baseFetcher(
       "api/application-note/" + application?.id,
       {
@@ -106,6 +111,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
 
     if (response?.ok) {
       mutateNote();
+      setNewNote("");
     } else {
       toast({
         title: "Error",
@@ -130,6 +136,11 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
         description: errors,
       });
     }
+  };
+
+  const handleStatusUpdate = () => {
+    // Refresh application data after status update
+    mutate();
   };
 
   const candidate = application
@@ -168,7 +179,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
   const currentStatus =
     application.status_history && application.status_history.length > 0
       ? application.status_history[0].status
-      : "Applied";
+      : "applied";
 
   // Capitalize the status for display
   const displayStatus =
@@ -192,7 +203,6 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
 
     const blob = await res.blob();
     const fileUrl = URL.createObjectURL(blob);
-
 
     window.open(fileUrl);
   };
@@ -240,23 +250,43 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                         </span>
                         <span className="flex items-center">
                           <MapPin className="h-4 w-4 mr-2" />
-                          {/* Location not provided in the data, using placeholder */}
                           {application?.location || "N/A"}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <span
-                    className={`px-3 py-1 ${
-                      displayStatus === "Shortlisted"
-                        ? "bg-green-100 text-green-800"
-                        : displayStatus === "Rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    } rounded-full text-sm font-medium`}
-                  >
-                    {displayStatus.split("_").join(" ")}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`px-3 py-1 ${
+                        displayStatus === "Shortlisted"
+                          ? "bg-green-100 text-green-800"
+                          : displayStatus === "Rejected"
+                          ? "bg-red-100 text-red-800"
+                          : displayStatus === "Under_review"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : displayStatus === "Interview_scheduled"
+                          ? "bg-purple-100 text-purple-800"
+                          : displayStatus === "Interviewed"
+                          ? "bg-indigo-100 text-indigo-800"
+                          : displayStatus === "Selected"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : displayStatus === "Withdrawn"
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-blue-100 text-blue-800"
+                      } rounded-full text-sm font-medium`}
+                    >
+                      {displayStatus.split("_").join(" ")}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsStatusUpdateModalOpen(true)}
+                      className="flex items-center gap-2 hover:bg-neutral-50"
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      Update Status
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-8">
@@ -275,7 +305,7 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
                             <div>
                               <p className="text-neutral-900 font-medium">
                                 {status.status.charAt(0).toUpperCase() +
-                                  status.status.slice(1)}
+                                  status.status.slice(1).split("_").join(" ")}
                               </p>
                               <p className="text-neutral-500 text-sm">
                                 {format(
@@ -500,6 +530,15 @@ const ApplicationDetailClient = ({ id }: { id: string }) => {
         candidate={candidate!}
         application_id={id}
         mutate={mutate}
+      />
+
+      <StatusUpdateModal
+        isOpen={isStatusUpdateModalOpen}
+        onClose={() => setIsStatusUpdateModalOpen(false)}
+        applicationId={id}
+        currentStatus={currentStatus}
+        candidateName={application.applied_user}
+        onStatusUpdate={handleStatusUpdate}
       />
     </section>
   );

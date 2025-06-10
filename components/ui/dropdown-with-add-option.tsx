@@ -15,7 +15,11 @@ export interface DropdownWithAddOptionProps {
     className?: string;
     addOptionText?: string;
     addNewPlaceholder?: string;
-    onAddNewOption?: (newOption: string) => Promise<boolean>; // New prop for server-side saving
+    onAddNewOption?: (newOption: {
+      value: string;
+      label: string;
+      id: string;
+    }) => Promise<boolean>; // New prop for server-side saving
   }
 
 const DropdownWithAddOption = React.forwardRef<
@@ -34,7 +38,7 @@ const DropdownWithAddOption = React.forwardRef<
   const [options, setOptions] = useState(initialOptions);
   const [isOpen, setIsOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [newOption, setNewOption] = useState('');
+  const [newOptionText, setNewOptionText] = useState(''); // Fixed: Use string for input text
   
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -64,7 +68,7 @@ const DropdownWithAddOption = React.forwardRef<
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setIsAdding(false);
-        setNewOption('');
+        setNewOptionText(''); // Fixed: Use correct state variable
       }
     };
     
@@ -92,14 +96,14 @@ const DropdownWithAddOption = React.forwardRef<
   };
   
   const addNewOption = async () => {
-    if (newOption.trim() === '') return;
+    if (newOptionText.trim() === '') return; // Fixed: Use correct state variable
     
     // Check if option already exists
     const optionExists = Array.isArray(options) && options.some(option => {
       if (typeof option === 'string') {
-        return option === newOption;
+        return option === newOptionText;
       } else if (typeof option === 'object' && 'label' in option) {
-        return option.label === newOption;
+        return option.label === newOptionText;
       }
       return false;
     });
@@ -107,7 +111,11 @@ const DropdownWithAddOption = React.forwardRef<
     if (!optionExists) {
       // If onAddNewOption is provided, call it first
       if (onAddNewOption) {
-        const success = await onAddNewOption(newOption);
+        const success = await onAddNewOption({
+          value: newOptionText,
+          label: newOptionText,
+          id: newOptionText, // Fixed: Remove incorrect property access
+        });
         if (!success) {
           // If server-side saving failed, don't add to local options
           return;
@@ -115,9 +123,8 @@ const DropdownWithAddOption = React.forwardRef<
       }
       
       // Add to options list
-      const newOptionObj = typeof options[0] === 'string' 
-        ? newOption 
-        : { value: newOption, label: newOption, id: `new-${Date.now()}` };
+      const newOptionObj = 
+        { value: newOptionText, label: newOptionText, id: newOptionText };
       
       setOptions([...options, newOptionObj] as any);
       
@@ -126,7 +133,7 @@ const DropdownWithAddOption = React.forwardRef<
     }
     
     // Reset add new mode
-    setNewOption('');
+    setNewOptionText(''); // Fixed: Use correct state variable
     setIsAdding(false);
     setIsOpen(false);
   };
@@ -137,7 +144,7 @@ const DropdownWithAddOption = React.forwardRef<
       addNewOption();
     } else if (e.key === 'Escape') {
       setIsAdding(false);
-      setNewOption('');
+      setNewOptionText(''); // Fixed: Use correct state variable
     }
   };
 
@@ -171,8 +178,8 @@ const DropdownWithAddOption = React.forwardRef<
           <Input
             ref={inputRef}
             type="text"
-            value={newOption}
-            onChange={(e) => setNewOption(e.target.value)}
+            value={newOptionText} // Fixed: Use correct state variable
+            onChange={(e) => setNewOptionText(e.target.value)} // Fixed: Use correct state variable
             onKeyDown={handleKeyPress}
             placeholder={addNewPlaceholder}
             className="rounded-r-none"
@@ -188,7 +195,7 @@ const DropdownWithAddOption = React.forwardRef<
             variant="outline"
             onClick={() => {
               setIsAdding(false);
-              setNewOption('');
+              setNewOptionText(''); // Fixed: Use correct state variable
             }}
             className="ml-2"
           >
@@ -222,7 +229,7 @@ const DropdownWithAddOption = React.forwardRef<
             {options.map((option, index) => {
               const optionId = typeof option === 'string' ? option : option.id;
               const optionLabel = typeof option === 'string' ? option : option.label;
-              
+              const optionValue = typeof option === 'string' ? option : option.value;
               return (
                 <div
                   key={index}
@@ -231,7 +238,7 @@ const DropdownWithAddOption = React.forwardRef<
                     "cursor-pointer",
                     optionId === value && "bg-accent text-accent-foreground"
                   )}
-                  onClick={() => handleSelect(optionId)}
+                  onClick={() => handleSelect(optionId)} // Fixed: Use optionId for consistency
                 >
                   {optionLabel}
                   {optionId === value && (

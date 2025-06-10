@@ -90,7 +90,6 @@ const InterviewScheduleModal = ({
 
   const handleSubmit = async () => {
     let formDataFinal = { interview_type_id: formData?.interviewType, interviewer_id: formData?.interviewer, mode: formData?.mode, status: "scheduled", application_id: application_id, date: formData?.formattedDate, time: formData?.time };
-    console.log(formDataFinal);
     const { response, result, errors } = await baseFetcher("api/application-interview/schedule-interview", {
       method: "POST",
       body: JSON.stringify(formDataFinal),
@@ -305,8 +304,9 @@ const InterviewScheduleModal = ({
                     }))
                     : []
                 }
-                onChange={(option) =>
+                onChange={(option) =>{
                   setFormData({ ...formData, interviewer: option })
+                }
                 }
                 onAddNewOption={async (option) => {
                   try {
@@ -364,11 +364,11 @@ const InterviewScheduleModal = ({
         </div>
 
         <div className="border-t border-neutral-200 p-6 flex justify-end space-x-3">
-          <Button variant="outline" onClick={onClose}>
+          <Button className="bg-white border border-manduSecondary" variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button
-            className="bg-black text-white hover:bg-neutral-800"
+            className="bg-manduSecondary text-white hover:bg-neutral-800"
             onClick={handleSubmit}
           >
             Schedule Interview
