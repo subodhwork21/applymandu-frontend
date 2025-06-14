@@ -203,7 +203,17 @@ const PopularClosingJobs = () => {
 
           {/* Closing Soon */}
           <div>
-           
+           <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl text-manduSecondary font-nasalization font-normal">
+                Closing Soon
+              </h2>
+              <Link
+                href="/jobs/closing"
+                className="text-sm flex text-manduSecondary font-semibold items-center hover:underline cursor-pointer"
+              >
+                View all <ArrowRightIcon />
+              </Link>
+            </div>
 
         { closingJobsData && closingJobsData?.expiring_jobs?.length > 0 ?   <div className="space-y-4">
               {isLoadingClosing ? (
@@ -225,17 +235,7 @@ const PopularClosingJobs = () => {
                 ))
               ) : (
              closingJobsData &&  closingJobsData?.expiring_jobs.map((job) => (
-              <> <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl text-manduSecondary font-nasalization font-normal">
-                Closing Soon
-              </h2>
-              <Link
-                href="/jobs/closing"
-                className="text-sm flex text-manduSecondary font-semibold items-center hover:underline cursor-pointer"
-              >
-                View all <ArrowRightIcon />
-              </Link>
-            </div>
+              <> 
                   <Link 
                     key={job.id} 
                     href={`/jobs/${job.id}`} 
