@@ -9,6 +9,7 @@ import {
   MoreVertical,
   MapPinIcon,
   ClockIcon,
+  ChevronRightIcon,
 } from "lucide-react";
 import {
   Select,
@@ -71,6 +72,7 @@ interface SavedJob {
   expected_salary: string;
   notice_period: string;
   cover_letter: string;
+  job_label: string;
 }
 
 interface SavedJobsResponse {
@@ -372,6 +374,14 @@ const SavedJobsPage = () => {
                             <p className="text-sm capitalize text-manduCustom-secondary-blue font-semibold">
                               {job?.employer_name}
                             </p>
+                          </div>
+                          <div>
+                              <Link href={`/jobs/${job?.slug}`} className="flex justify-start items-center gap-2 font-medium">
+                            <p className="text-manduSecondary flex justify-start items-center gap-2 font-medium">
+                              View Job
+                                <ChevronRightIcon className="h-4 w-4 text-manduSecondary" />
+                            </p>
+                              </Link>
                           </div>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-[#525252] mb-1">

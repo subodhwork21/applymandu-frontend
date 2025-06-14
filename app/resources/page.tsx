@@ -17,8 +17,15 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import Image from "next/image";
+import useSWR from "swr";
+import { defaultFetcher } from "@/lib/fetcher";
 
 const ResourcesPage = () => {
+  const {
+    data: resources,
+    isLoading,
+    mutate,
+  } = useSWR<any>("api/blogs/all", defaultFetcher);
   return (
     <div className="min-h-screen bg-neutral-50">
       <Header />
@@ -27,10 +34,10 @@ const ResourcesPage = () => {
         <section className="bg-white border-b border-neutral-200 py-16">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <h1 className="text-4xl font-bold mb-4">
+              <h1 className="text-4xl font-bold mb-4 font-nasalization text-manduSecondary">
                 Career Advice & Resources
               </h1>
-              <p className="text-neutral-600 text-lg">
+              <p className="text-manduCustom-secondary-blue text-lg">
                 Expert guidance and resources to help you navigate your career
                 journey successfully
               </p>
@@ -43,7 +50,7 @@ const ResourcesPage = () => {
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-8">Featured Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
+              {/* {[
                 {
                   image:
                     "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg",
@@ -70,32 +77,38 @@ const ResourcesPage = () => {
                     "Discover effective ways to advance your career and achieve your professional goals.",
                   category: "Career Development",
                   readTime: "12 min read",
-                },
-              ].map((article, index) => (
+                }, */}
+              {/* ] */}
+              {resources?.articles?.map((article: any, index: number) => (
                 <div key={index} className="group cursor-pointer">
                   <div className="relative h-48 mb-4 rounded-xl overflow-hidden">
                     <Image
-                    fill={true}
-                      src={article.image}
+                      fill={true}
+                      src={article.image_path}
                       alt={article.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                    <span className="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
-                      {article.category}
-                    </span>
+                    {article?.categories?.[0]?.name && (
+                      <span className="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
+                        {article.categories[0]?.name}
+                      </span>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2 group-hover:text-neutral-700 transition-colors">
                       {article.title}
                     </h3>
-                    <p className="text-neutral-600 mb-4">
-                      {article.description}
-                    </p>
+                    <p className="text-neutral-600 mb-4">{article.content}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-neutral-500 flex items-center">
                         <Clock className="h-4 w-4 mr-1" />
-                        {article.readTime}
+                        {article.content
+                          ? `${Math.max(
+                              1,
+                              Math.ceil(article.content.length / 1000)
+                            )} min read`
+                          : "1 min read"}
                       </span>
                       <Button
                         variant="link"

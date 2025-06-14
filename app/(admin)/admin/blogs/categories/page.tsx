@@ -268,7 +268,7 @@ const AdminBlogCategoriesPage = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => router.push("admin/blogs")}
+              onClick={() => router.push("/admin/blogs")}
               className="mr-2"
             >
               <ArrowLeft className="h-5 w-5" />

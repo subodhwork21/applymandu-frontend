@@ -27,6 +27,7 @@ import {
   Coffee,
   Shield,
   BarChart,
+  ArrowRight,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,18 @@ import { MapPinIcon } from "@heroicons/react/24/solid";
 import useSWR from "swr";
 import { defaultFetcher } from "@/lib/fetcher";
 import DataNavigation from "@/components/ui/data-navigation";
+import { useRouter } from "next/navigation";
+
+import {
+  // ... existing imports
+  Palette,
+  DollarSign,
+  Wrench,
+  Package,
+  Settings,
+  HeadphonesIcon,
+  Microscope,
+} from "lucide-react";
 
 interface Company {
   id: number;
@@ -126,9 +139,40 @@ interface ApiResponse {
   data: Record<string, number>;
 }
 
+// Add this function inside your component
+const getDepartmentIcon = (departmentKey: string) => {
+  const departmentIcons: Record<string, any> = {
+    design: { icon: Palette, color: "bg-purple-50", iconColor: "text-purple-600", borderColor: "border-purple-100", hoverColor: "hover:bg-purple-50" },
+    marketing: { icon: BarChart, color: "bg-blue-50", iconColor: "text-blue-600", borderColor: "border-blue-100", hoverColor: "hover:bg-blue-50" },
+    sales: { icon: DollarSign, color: "bg-green-50", iconColor: "text-green-600", borderColor: "border-green-100", hoverColor: "hover:bg-green-50" },
+    engineering: { icon: Wrench, color: "bg-amber-50", iconColor: "text-amber-600", borderColor: "border-amber-100", hoverColor: "hover:bg-amber-50" },
+    product: { icon: Package, color: "bg-indigo-50", iconColor: "text-indigo-600", borderColor: "border-indigo-100", hoverColor: "hover:bg-indigo-50" },
+    it: { icon: Laptop2, color: "bg-sky-50", iconColor: "text-sky-600", borderColor: "border-sky-100", hoverColor: "hover:bg-sky-50" },
+    finance: { icon: LineChart, color: "bg-emerald-50", iconColor: "text-emerald-600", borderColor: "border-emerald-100", hoverColor: "hover:bg-emerald-50" },
+    hr: { icon: Users, color: "bg-pink-50", iconColor: "text-pink-600", borderColor: "border-pink-100", hoverColor: "hover:bg-pink-50" },
+    operations: { icon: Settings, color: "bg-orange-50", iconColor: "text-orange-600", borderColor: "border-orange-100", hoverColor: "hover:bg-orange-50" },
+    customer_support: { icon: HeadphonesIcon, color: "bg-teal-50", iconColor: "text-teal-600", borderColor: "border-teal-100", hoverColor: "hover:bg-teal-50" },
+    healthcare: { icon: Stethoscope, color: "bg-red-50", iconColor: "text-red-600", borderColor: "border-red-100", hoverColor: "hover:bg-red-50" },
+    education: { icon: GraduationCap, color: "bg-violet-50", iconColor: "text-violet-600", borderColor: "border-violet-100", hoverColor: "hover:bg-violet-50" },
+    legal: { icon: Scale, color: "bg-slate-50", iconColor: "text-slate-600", borderColor: "border-slate-100", hoverColor: "hover:bg-slate-50" },
+    research: { icon: Microscope, color: "bg-cyan-50", iconColor: "text-cyan-600", borderColor: "border-cyan-100", hoverColor: "hover:bg-cyan-50" },
+  };
+  
+  return departmentIcons[departmentKey] || { 
+    icon: Briefcase, 
+    color: "bg-gray-50", 
+    iconColor: "text-gray-600", 
+    borderColor: "border-gray-100",
+    hoverColor: "hover:bg-gray-50"
+  };
+};
+
+
 const CompaniesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState("api/all-companies");
+
+  const router = useRouter();
 
   const { data: companiesResponse, error, isLoading, mutate } = useSWR<ApiResponse>(
     currentPage,
@@ -139,6 +183,27 @@ const CompaniesPage = () => {
     "api/all-industries",
     defaultFetcher
   );
+
+  const { data: departmentsData, error: departmentsError, isLoading: isLoadingDepartment } = useSWR<{
+  success: boolean;
+  message: string;
+  data: Record<string, {
+    name: string;
+    key: string;
+    count: number;
+    percentage: number;
+    salary_info: {
+      avg_min_salary: number;
+      avg_max_salary: number;
+      avg_salary: number;
+    };
+    top_skills: Record<string, number>;
+  }>;
+  total_jobs: number;
+}>(
+  "api/job/departments",
+  defaultFetcher
+);
 
   const handlePageChange = (url: string) => {
     // Extract the API endpoint from the full URL
@@ -411,7 +476,7 @@ const CompaniesPage = () => {
         </section>
 
         {/* Company Reviews */}
-        <section className="py-12 bg-white 2xl:px-0 lg:px-12 px-4">
+        {/* <section className="py-12 bg-white 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-8">
               Latest Company Reviews
@@ -475,7 +540,107 @@ const CompaniesPage = () => {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
+{/* Jobs by Department */}
+<section className="py-12 bg-neutral-50 2xl:px-0 lg:px-12 px-4">
+  <div className="container mx-auto px-4">
+    <h2 className="text-3xl text-manduSecondary font-nasalization font-normal mb-8">Jobs by Department</h2>
+
+    {isLoading ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-white rounded-xl border border-neutral-200 p-6 animate-pulse">
+            <div className="h-10 w-10 bg-neutral-200 rounded-full mb-4"></div>
+            <div className="h-6 bg-neutral-200 rounded mb-2"></div>
+            <div className="h-4 bg-neutral-200 rounded mb-4 w-3/4"></div>
+            <div className="h-4 bg-neutral-200 rounded mb-2 w-1/2"></div>
+            <div className="h-4 bg-neutral-200 rounded mb-4 w-2/3"></div>
+            <div className="flex flex-wrap gap-2 mt-4">
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="h-6 bg-neutral-200 rounded w-16"></div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : departmentsError ? (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error loading department data. Please try again later.</p>
+      </div>
+    ) : (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {departmentsData && Object.entries(departmentsData.data)
+            .filter(([_, dept]) => dept.count > 0) // Only show departments with jobs
+            .sort((a, b) => b[1].count - a[1].count) // Sort by job count (highest first)
+            .map(([key, department]) => {
+              const { icon: DeptIcon, color, iconColor, borderColor, hoverColor } = getDepartmentIcon(key);
+              return (
+                <div
+                  key={key}
+                  className={`bg-white p-6 rounded-[20px] border ${borderColor} ${hoverColor} transition-all duration-300 cursor-pointer group`}
+                >
+                  <div  
+                    className={`w-12 h-12 ${color} rounded-full flex items-center justify-center mb-4 group-hover:scale-[1.1] duration-500 transition-transform`}
+                  >
+                    <DeptIcon className={`h-6 w-6 ${iconColor}`} />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2 group-hover:text-manduSecondary transition-colors">
+                    {department.name}
+                  </h3>
+                  <p className="text-neutral-600 mb-4 flex items-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    <span>{department.count} open positions</span>
+                    <span className="text-xs text-neutral-500">({department.percentage}%)</span>
+                  </p>
+                  
+                  <div className="mb-4">
+                    <p className="text-sm text-neutral-500 mb-1">Average Salary Range</p>
+                    <p className="font-medium text-manduSecondary">
+                      ${department.salary_info.avg_min_salary.toLocaleString()} - ${department.salary_info.avg_max_salary.toLocaleString()}
+                    </p>
+                  </div>
+                  
+                  {department.top_skills && Object.keys(department.top_skills).length > 0 && (
+                    <div>
+                      <p className="text-sm text-neutral-500 mb-2">Top Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(department.top_skills)
+                          .sort((a, b) => b[1] - a[1]) // Sort by skill count
+                          .slice(0, 3) // Show top 3 skills
+                          .map(([skill, count]) => (
+                            <span 
+                              key={skill} 
+                              className="text-xs bg-borderLine text-grayColor px-3 py-1.5 rounded-full"
+                            >
+                              {skill.charAt(0).toUpperCase() + skill.slice(1)}
+                            </span>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+        </div>
+        
+        <div className="mt-8 text-center">
+          <Button 
+            variant="outline" 
+            className="border-manduSecondary text-manduSecondary hover:bg-manduSecondary hover:text-white"
+            onClick={() => router.push('/jobs')}
+          >
+            View All Departments
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </>
+    )}
+  </div>
+</section>
+
+
       </main>
       <Footer />
     </div>

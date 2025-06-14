@@ -186,16 +186,6 @@ const DashboardPage = () => {
     }
   };
 
-  const chartConfig = {
-    visitors: {
-      label: "completionLoading",
-    },
-    safari: {
-      label: "Safari",
-      color: "hsl(var(--chart-2))",
-    },
-  } satisfies ChartConfig;
-
   // const calculateCompletion = () => {
   //   let total = 0;
   //   let completed = 0;
@@ -331,12 +321,30 @@ const DashboardPage = () => {
   if (activityLoading || isServer()) {
     return <JobSeekerDashboardSkeleton />;
   }
+  // const chartData = [
+  //   {
+  //     browser: "safari",
+  //     name: "Profile Completion",
+  //     completionLoading:
+  //       completionPercentage?.data?.profile_completion?.overall_percentage || 0,
+  //     fill: "var(--color-responseProgress)",
+  //   },
+  // ];
+
+  const chartConfig = {
+    completionLoading: {
+      label: "Profile Completion",
+      color: "#0043CE",
+    },
+  } satisfies ChartConfig;
+
+  // Updated chart data structure
   const chartData = [
     {
-      browser: "safari",
+      name: "Profile Completion",
       completionLoading:
-        completionPercentage?.data?.profile_completion?.overall_percentage,
-      fill: "var(--color-responseProgress)",
+        completionPercentage?.data?.profile_completion?.overall_percentage || 0,
+      fill: "#0043CE",
     },
   ];
 
@@ -757,30 +765,41 @@ const DashboardPage = () => {
                   <defs>
                     <style>{`.completion-bar { fill: #0043CE; }`}</style>
                   </defs>
+
                   <ChartContainer
                     config={chartConfig}
                     className="mx-auto aspect-square max-h-[250px]"
                   >
                     <RadialBarChart
-                      data={chartData}
-                      startAngle={0}
-                      endAngle={250}
+                      key={
+                        completionPercentage?.data?.profile_completion
+                          ?.overall_percentage
+                      }
+                      cx="50%"
+                      cy="50%"
+                      data={[
+                        {
+                          name: "Profile Completion",
+                          value: 100, // Full circle background
+                          fill: "#e5e7eb", // Light gray background
+                        },
+                        {
+                          name: "Profile Completion",
+                          value:
+                            completionPercentage?.data?.profile_completion
+                              ?.overall_percentage || 0,
+                          fill: "#0043CE", // Your blue color
+                        },
+                      ]}
+                      startAngle={90}
+                      endAngle={450} // Full circle
                       innerRadius={80}
                       outerRadius={110}
                     >
-                      <PolarGrid
-                        gridType="circle"
-                        radialLines={false}
-                        stroke="none"
-                        className="first:fill-muted last:fill-background"
-                        polarRadius={[86, 74]}
-                      />
                       <RadialBar
-                        className="completion-bar"
-                        dataKey="completionLoading"
-                        background
+                        dataKey="value"
                         cornerRadius={10}
-                        fill="#0043CE"
+                        stackId="completion"
                       />
                       <PolarRadiusAxis
                         tick={false}
@@ -802,10 +821,9 @@ const DashboardPage = () => {
                                     y={viewBox.cy}
                                     className="fill-foreground text-4xl font-bold"
                                   >
-                                    {
-                                      completionPercentage?.data
-                                        ?.profile_completion?.overall_percentage
-                                    }
+                                    {completionPercentage?.data
+                                      ?.profile_completion
+                                      ?.overall_percentage || 0}
                                     %
                                   </tspan>
                                   <tspan

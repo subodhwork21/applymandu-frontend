@@ -25,6 +25,8 @@ import {
   Calendar,
   MessageSquare,
   Verified,
+  FileText,
+  XCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import RegisterModal from "./register-modal";
@@ -97,6 +99,55 @@ interface NotificationsResponse {
   total: number;
 }
 
+// Helper function to get notification icon based on activity type
+const getNotificationIcon = (activityType: string) => {
+  switch (activityType) {
+    case "application_submitted":
+      return <FileText className="h-4 w-4 text-blue-600" />;
+    case "job_closed":
+      return <Calendar className="h-4 w-4 text-red-600" />;
+    case "job_rejected":
+      return <XCircle className="h-4 w-4 text-orange-600" />;
+    case "interview_scheduled":
+      return <Calendar className="h-4 w-4 text-blue-600" />;
+    case "application_viewed":
+      return <BookMarked className="h-4 w-4 text-green-600" />;
+    case "job_match":
+      return <Briefcase className="h-4 w-4 text-purple-600" />;
+    case "message_received":
+      return <MessageSquare className="h-4 w-4 text-orange-600" />;
+    case "payment_processed":
+      return <CreditCard className="h-4 w-4 text-red-600" />;
+    default:
+      return <Bell className="h-4 w-4 text-blue-600" />;
+  }
+};
+
+// Helper function to get background color based on activity type
+const getNotificationBgColor = (activityType: string) => {
+  switch (activityType) {
+    case "application_submitted":
+      return "bg-blue-100";
+    case "job_closed":
+      return "bg-red-100";
+    case "job_rejected":
+      return "bg-orange-100";
+    case "interview_scheduled":
+      return "bg-blue-100";
+    case "application_viewed":
+      return "bg-green-100";
+    case "job_match":
+      return "bg-purple-100";
+    case "message_received":
+      return "bg-orange-100";
+    case "payment_processed":
+      return "bg-red-100";
+    default:
+      return "bg-blue-100";
+  }
+};
+
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
@@ -149,6 +200,8 @@ const Header = () => {
     deleteCookie("IMP_TOKEN");
     router.push("/admin/");
   };
+
+  
 
   const fetchChatPreviews = useCallback(async () => {
     try {
@@ -423,69 +476,75 @@ return notification?.read_at === null;
 
                     <div className="max-h-96 overflow-auto">
                       {/* Notifications Section */}
-                      {activeTab === "notifications" && (
-                        <div>
-                          {notificationsError ? (
-                            <DropdownMenuItem className="text-center p-4 cursor-default">
-                              <p className="text-sm text-red-500">
-                                Failed to load notifications
-                              </p>
-                            </DropdownMenuItem>
-                          ) : !notificationsData ? (
-                            <DropdownMenuItem className="text-center p-4 cursor-default">
-                              <p className="text-sm text-neutral-500">
-                                Loading notifications...
-                              </p>
-                            </DropdownMenuItem>
-                          ) : notificationsData.data.length === 0 ? (
-                            <DropdownMenuItem className="text-center p-4 cursor-default">
-                              <p className="text-sm text-neutral-500 text-center w-full">
-                                No notifications yet
-                              </p>
-                            </DropdownMenuItem>
-                          ) : (
-                            notificationsData.data.map((notification) => (
-                              <DropdownMenuItem
+                     {activeTab === "notifications" && (
+  <div>
+    {notificationsError ? (
+      <DropdownMenuItem className="text-center p-4 cursor-default">
+        <p className="text-sm text-red-500">
+          Failed to load notifications
+        </p>
+      </DropdownMenuItem>
+    ) : !notificationsData ? (
+      <DropdownMenuItem className="text-center p-4 cursor-default">
+        <p className="text-sm text-neutral-500">
+          Loading notifications...
+        </p>
+      </DropdownMenuItem>
+    ) : notificationsData.data.length === 0 ? (
+      <DropdownMenuItem className="text-center p-4 cursor-default">
+        <p className="text-sm text-neutral-500 text-center w-full">
+          No notifications yet
+        </p>
+      </DropdownMenuItem>
+    ) : (
+      notificationsData.data.map((notification) => (
+        <DropdownMenuItem
+          key={notification.id}
+          onClick={() => {
+            // Handle click based on notification type
+            if (notification.activity_type === "application_submitted" && notification.data.subject_id) {
+              router.push(`/dashboard/employer/applications/${notification.data.subject_id}`);
+            } else if (notification.activity_type === "job_closed" && notification.data.subject_id) {
+              router.push(`/dashboard/employer/jobs/${notification.data.subject_id}`);
+            } else if (notification.activity_type === "job_rejected" && notification.data.subject_id) {
+              router.push(`/dashboard/employer/jobs/${notification.data.subject_id}`);
+            }
+          }}
+          className={`flex items-start p-4 cursor-pointer ${
+            notification.read_at ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white" : "bg-manduCustom-secondary-blue/40 text-white"
+          }`}
+        >
+          <div
+            className={`h-8 w-8 rounded-full ${getNotificationBgColor(
+              notification.activity_type
+            )} flex items-center justify-center mr-3`}
+          >
+            {getNotificationIcon(notification.activity_type)}
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">
+              {notification.activity_type
+                ?.replace("_", " ")
+                ?.replace(/\b\w/g, (l) => l.toUpperCase())}
+              <span>
+                {notification?.read_at ? (
+                  <Verified className="inline-block ml-1 h-4 w-4 text-green-500" />
+                ) : null}
+              </span>
+            </p>
+            <p className="text-xs text-neutral-500 mt-1">
+              {notification.data.description}
+            </p>
+            <p className="text-xs text-neutral-400 mt-2">
+              {formatNotificationTime(notification.created_at)}
+            </p>
+          </div>
+        </DropdownMenuItem>
+      ))
+    )}
+  </div>
+)}
 
-                              onClick={()=> router.push("/jobs/"+ notification.data.slug)}
-                                key={notification.id}
-                                className={`flex items-start p-4 cursor-pointer ${notification?.read_at ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white ": "bg-manduCustom-secondary-blue/40 text-white"}`}
-                              >
-                                <div
-                                  className={`h-8 w-8 rounded-full ${getNotificationBgColor(
-                                    notification.notification_type 
-                                  )} flex items-center justify-center mr-3`}
-                                >
-                                  {getNotificationIcon(
-                                    notification.notification_type
-                                  )}
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium">
-                                    {notification.notification_type
-                                      .replace("_", " ")
-                                      .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                      <span>
-                                       {
-                                        notification?.read_at ? 
-                                        <Verified className="inline-block ml-1 h-4 w-4 text-green-500" /> : null
-                                       }
-                                      </span>
-                                  </p>
-                                  <p className="text-xs text-neutral-500 mt-1">
-                                    {notification.data.job_title} job matches {notification?.data?.match_percentage}% of your job alert.
-                                  </p>
-                                  <p className="text-xs text-neutral-400 mt-2">
-                                    {formatNotificationTime(
-                                      notification.created_at
-                                    )}
-                                  </p>
-                                </div>
-                              </DropdownMenuItem>
-                            ))
-                          )}
-                        </div>
-                      )}
 
                       {/* Messages Section */}
                       {activeTab === "messages" && (
