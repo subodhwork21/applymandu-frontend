@@ -457,7 +457,7 @@ const ApplicationsPage = () => {
                         <div className="flex justify-between items-center w-full">
                                                     <div className="flex gap-2">
                       {application.skills &&
-                        application.skills.slice(0, 4).map((skill, id) => (
+                        application.skills.slice(0, 2).map((skill, id) => (
                           <span
                             key={id}
                             className="px-4 py-2 font-semibold bg-grayTag/70  rounded-[50px] text-sm capitalize text-manduBorder"
