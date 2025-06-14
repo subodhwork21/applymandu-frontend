@@ -113,7 +113,7 @@ const PopularClosingJobs = () => {
                 Most Popular
               </h2>
               <Link
-                href="/jobs/popular"
+                href="#"
                 className="text-sm flex uppercase text-manduSecondary font-semibold items-center hover:underline cursor-pointer"
               >
                 View all <ArrowRightIcon />
@@ -208,7 +208,7 @@ const PopularClosingJobs = () => {
                 Closing Soon
               </h2>
               <Link
-                href="/jobs/closing"
+                href="#"
                 className="text-sm flex text-manduSecondary font-semibold items-center hover:underline cursor-pointer"
               >
                 View all <ArrowRightIcon />
@@ -234,14 +234,15 @@ const PopularClosingJobs = () => {
                   </div>
                 ))
               ) : (
+
              closingJobsData &&  closingJobsData?.expiring_jobs.map((job) => (
               <> 
                   <Link 
                     key={job.id} 
-                    href={`/jobs/${job.id}`} 
+                    href={`/jobs/${job?.slug}`} 
                     className="w-full"
                   >
-                    <div className={`bg-white hover:shadow-[inset_4px_0_0_0_rgb(220,20,60),inset_0_1px_0_0_rgb(220,20,60),inset_0_-1px_0_0_rgb(220,20,60),inset_-1px_0_0_0_rgb(220,20,60)] rounded-lg p-4 shadow-sm transition-shadow border ${job.expiring_soon ? 'border-orange-300' : 'border-neutral-200'}`}>
+                    <div className={`bg-white p-4 mb-6 hover:shadow-[inset_4px_0_0_0_rgb(220,20,60),inset_0_1px_0_0_rgb(220,20,60),inset_0_-1px_0_0_rgb(220,20,60),inset_-1px_0_0_0_rgb(220,20,60)] rounded-lg shadow-sm transition-shadow border ${job.expiring_soon ? 'border-orange-300' : 'border-neutral-200'}`}>
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center">
                           <div className="text-xl">
@@ -300,7 +301,6 @@ const PopularClosingJobs = () => {
                                 {job.location}
                               </span>
                               <span className="flex items-center gap-1 text-manduSecondary">
-                                <DollarSign className="h-4 w-4" />
                                 {job.salary}
                               </span>
                             </div>
