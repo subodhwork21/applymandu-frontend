@@ -455,9 +455,9 @@ const ApplicationsPage = () => {
                           </div>
                         </div>
                         <div className="flex justify-between items-center w-full">
-                          <div className="flex gap-2">
+                                                    <div className="flex gap-2">
                       {application.skills &&
-                        application.skills.map((skill, id) => (
+                        application.skills.slice(0, 4).map((skill, id) => (
                           <span
                             key={id}
                             className="px-4 py-2 font-semibold bg-grayTag/70  rounded-[50px] text-sm capitalize text-manduBorder"
@@ -465,7 +465,13 @@ const ApplicationsPage = () => {
                             {skill}
                           </span>
                         ))}
+                      {application.skills && application.skills.length > 4 && (
+                        <span className="px-4 py-2 font-semibold bg-grayTag/70 rounded-[50px] text-sm text-manduBorder">
+                          +{application.skills.length - 4} more
+                        </span>
+                      )}
                     </div>
+
                           <div className="flex gap-5">
                             <Button
                               className={` bg-manduSecondary text-white hover:text-white`}

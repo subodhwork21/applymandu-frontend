@@ -595,6 +595,8 @@ const DashboardPage = () => {
                               <Image
                                 src={job?.image}
                                 alt={job?.employer_name}
+                                width={50}
+                                height={50}
                                 className="w-14 h-14 object-cover rounded-lg"
                               />
                             ) : (
