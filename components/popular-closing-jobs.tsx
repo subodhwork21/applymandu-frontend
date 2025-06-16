@@ -203,7 +203,9 @@ const PopularClosingJobs = () => {
 
           {/* Closing Soon */}
           <div>
-           <div className="flex justify-between items-center mb-6">
+            {
+                closingJobsData && closingJobsData?.expiring_jobs?.length > 0 && (
+                    <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl text-manduSecondary font-nasalization font-normal">
                 Closing Soon
               </h2>
@@ -214,6 +216,9 @@ const PopularClosingJobs = () => {
                 View all <ArrowRightIcon />
               </Link>
             </div>
+                )
+            }
+          
 
         { closingJobsData && closingJobsData?.expiring_jobs?.length > 0 ?   <div className="space-y-4">
               {isLoadingClosing ? (

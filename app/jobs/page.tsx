@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -99,6 +99,29 @@ const JobsPage = () => {
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>(
     searchParams.getAll("employment_type[]") || []
   );
+
+
+const initialized = useRef(false);
+
+useEffect(() => {
+  if (initialized.current) return; // Skip if already initialized
+  
+  const initialJobTypes = searchParams.getAll("employment_type[]") || [];
+  
+  if (initialJobTypes.length > 0) {
+    setActiveFilters(prev => [...prev, ...initialJobTypes]);
+    setActiveKeys(prev => [...prev, ...initialJobTypes.map(() => "employment_type")]);
+  }
+
+  const initialExperienceLevels = searchParams.getAll("experience_level[]") || [];
+  
+  if (initialExperienceLevels.length > 0) {
+    setActiveFilters(prev => [...prev, ...initialExperienceLevels]);
+    setActiveKeys(prev => [...prev, ...initialExperienceLevels.map(() => "experience_level")]);
+  }
+  
+  initialized.current = true;
+}, []);
 
   const {data: popularSearches, isLoading: popularLoading, mutate: popularSearchesMutate} = useSWR<Record<string,any>>("api/job/search", defaultFetcher);
 
