@@ -46,7 +46,6 @@ import { echo } from "@/lib/echo-setup";
 import { toast } from "@/hooks/use-toast";
 import { deleteCookie, getCookie } from "cookies-next";
 
-
 interface ChatPreview {
   id: number;
   user_id: number;
@@ -147,7 +146,6 @@ const getNotificationBgColor = (activityType: string) => {
   }
 };
 
-
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
@@ -160,25 +158,21 @@ const Header = () => {
     openRegisterModal,
   } = useAuth();
 
-
   const pathName = usePathname();
   const isActive = pathName;
   const router = useRouter();
 
-
   const [seekFor, setSeekFor] = useState<string>("");
 
-  useEffect(()=>{
-    if(isAuthenticated && isEmployer){
+  useEffect(() => {
+    if (isAuthenticated && isEmployer) {
       setSeekFor("jobseeker");
-    }
-    else if(isAuthenticated && !isEmployer){
+    } else if (isAuthenticated && !isEmployer) {
       setSeekFor("employer");
-    }
-    else{
+    } else {
       setSeekFor("");
     }
-  }, [isAuthenticated, isEmployer])
+  }, [isAuthenticated, isEmployer]);
 
   // Chat notifications state
   const [chats, setChats] = useState<ChatPreview[]>([]);
@@ -200,8 +194,6 @@ const Header = () => {
     deleteCookie("IMP_TOKEN");
     router.push("/admin/");
   };
-
-  
 
   const fetchChatPreviews = useCallback(async () => {
     try {
@@ -235,13 +227,13 @@ const Header = () => {
       // Initial data fetch
       fetchChatPreviews();
       // Set up Echo listener for new messages
-        const channel = echo?.private(`user.${user?.id}.messages`);
-        channel.listen("NewChatMessage", () => {
-          fetchChatPreviews();
-        });
+      const channel = echo?.private(`user.${user?.id}.messages`);
+      channel.listen("NewChatMessage", () => {
+        fetchChatPreviews();
+      });
 
-        // Add error handling
-        channel.error(() => {});
+      // Add error handling
+      channel.error(() => {});
 
       // Clean up function
       return () => {
@@ -345,28 +337,26 @@ const Header = () => {
   };
 
   const markAllAsRead = async () => {
-    const {response, errors, result} = await baseFetcher("api/notifications/read-all", {
-      method: "POST",
+    const { response, errors, result } = await baseFetcher(
+      "api/notifications/read-all",
+      {
+        method: "POST",
+      }
+    );
 
-    })
-
-    if(response?.ok){
+    if (response?.ok) {
       toast({
         title: "Success",
         description: "All notifications marked as read",
       });
       refetchNotifications();
-    }
-    else{
+    } else {
       toast({
         title: "Error",
         description: errors || "Failed to mark notifications as read",
       });
     }
-    }
-
-
-
+  };
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
@@ -411,12 +401,20 @@ const Header = () => {
                 {/* Notifications Dropdown with Messages Tab */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative shadow-2xl border-[1px] p-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative shadow-2xl border-[1px] p-2"
+                    >
                       <Bell className="h-5 w-5 text-neutral-600" />
                       <span className="absolute -top-2 -right-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {notificationsData && notificationsData?.data?.length > 0 ? totalUnread + notificationsData?.data?.filter((notification)=>{
-return notification?.read_at === null;
-                        }).length : 0}
+                        {notificationsData &&
+                        notificationsData?.data?.length > 0
+                          ? totalUnread +
+                            notificationsData?.data?.filter((notification) => {
+                              return notification?.read_at === null;
+                            }).length
+                          : 0}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -430,7 +428,7 @@ return notification?.read_at === null;
                         </p>
                         {activeTab === "notifications" ? (
                           <Button
-                          onClick={()=> markAllAsRead()}
+                            onClick={() => markAllAsRead()}
                             variant="ghost"
                             className="h-auto p-0 text-xs text-neutral-600 hover:text-neutral-900"
                           >
@@ -476,75 +474,100 @@ return notification?.read_at === null;
 
                     <div className="max-h-96 overflow-auto">
                       {/* Notifications Section */}
-                     {activeTab === "notifications" && (
-  <div>
-    {notificationsError ? (
-      <DropdownMenuItem className="text-center p-4 cursor-default">
-        <p className="text-sm text-red-500">
-          Failed to load notifications
-        </p>
-      </DropdownMenuItem>
-    ) : !notificationsData ? (
-      <DropdownMenuItem className="text-center p-4 cursor-default">
-        <p className="text-sm text-neutral-500">
-          Loading notifications...
-        </p>
-      </DropdownMenuItem>
-    ) : notificationsData.data.length === 0 ? (
-      <DropdownMenuItem className="text-center p-4 cursor-default">
-        <p className="text-sm text-neutral-500 text-center w-full">
-          No notifications yet
-        </p>
-      </DropdownMenuItem>
-    ) : (
-      notificationsData.data.map((notification) => (
-        <DropdownMenuItem
-          key={notification.id}
-          onClick={() => {
-            // Handle click based on notification type
-            if (notification.activity_type === "application_submitted" && notification.data.subject_id) {
-              router.push(`/dashboard/employer/applications/${notification.data.subject_id}`);
-            } else if (notification.activity_type === "job_closed" && notification.data.subject_id) {
-              router.push(`/dashboard/employer/jobs/${notification.data.subject_id}`);
-            } else if (notification.activity_type === "job_rejected" && notification.data.subject_id) {
-              router.push(`/dashboard/employer/jobs/${notification.data.subject_id}`);
-            }
-          }}
-          className={`flex items-start p-4 cursor-pointer ${
-            notification.read_at ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white" : "bg-manduCustom-secondary-blue/40 text-white"
-          }`}
-        >
-          <div
-            className={`h-8 w-8 rounded-full ${getNotificationBgColor(
-              notification.activity_type
-            )} flex items-center justify-center mr-3`}
-          >
-            {getNotificationIcon(notification.activity_type)}
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium">
-              {notification.activity_type
-                ?.replace("_", " ")
-                ?.replace(/\b\w/g, (l) => l.toUpperCase())}
-              <span>
-                {notification?.read_at ? (
-                  <Verified className="inline-block ml-1 h-4 w-4 text-green-500" />
-                ) : null}
-              </span>
-            </p>
-            <p className="text-xs text-neutral-500 mt-1">
-              {notification.data.description}
-            </p>
-            <p className="text-xs text-neutral-400 mt-2">
-              {formatNotificationTime(notification.created_at)}
-            </p>
-          </div>
-        </DropdownMenuItem>
-      ))
-    )}
-  </div>
-)}
-
+                      {activeTab === "notifications" && (
+                        <div>
+                          {notificationsError ? (
+                            <DropdownMenuItem className="text-center p-4 cursor-default">
+                              <p className="text-sm text-red-500">
+                                Failed to load notifications
+                              </p>
+                            </DropdownMenuItem>
+                          ) : !notificationsData ? (
+                            <DropdownMenuItem className="text-center p-4 cursor-default">
+                              <p className="text-sm text-neutral-500">
+                                Loading notifications...
+                              </p>
+                            </DropdownMenuItem>
+                          ) : notificationsData.data.length === 0 ? (
+                            <DropdownMenuItem className="text-center p-4 cursor-default">
+                              <p className="text-sm text-neutral-500 text-center w-full">
+                                No notifications yet
+                              </p>
+                            </DropdownMenuItem>
+                          ) : (
+                            notificationsData.data.map((notification) => (
+                              <DropdownMenuItem
+                                key={notification.id}
+                                onClick={() => {
+                                  // Handle click based on notification type
+                                  if (
+                                    notification.activity_type ===
+                                      "application_submitted" &&
+                                    notification.data.subject_id
+                                  ) {
+                                    router.push(
+                                      `/dashboard/employer/applications/${notification.data.subject_id}`
+                                    );
+                                  } else if (
+                                    notification.activity_type ===
+                                      "job_closed" &&
+                                    notification.data.subject_id
+                                  ) {
+                                    router.push(
+                                      `/dashboard/employer/jobs/${notification.data.subject_id}`
+                                    );
+                                  } else if (
+                                    notification.activity_type ===
+                                      "job_rejected" &&
+                                    notification.data.subject_id
+                                  ) {
+                                    router.push(
+                                      `/dashboard/employer/jobs/${notification.data.subject_id}`
+                                    );
+                                  }
+                                }}
+                                className={`flex items-start p-4 cursor-pointer ${
+                                  notification.read_at
+                                    ? "bg-[#F1F5F9] text-black hover:bg-patternText hover:text-white"
+                                    : "bg-manduCustom-secondary-blue/40 text-white"
+                                }`}
+                              >
+                                <div
+                                  className={`h-8 w-8 rounded-full ${getNotificationBgColor(
+                                    notification.activity_type
+                                  )} flex items-center justify-center mr-3`}
+                                >
+                                  {getNotificationIcon(
+                                    notification.activity_type
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">
+                                    {notification.activity_type
+                                      ?.replace("_", " ")
+                                      ?.replace(/\b\w/g, (l) =>
+                                        l.toUpperCase()
+                                      )}
+                                    <span>
+                                      {notification?.read_at ? (
+                                        <Verified className="inline-block ml-1 h-4 w-4 text-green-500" />
+                                      ) : null}
+                                    </span>
+                                  </p>
+                                  <p className="text-xs text-neutral-500 mt-1">
+                                    {notification.data.description}
+                                  </p>
+                                  <p className="text-xs text-neutral-400 mt-2">
+                                    {formatNotificationTime(
+                                      notification.created_at
+                                    )}
+                                  </p>
+                                </div>
+                              </DropdownMenuItem>
+                            ))
+                          )}
+                        </div>
+                      )}
 
                       {/* Messages Section */}
                       {activeTab === "messages" && (
@@ -563,7 +586,7 @@ return notification?.read_at === null;
                                 <div className="relative">
                                   <Avatar className="h-10 w-10">
                                     <AvatarImage
-                                      src={chat.avatar}
+                                      src={chat.avatar }
                                       alt={chat.name}
                                     />
                                     <AvatarFallback>
@@ -719,25 +742,25 @@ return notification?.read_at === null;
                           </DropdownMenuItem>
                         </p>
                       )}
-                     
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                     {
-                        getCookie("ADMIN_TOKEN") ?  <DropdownMenuItem
-                      className="text-red-600 focus:text-red-600"
-                      onClick={leaveImpersonation}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Leave Impersonation</span>
-                    </DropdownMenuItem>:  <DropdownMenuItem
-                      className="text-red-600 focus:text-red-600"
-                      onClick={logout}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                      }
-                   
+                    {getCookie("ADMIN_TOKEN") ? (
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600"
+                        onClick={leaveImpersonation}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Leave Impersonation</span>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600"
+                        onClick={logout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
@@ -787,24 +810,22 @@ return notification?.read_at === null;
                   {item.label}
                 </Link>
               ))}
-              {(
-                !isAuthenticated && (
-                  <div className="flex space-x-4 pt-2">
-                    <Button
-                      className="flex-1 bg-black text-white hover:bg-neutral-800"
-                      onClick={openLoginModal}
-                    >
-                      Sign In
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 bg-white border-neutral-200 hover:bg-neutral-50"
-                      onClick={() => openRegisterModal()}
-                    >
-                      Register
-                    </Button>
-                  </div>
-                )
+              {!isAuthenticated && (
+                <div className="flex space-x-4 pt-2">
+                  <Button
+                    className="flex-1 bg-black text-white hover:bg-neutral-800"
+                    onClick={openLoginModal}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 bg-white border-neutral-200 hover:bg-neutral-50"
+                    onClick={() => openRegisterModal()}
+                  >
+                    Register
+                  </Button>
+                </div>
               )}
             </nav>
           </div>

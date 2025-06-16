@@ -25,11 +25,13 @@ interface Message {
     id: number;
     // name: string;
     image?: string;
+    image_path?: string;
   };
   receiver?: {
     id: number;
     // name: string;
     image?: string;
+    image_path?: string;
   };
 }
 
