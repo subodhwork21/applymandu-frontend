@@ -29,7 +29,7 @@ const Hero = () => {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto rounded-2xl shadow-lg p-6 md:p-10">
+        <div className="max-w-6xl mx-auto rounded-2xl p-6 md:p-10">
           <div className="flex flex-col md:flex-row gap-4 md:gap-6 rounded-[50px] md:bg-white px-[2px] py-[2px]">
             <div className="flex-1 relative">
               <div className="absolute left-6 top-1/2 -translate-y-1/2 text-[#757575]">
