@@ -441,7 +441,7 @@ useEffect(() => {
                 </p>
               </div>
 
-              <div className="max-w-5xl mx-auto rounded-2xl shadow-lg p-6 md:p-10">
+              <div className="max-w-5xl mx-auto rounded-2xl p-6 md:p-10">
                 <div className="flex flex-col md:flex-row gap-x-4 justify-start items-center rounded-[50px] shadow-sm md:bg-white p-x-[2px] p-y-[2px]">
                   {/* <div className="relative mb-6 flex gap-4"> */}
                   <div className="flex-1 relative md:mb-0 mb-4 w-full">
