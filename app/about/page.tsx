@@ -1,4 +1,9 @@
-"use client";
+export const metadata: Metadata = {
+  title: "About Us - Applymandu",
+  description:
+    "Discover the story behind Applymandu, your trusted partner in connecting talent with opportunity.",
+};
+
 
 import React from "react";
 import Link from "next/link";
@@ -7,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import Image from "next/image";
+import { Metadata } from "next";
 
 const AboutPage = () => {
   return (

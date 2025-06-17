@@ -19,9 +19,19 @@ const myFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Applymandu - Your Gateway to Career Opportunities",
+  title: {
+    default: "Applymandu - Your Dream Job Awaits",
+    template: "%s - Applymandu - Your Dream Job Awaits",
+  },
   description:
-    "Find your dream job or hire the perfect candidate with Applymandu, the leading job board in Nepal.",
+    "Whether you're seeking new opportunities or hiring talent, we connect the right people with the right positions.",
+  twitter: {
+    card: "summary_large_image",
+    title: "Applymandu - Your Dream Job Awaits",
+    description:
+      "Whether you're seeking new opportunities or hiring talent, we connect the right people with the right positions.",
+    creator: "@your_twitter_handle",
+  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
