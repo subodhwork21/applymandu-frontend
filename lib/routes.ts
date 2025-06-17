@@ -1,7 +1,7 @@
 export const routes = {
     // Public routes
     home: '/',
-    jobs: '/jobs',
+    jobs: '/jobs/browse/all',
     companies: '/companies',
     resources: '/resources',
     about: '/about',

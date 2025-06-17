@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   try {
@@ -27,6 +28,9 @@ export async function generateMetadata({
   const response = await fetch(
     process.env.NEXT_PUBLIC_API_URL + "api/seo/job-info/" + params?.slug
   );
+  if (!response.ok) {
+    notFound()
+  }
   const data = await response.json();
   return {
     title: data?.title,

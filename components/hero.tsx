@@ -8,12 +8,87 @@ const Hero = () => {
   const router = useRouter();
   const [inputSearch, setInputSearch] = React.useState("");
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) =>{
-    if(e.key == "Enter"){
+  // URL building function to match the new structure
+  const buildJobsUrl = (filters: Record<string, any>): string => {
+    const segments: string[] = [];
+    
+    const segmentOrder = [
+      'search',
+      'location', 
+      'experience',
+      'type',
+      'salary-min',
+      'salary-max',
+      'skills',
+      'remote',
+      'page',
+      'sort'
+    ];
+    
+    segmentOrder.forEach(key => {
+      const value = filters[key];
+      if (value !== undefined && value !== null && value !== '') {
+        segments.push(key);
+        
+        if (Array.isArray(value)) {
+          segments.push(encodeURIComponent(value.join(',')));
+        } else {
+          segments.push(encodeURIComponent(value.toString()));
+        }
+      }
+    });
+    
+    return segments.length > 0 ? `/jobs/browse/${segments.join('/')}` : '/jobs/browse/all';
+  };
 
-      router.push("/jobs?search="+e?.currentTarget?.value);
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if(e.key == "Enter"){
+      const searchValue = e?.currentTarget?.value?.trim();
+      if (searchValue) {
+        const url = buildJobsUrl({ search: searchValue });
+        router.push(url);
+      } else {
+        router.push("/jobs/browse/all");
+      }
     }
   }
+
+  const handleSearchButtonClick = () => {
+    const searchValue = inputSearch?.trim();
+    if (searchValue) {
+      const url = buildJobsUrl({ search: searchValue });
+      router.push(url);
+    } else {
+      router.push("/jobs/browse/all");
+    }
+  };
+
+  const handleFilterClick = (filterType: string, filterValue: string) => {
+    let filters: Record<string, any> = {};
+    
+    switch(filterType) {
+      case 'employment_type':
+        filters.type = filterValue;
+        break;
+      case 'experience_level':
+        // Map display values to actual values
+        const experienceMap: Record<string, string> = {
+          'Entry Level': 'entry-level',
+          'Senior Level': 'senior-level'
+        };
+        filters.experience = experienceMap[filterValue] || filterValue.toLowerCase().replace(' ', '-');
+        break;
+      case 'remote':
+        filters.remote = 'true';
+        break;
+      default:
+        filters[filterType] = filterValue;
+    }
+    
+    const url = buildJobsUrl(filters);
+    router.push(url);
+  };
+
   return (
     <section className="bg-white border-b border-neutral-200 py-20 bg-[url('/pattern.jpg')] bg-contain bg-center relative">
        <div className="absolute inset-0 bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90"></div>
@@ -44,36 +119,54 @@ const Hero = () => {
                 className="w-full placeholder:text-[#757575] pl-14 md:pl-16 pr-6 py-3 md:py-3 text-manduCustom-secondary-blue text-base md:text-lg bg-neutral-50 rounded-[50px] border-none focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all"
               />
             </div>
-            <button onClick={(e)=> router.push("/jobs?search="+inputSearch)} className="bg-manduSecondary rounded-[50px] text-white px-8 md:px-6 py-2 md:py-2 text-base md:text-lg md:font-[600] hover:bg-neutral-800 transition-colors whitespace-nowrap">
+            <button 
+              onClick={handleSearchButtonClick} 
+              className="bg-manduSecondary rounded-[50px] text-white px-8 md:px-6 py-2 md:py-2 text-base md:text-lg md:font-[600] hover:bg-neutral-800 transition-colors whitespace-nowrap"
+            >
               Search Jobs
             </button>
           </div>
 
           <div className="mt-12 flex flex-wrap justify-center items-center gap-3">
-            <button onClick={(e)=> router.push("/jobs?employment_type[]="+"remote")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
-        <Globe size={20} />
-        <span className="text-body2">Remote</span>
-      </button>
+            <button 
+              onClick={() => handleFilterClick('remote', 'true')} 
+              className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <Globe size={20} />
+              <span className="text-body2">Remote</span>
+            </button>
       
-      <button onClick={(e)=> router.push("/jobs?employment_type[]="+"Full-time")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
-        <Briefcase size={20} />
-        <span className="text-body2">Full-time</span>
-      </button>
+            <button 
+              onClick={() => handleFilterClick('employment_type', 'Full-time')} 
+              className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <Briefcase size={20} />
+              <span className="text-body2">Full-time</span>
+            </button>
       
-      <button onClick={(e)=> router.push("/jobs?employment_type[]="+"Part-time")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
-        <Clock size={20} />
-        <span className="text-body2">Part-time</span>
-      </button>
+            <button 
+              onClick={() => handleFilterClick('employment_type', 'Part-time')} 
+              className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <Clock size={20} />
+              <span className="text-body2">Part-time</span>
+            </button>
       
-      <button onClick={(e)=> router.push("/jobs?experience_level[]="+"Entry Level")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
-        <TrendingUp size={20} />
-        <span className="text-body2">Entry Level</span>
-      </button>
+            <button 
+              onClick={() => handleFilterClick('experience_level', 'Entry Level')} 
+              className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <TrendingUp size={20} />
+              <span className="text-body2">Entry Level</span>
+            </button>
 
-        <button onClick={(e)=> router.push("/jobs?experience_level[]="+"Senior Level")} className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all">
-        <RocketIcon size={20} />
-        <span className="text-body2">Experienced</span>
-      </button>
+            <button 
+              onClick={() => handleFilterClick('experience_level', 'Senior Level')} 
+              className="flex items-center gap-2 md:px-6 md:py-3 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <RocketIcon size={20} />
+              <span className="text-body2">Experienced</span>
+            </button>
           </div>
         </div>
       </div>
