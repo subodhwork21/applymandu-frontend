@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function JobsRedirect() {
+export default function Page(){
+  return <Suspense fallback={<div>Loading...</div>}>
+    <JobsRedirect/>
+  </Suspense>
+}
+
+ function JobsRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
