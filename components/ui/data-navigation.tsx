@@ -85,9 +85,9 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
       {/* Add a custom class to reduce the gap between items */}
       <PaginationContent className="gap-[0px] sm:gap-1">
         {/* Previous button */}
-        <PaginationItem>
+        <PaginationItem className='cursor-pointer'>
           <PaginationPrevious 
-            href={prevLink?.url || "#"} 
+            // href={prevLink?.url || "#"} 
             onClick={(e) => prevLink?.url && handlePageClick(e, prevLink.url)}
             aria-disabled={!prevLink?.url}
             className={!prevLink?.url ? "pointer-events-none mr-4  bg-manduSecondary/40 text-white" : "bg-manduSecondary text-white"}
@@ -96,9 +96,9 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
         
         {/* Start ellipsis if needed */}
         {showStartEllipsis && (
-          <PaginationItem>
+          <PaginationItem className='cursor-pointer'>
             <PaginationLink 
-              href={pageLinks[0].url || "#"} 
+              // href={pageLinks[0].url || "#"} 
               onClick={(e) => pageLinks[0].url && handlePageClick(e, pageLinks[0].url)}
             >
               1
@@ -114,9 +114,9 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
         
         {/* Visible page links (max 4) */}
         {visiblePageLinks.map((link, index) => (
-          <PaginationItem key={index}>
+          <PaginationItem key={index} className='cursor-pointer'>
             <PaginationLink 
-              href={link.url || "#"} 
+              // href={link.url || "#"} 
               isActive={link.active}
               onClick={(e) => link.url && handlePageClick(e, link.url)}
               // Make the pagination links more compact
@@ -136,9 +136,9 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
         )}
         
         {showEndEllipsis && (
-          <PaginationItem>
+          <PaginationItem className='cursor-pointer'>
             <PaginationLink 
-              href={pageLinks[pageLinks.length - 1].url || "#"} 
+              // href={pageLinks[pageLinks.length - 1].url || "#"} 
               onClick={(e) => pageLinks[pageLinks.length - 1].url && handlePageClick(e, pageLinks[pageLinks.length - 1].url)}
             >
               {meta.last_page}
@@ -147,9 +147,9 @@ const DataNavigation: React.FC<DataNavigationProps> = ({
         )}
         
         {/* Next button */}
-        <PaginationItem>
+        <PaginationItem className='cursor-pointer'>
           <PaginationNext 
-            href={nextLink?.url || "#"} 
+            // href={nextLink?.url || "#"} 
             onClick={(e) => nextLink?.url && handlePageClick(e, nextLink.url)}
             aria-disabled={!nextLink?.url}
             className={!nextLink?.url ? "pointer-events-none opacity-50" : ""}
