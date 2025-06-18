@@ -96,10 +96,10 @@ const Hero = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mx-auto mb-16 w-full">
           <h1 className="text-4xl md:text-5xl lg:text-h2 mb-6 font-normal font-nasalization">
-            Your Dream Job Awaits
+            Your Dream Job Awaits in Nepal
           </h1>
           <p className="text-manduTertiary text-lg md:text-xl leading-7 w-full">
-            Whether you&apos;re seeking new opportunities or hiring talent, we
+            Whether you&apos;re seeking new opportunities or hiring talent in Nepal, we
             connect the right people with the right positions.
           </p>
         </div>

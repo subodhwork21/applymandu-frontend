@@ -20,8 +20,8 @@ const myFont = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Applymandu - Your Dream Job Awaits",
-    template: "%s - Applymandu - Your Dream Job Awaits",
+    default: "Applymandu - Jobs in Nepal",
+    template: "%s | Applymandu - Jobs in Nepal",
   },
   description:
     "Whether you're seeking new opportunities or hiring talent, we connect the right people with the right positions.",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     "job board Nepal",
     "vacancies Nepal",
   ],
-    authors: [{ name: "Applymandu Team" }],
+  authors: [{ name: "Applymandu Team" }],
   creator: "Applymandu",
   publisher: "Applymandu",
   robots: {
@@ -75,24 +75,25 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://applymandu.com',
-    siteName: 'Applymandu',
-    title: 'Applymandu - Your Dream Job Awaits',
-    description: 'Whether you\'re seeking new opportunities or hiring talent, we connect the right people with the right positions.',
+    type: "website",
+    locale: "en_US",
+    url: "https://applymandu.com",
+    siteName: "Applymandu",
+    title: "Applymandu - Your Dream Job Awaits | Jobs in Nepal",
+    description:
+      "Whether you're seeking new opportunities or hiring talent, we connect the right people with the right positions.",
     images: [
       {
-        url: '/og-image.png', // Add your Open Graph image
+        url: "/og-image.png", // Add your Open Graph image
         width: 1200,
         height: 630,
-        alt: 'Applymandu - Job Portal Nepal',
+        alt: "Applymandu - Job Portal Nepal",
       },
     ],
   },
