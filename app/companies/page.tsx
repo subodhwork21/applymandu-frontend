@@ -625,7 +625,7 @@ const CompaniesPage = () => {
             })}
         </div>
         
-        <div className="mt-8 text-center">
+        {/* <div className="mt-8 text-center">
           <Button 
             variant="outline" 
             className="border-manduSecondary text-manduSecondary hover:bg-manduSecondary hover:text-white"
@@ -634,7 +634,7 @@ const CompaniesPage = () => {
             View All Departments
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-        </div>
+        </div> */}
       </>
     )}
   </div>

@@ -45,7 +45,7 @@ export const initializeEcho = () => {
         broadcaster: 'pusher',
         key: pusherKey,
         cluster: pusherCluster,
-        forceTLS: true,
+        forceTLS: false,
         // Add auth credentials
         auth: {
           headers: {

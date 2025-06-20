@@ -129,27 +129,27 @@ const SettingsPage = () => {
   };
 
   // Add a function to format the date for display in the input field
-const formatDateForInput = (dateString: string | null): string => {
-  if (!dateString) return '';
-  
-  // Try to parse the date string
-  const date = new Date(dateString);
-  
-  // Check if the date is valid
-  if (isNaN(date.getTime())) return '';
-  
-  // Format as YYYY-MM-DD for the date input
-  return date.toISOString().split('T')[0];
-};
+  const formatDateForInput = (dateString: string | null): string => {
+    if (!dateString) return "";
 
-// Update the handleDateChange function to ensure proper date format
-const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
-  setFormData(prev => ({
-    ...prev,
-    [name]: value // The value from the date input will already be in YYYY-MM-DD format
-  }));
-};
+    // Try to parse the date string
+    const date = new Date(dateString);
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) return "";
+
+    // Format as YYYY-MM-DD for the date input
+    return date.toISOString().split("T")[0];
+  };
+
+  // Update the handleDateChange function to ensure proper date format
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value, // The value from the date input will already be in YYYY-MM-DD format
+    }));
+  };
   // Handle checkbox changes
   const handleCheckboxChange = (field: string, checked: boolean) => {
     setFormData((prev) => ({
@@ -233,9 +233,21 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         // Refresh the data
         mutate();
       } else {
+        const errors = result.errors;
+        let error = "";
+        // Handle errors as a plain object, not a Map
+        if (errors && typeof errors === "object") {
+          Object.entries(errors).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+              value.forEach((item: string) => {
+                error += `${item}\n`;
+              });
+            }
+          });
+        }
         toast({
           title: "Error",
-          description: result.message || "Failed to upload image",
+          description: error || "Failed to upload image",
           variant: "destructive",
         });
       }
@@ -466,7 +478,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     <section className="py-8 2xl:px-0 lg:px-12 px-4">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-2xl font-normal mb-1 text-manduSecondary font-nasalization">Settings</h1>
+          <h1 className="text-2xl font-normal mb-1 text-manduSecondary font-nasalization">
+            Settings
+          </h1>
           <p className="text-manduNeutral">
             Manage your account preferences and settings
           </p>
@@ -479,7 +493,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               onSubmit={handleImageUpload}
               className="bg-white rounded-lg border border-neutral-200 p-6"
             >
-              <h3 className="text-lg mb-4 font-medium text-manduSecondary">Profile Photo</h3>
+              <h3 className="text-lg mb-4 font-medium text-manduSecondary">
+                Profile Photo
+              </h3>
               <div className="flex items-center space-x-4">
                 <Image
                   width={80}
@@ -521,10 +537,17 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
             {/* Password */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-lg mb-4 text-manduSecondary font-medium">Password</h3>
+              <h3 className="text-lg mb-4 text-manduSecondary font-medium">
+                Password
+              </h3>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-manduNeutral" htmlFor="current_password">Current Password</Label>
+                  <Label
+                    className="text-manduNeutral"
+                    htmlFor="current_password"
+                  >
+                    Current Password
+                  </Label>
                   <Input
                     id="current_password"
                     name="current_password"
@@ -534,7 +557,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-manduNeutral" htmlFor="new_password">New Password</Label>
+                  <Label className="text-manduNeutral" htmlFor="new_password">
+                    New Password
+                  </Label>
                   <Input
                     id="new_password"
                     name="new_password"
@@ -544,7 +569,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-manduNeutral" htmlFor="new_password_confirmation">
+                  <Label
+                    className="text-manduNeutral"
+                    htmlFor="new_password_confirmation"
+                  >
                     Confirm New Password
                   </Label>
                   <Input
@@ -571,10 +599,14 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Personal Information */}
               <div className="bg-white rounded-lg border border-borderLine p-6">
-                <h2 className="text-xl mb-6 font-medium text-manduSecondary">Personal Information</h2>
+                <h2 className="text-xl mb-6 font-medium text-manduSecondary">
+                  Personal Information
+                </h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-manduNeutral" htmlFor="first_name">First Name</Label>
+                    <Label className="text-manduNeutral" htmlFor="first_name">
+                      First Name
+                    </Label>
                     <Input
                       id="first_name"
                       name="first_name"
@@ -583,7 +615,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-manduNeutral" htmlFor="last_name">Last Name</Label>
+                    <Label className="text-manduNeutral" htmlFor="last_name">
+                      Last Name
+                    </Label>
                     <Input
                       id="last_name"
                       name="last_name"
@@ -592,7 +626,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-manduNeutral" htmlFor="email">Email Address</Label>
+                    <Label className="text-manduNeutral" htmlFor="email">
+                      Email Address
+                    </Label>
                     <Input
                       id="email"
                       name="email"
@@ -602,7 +638,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-manduNeutral" htmlFor="phone">Phone Number</Label>
+                    <Label className="text-manduNeutral" htmlFor="phone">
+                      Phone Number
+                    </Label>
                     <div className="flex">
                       <Input
                         value="+977"
@@ -627,7 +665,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <div className="bg-white rounded-lg border border-neutral-200 p-6">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-xl mb-4 font-medium text-manduSecondary">Privacy Preferences</h3>
+                    <h3 className="text-xl mb-4 font-medium text-manduSecondary">
+                      Privacy Preferences
+                    </h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
@@ -641,7 +681,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="profile_visibility">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="profile_visibility"
+                        >
                           Make my profile visible to employers
                         </Label>
                       </div>
@@ -656,7 +699,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="searchable">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="searchable"
+                        >
                           Allow my profile to appear in search results
                         </Label>
                       </div>
@@ -671,7 +717,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="show_contact_info">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="show_contact_info"
+                        >
                           Show my contact information to employers
                         </Label>
                       </div>
@@ -686,7 +735,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="show_activity_status">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="show_activity_status"
+                        >
                           Show my online activity status
                         </Label>
                       </div>
@@ -701,13 +753,18 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="allow_data_usage">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="allow_data_usage"
+                        >
                           Allow data usage for personalized job recommendations
                         </Label>
                       </div>
                     </div>
                     <div className="pt-6 border-neutral-200">
-                      <h3 className="text-xl mb-4 text-manduSecondary font-medium">Availability</h3>
+                      <h3 className="text-xl mb-4 text-manduSecondary font-medium">
+                        Availability
+                      </h3>
                       <div className="space-y-4">
                         <div className="flex items-center space-x-2">
                           <Checkbox
@@ -720,24 +777,32 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               )
                             }
                           />
-                          <Label className="text-manduNeutral" htmlFor="immediate_availability">
+                          <Label
+                            className="text-manduNeutral"
+                            htmlFor="immediate_availability"
+                          >
                             I am immediately available for work
                           </Label>
                         </div>
 
                         {!formData.immediate_availability && (
                           <div className="space-y-2">
-                            <Label className="text-manduNeutral" htmlFor="availability_date">
+                            <Label
+                              className="text-manduNeutral"
+                              htmlFor="availability_date"
+                            >
                               When will you be available?
                             </Label>
                             <Input
                               id="availability_date"
                               name="availability_date"
                               type="date"
-                              value={formatDateForInput(formData.availability_date)}
+                              value={formatDateForInput(
+                                formData.availability_date
+                              )}
                               onChange={handleDateChange}
                             />
-                            <p    className="text-sm text-manduNeutral">
+                            <p className="text-sm text-manduNeutral">
                               Please select your availability date
                             </p>
                           </div>
@@ -747,7 +812,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   </div>
 
                   <div className="pt-6 border-t border-neutral-200">
-                    <h3 className="text-xl mb-4 text-manduSecondary font-medium">Notification Preferences</h3>
+                    <h3 className="text-xl mb-4 text-manduSecondary font-medium">
+                      Notification Preferences
+                    </h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
@@ -760,7 +827,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="email_notifications">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="email_notifications"
+                        >
                           Email notifications for new job matches
                         </Label>
                       </div>
@@ -775,7 +845,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="sms_notifications">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="sms_notifications"
+                        >
                           SMS notifications for application updates
                         </Label>
                       </div>
@@ -790,7 +863,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             )
                           }
                         />
-                        <Label className="text-manduNeutral" htmlFor="newsletter_subscription">
+                        <Label
+                          className="text-manduNeutral"
+                          htmlFor="newsletter_subscription"
+                        >
                           Subscribe to newsletter
                         </Label>
                       </div>
@@ -802,7 +878,9 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
             {/* Account Actions */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-xl mb-4 font-medium text-manduSecondary">Account Actions</h3>
+              <h3 className="text-xl mb-4 font-medium text-manduSecondary">
+                Account Actions
+              </h3>
               <div className="flex flex-col md:flex-row gap-3">
                 <AlertDialog
                   open={showDeactivateDialog}
@@ -840,7 +918,10 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   onOpenChange={setShowDeleteDialog}
                 >
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full md:w-auto text-manduSecondary border border-manduSecondary">
+                    <Button
+                      variant="destructive"
+                      className="w-full md:w-auto text-manduSecondary border border-manduSecondary"
+                    >
                       Delete Account
                     </Button>
                   </AlertDialogTrigger>
@@ -869,7 +950,12 @@ const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
             {/* Save Changes */}
             <div className="flex justify-end space-x-4">
-              <Button className="text-manduCustom-secondary-blue border border-manduCustom-secondary-blue" variant="outline">Cancel</Button>
+              <Button
+                className="text-manduCustom-secondary-blue border border-manduCustom-secondary-blue"
+                variant="outline"
+              >
+                Cancel
+              </Button>
               <Button
                 className="bg-manduCustom-secondary-blue text-white hover:bg-neutral-800"
                 onClick={handleSubmit}
