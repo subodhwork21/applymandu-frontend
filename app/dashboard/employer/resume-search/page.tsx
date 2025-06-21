@@ -77,92 +77,94 @@ const fetchResumes = useCallback(async (url?: string) => {
 
     if (response?.ok && result?.success) {
       // Transform the API response to match the expected JobseekerProfile format
-      const transformedProfiles = result.data.map((item: any) => {
-        // Handle cases where jobseekerProfile might be null
-        if (!item.jobseekerProfile) {
-          return {
-            id: item.id,
-            first_name: 'Unknown',
-            last_name: '',
-            email: item.email,
-            phone: item.phone || '',
-            location: '',
-            skills: item.skills || [],
-            experience_years: 0,
-            last_active: 'Unknown',
-            education_level: '',
-            resume_url: null,
-            availability: 'Unknown',
-            profile_completeness: 0,
-            experiences: [],
-            educations: []
-          };
-        }
+      // ...inside your component or data fetching logic
 
-        // Calculate experience years
-        const totalExperienceYears = item.experiences.reduce((total: number, exp: any) => {
-          const startDate = new Date(exp.start_date);
-          const endDate = exp.currently_work_here ? new Date() : (exp.end_date ? new Date(exp.end_date) : new Date());
-          const years = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
-          return total + years;
-        }, 0);
+const transformedProfiles = (result.data ?? []).map((item: any) => {
+  const profile = item.jobseekerProfile ?? {};
+  const experiences = item.experiences ?? [];
+  const educations = item.educations ?? [];
+  const skills = item.skills ?? [];
 
-        // Get highest education
-        const highestEducation = item.educations.length > 0 ? item.educations[0].degree : '';
+  // Calculate total experience years
+  let experience_years = 0;
+  experiences.forEach((exp: any) => {
+    if (exp.start_date) {
+      const start = new Date(exp.start_date);
+      const end = exp.currently_work_here
+        ? new Date()
+        : exp.end_date
+        ? new Date(exp.end_date)
+        : new Date();
+      experience_years += (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365);
+    }
+  });
+  experience_years = Math.round(experience_years * 10) / 10;
 
-        // Format location
-        const locationParts = [
-          item.jobseekerProfile.district,
-          item.jobseekerProfile.municipality,
-          item.jobseekerProfile.city_tole
-        ].filter(Boolean);
-        const location = locationParts.join(', ');
+  // Highest education
+  let education_level = "";
+  if (educations.length > 0) {
+    // You can sort by degree_level or passed_year if you want
+    education_level = educations[0].degree ?? "";
+  }
 
-        // Calculate profile completeness
-        const hasProfile = !!item.jobseekerProfile;
-        const hasExperience = item.experiences.length > 0;
-        const hasEducation = item.educations.length > 0;
-        const hasSkills = item.skills.length > 0;
-        const profileCompleteness = [hasProfile, hasExperience, hasEducation, hasSkills]
-          .filter(Boolean).length / 4 * 100;
+  // Location formatting
+  const locationParts = [
+    profile.district,
+    profile.municipality,
+    profile.city_tole,
+  ].filter(Boolean);
+  const location = locationParts.join(", ");
 
-        return {
-          id: item.id,
-          first_name: item.jobseekerProfile.first_name || '',
-          last_name: item.jobseekerProfile.last_name || '',
-          email: item.email,
-          phone: item.phone || item.jobseekerProfile.mobile || '',
-          location: location,
-          skills: item.skills || [],
-          experience_years: Math.round(totalExperienceYears * 10) / 10, // Round to 1 decimal place
-          last_active: item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Unknown',
-          education_level: highestEducation,
-          resume_url: null, // Assuming resume URL is not provided in the response
-          availability: item.jobseekerProfile.preferred_job_type || 'Unknown',
-          profile_completeness: Math.round(profileCompleteness),
-          experiences: item?.experiences.map((exp: any) => ({
-            id: exp?.id,
-            position_title: exp?.position_title,
-            company_name: exp?.company_name,
-            start_date: new Date(exp?.start_date),
-            end_date: exp?.end_date ? new Date(exp?.end_date) : null,
-            currently_work_here: exp?.currently_work_here,
-            job_level: exp?.job_level,
-            industry: exp?.industry,
-            roles_and_responsibilities: exp?.roles_and_responsibilities
-          })),
-          educations: item.educations.map((edu: any) => ({
-            id: edu.id,
-            degree: edu.degree,
-            subject_major: edu.subject_major,
-            institution: edu.institution,
-            university_board: edu.university_board,
-            joined_year: new Date(edu.joined_year),
-            passed_year: edu.passed_year ? new Date(edu.passed_year) : null,
-            currently_studying: edu.currently_studying
-          }))
-        };
-      });
+  // Profile completeness
+  const hasProfile = !!item.jobseekerProfile;
+  const hasExperience = experiences.length > 0;
+  const hasEducation = educations.length > 0;
+  const hasSkills = skills.length > 0;
+  const profileCompleteness =
+    ([hasProfile, hasExperience, hasEducation, hasSkills].filter(Boolean).length /
+      4) *
+    100;
+
+  return {
+    id: item.id,
+    first_name: profile.first_name ?? "",
+    last_name: profile.last_name ?? "",
+    email: item.email ?? "",
+    phone: item.phone ?? profile.mobile ?? "",
+    location,
+    skills: skills,
+    experience_years,
+    last_active: item.updated_at
+      ? new Date(item.updated_at).toLocaleDateString()
+      : "Unknown",
+    education_level,
+    resume_url: null, // If you have a resume file, add here
+    availability: profile.preferred_job_type ?? "Unknown",
+    profile_completeness: Math.round(profileCompleteness),
+    experiences: experiences.map((exp: any) => ({
+      id: exp.id,
+      position_title: exp.position_title ?? "",
+      company_name: exp.company_name ?? "",
+      start_date: exp.start_date ? new Date(exp.start_date) : null,
+      end_date: exp.end_date ? new Date(exp.end_date) : null,
+      currently_work_here: exp.currently_work_here ?? false,
+      job_level: exp.job_level ?? "",
+      industry: exp.industry ?? "",
+      roles_and_responsibilities: exp.roles_and_responsibilities ?? "",
+    })),
+    educations: educations.map((edu: any) => ({
+      id: edu.id,
+      degree: edu.degree ?? "",
+      subject_major: edu.subject_major ?? "",
+      institution: edu.institution ?? "",
+      university_board: edu.university_board ?? "",
+      joined_year: edu.joined_year ? new Date(edu.joined_year) : null,
+      passed_year: edu.passed_year ? new Date(edu.passed_year) : null,
+      currently_studying: edu.currently_studying ?? false,
+    })),
+  };
+});
+
 
       setProfiles(transformedProfiles);
       setMeta(result.meta);

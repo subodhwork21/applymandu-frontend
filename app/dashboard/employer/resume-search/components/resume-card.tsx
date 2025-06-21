@@ -37,8 +37,8 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
   onDownload
 }) => {
   // Extract relevant data from the profile
-  const firstName = profile.jobseekerProfile?.first_name || 'Unknown';
-  const lastName = profile.jobseekerProfile?.last_name || '';
+  const firstName = profile?.first_name || 'Unknown';
+  const lastName = profile?.last_name || '';
   const email = profile.email || '';
   const phone = profile.phone || profile.jobseekerProfile?.mobile || '';
   

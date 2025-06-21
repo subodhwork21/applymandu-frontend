@@ -82,6 +82,8 @@ const ResumeDetailsModal: React.FC<ResumeDetailsModalProps> = ({
     }
   };
 
+  console.log(profile)
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -171,8 +173,8 @@ const ResumeDetailsModal: React.FC<ResumeDetailsModalProps> = ({
                     <Badge className="bg-blue-100 text-blue-800">
                       {profile.experience_level}
                     </Badge>
-                    <Badge className={getAvailabilityColor(profile.availability_status)}>
-                      {profile.availability_status.replace('_', ' ')}
+                    <Badge className={getAvailabilityColor(profile?.availability_status)}>
+                      {profile?.availability_status?.replace('_', ' ')}
                     </Badge>
                   </div>
                 </div>
@@ -248,7 +250,7 @@ const ResumeDetailsModal: React.FC<ResumeDetailsModalProps> = ({
               </Card>
 
               {/* Portfolio Links */}
-              {profile.portfolio_links.length > 0 && (
+              {profile?.portfolio_links?.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -278,8 +280,8 @@ const ResumeDetailsModal: React.FC<ResumeDetailsModalProps> = ({
 
             {/* Experience Tab */}
             <TabsContent value="experience" className="space-y-4">
-              {profile.experience.length > 0 ? (
-                profile.experience.map((exp) => (
+              {profile?.experience?.length > 0 ? (
+                profile?.experience?.map((exp) => (
                   <Card key={exp.id}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-3">
@@ -313,8 +315,8 @@ const ResumeDetailsModal: React.FC<ResumeDetailsModalProps> = ({
 
             {/* Education Tab */}
             <TabsContent value="education" className="space-y-4">
-              {profile.education.length > 0 ? (
-                profile.education.map((edu) => (
+              {profile?.education?.length > 0 ? (
+                profile?.education?.map((edu) => (
                   <Card key={edu.id}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-3">
@@ -375,8 +377,8 @@ const ResumeDetailsModal: React.FC<ResumeDetailsModalProps> = ({
 
             {/* Certifications Tab */}
             <TabsContent value="certifications" className="space-y-4">
-              {profile.certifications.length > 0 ? (
-                profile.certifications.map((cert) => (
+              {profile?.certifications?.length > 0 ? (
+                profile?.certifications?.map((cert) => (
                   <Card key={cert.id}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-3">
