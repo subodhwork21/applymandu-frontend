@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 import React from "react";
 import Link from "next/link";
-import { Target, Eye, Star, Users, Mail } from "lucide-react";
+import { Target, Eye, Star, Users, Mail, LucideUsers, LucideBarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -20,11 +20,12 @@ const AboutPage = () => {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="bg-white border-b border-neutral-200 py-16">
-          <div className="container mx-auto px-4">
+        <section className="bg-white relative border-b bg-[url('/pattern.jpg')] bg-no-repeat bg-cover bg-center border-neutral-200 py-16">
+         <div className="absolute inset-0 bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90"></div>
+          <div className="container relative mx-auto px-4 text-white">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <h1 className="text-4xl font-bold mb-4">About Applymandu</h1>
-              <p className="text-neutral-600 text-lg">
+              <h1 className="text-4xl mb-4 text-white font-nasalization font-normal">About Applymandu</h1>
+              <p className="text-white text-lg font-medium">
                 Connecting talent with opportunity across Nepal and beyond
               </p>
             </div>
@@ -44,25 +45,27 @@ const AboutPage = () => {
                 />
               </div>
               <div>
-                <h2 className="text-3xl font-bold mb-6">Our Story</h2>
-                <p className="text-neutral-600 mb-4 text-lg">
+                <h2 className="text-4xl font-bold mb-6 font-nasalization text-manduSecondary">Our Story</h2>
+                <p className="text-bluePrime mb-4 text-lg">
                   Founded in 2025, Applymandu emerged from a simple vision: to
                   transform how people find jobs and companies discover talent
                   in Nepal.
                 </p>
-                <p className="text-neutral-600 mb-8 text-lg">
+                <p className="text-bluePrime mb-8 text-lg">
                   We have grown from a small startup to become Nepals leading
                   career platform, connecting thousands of professionals with
                   their dream careers.
                 </p>
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-neutral-50 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold mb-2">50K+</div>
-                    <div className="text-neutral-600">Active Users</div>
+                  <div className="flex flex-col bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90 content-between justify-center items-center bg-manduCustom-secondary-blue py-[11px] px-[26px] text-center rounded-[10px]">
+                    <LucideUsers className=" text-5xl mb-3 text-blue-200" />
+                    <div className="text-base font-bold mb-2 text-white">50K+</div>
+                    <div className="text-white text-sm">Active Users</div>
                   </div>
-                  <div className="bg-neutral-50 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold mb-2">1000+</div>
-                    <div className="text-neutral-600">Companies</div>
+                  <div className="flex flex-col bg-gradient-to-r from-[#000389] to-[#001C4A] opacity-90 content-between justify-center items-center bg-manduCustom-secondary-blue py-[11px] px-[26px] text-center rounded-[10px]">
+                    <LucideBarChart className=" text-5xl mb-3 text-blue-200" />
+                    <div className="text-base font-bold mb-2 text-white">1000+</div>
+                    <div className="text-white text-sm">Companies</div>
                   </div>
                 </div>
               </div>
@@ -74,8 +77,8 @@ const AboutPage = () => {
         <section className="py-16 bg-neutral-50 2xl:px-0 lg:px-12 px-4">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold mb-4">Our Mission & Values</h2>
-              <p className="text-neutral-600 text-lg">
+              <h2 className="text-4xl font-normal mb-4 font-nasalization text-manduSecondary">Our Mission & Values</h2>
+              <p className="text-manduSecondary text-lg font-medium">
                 Guided by our commitment to excellence and innovation
               </p>
             </div>
